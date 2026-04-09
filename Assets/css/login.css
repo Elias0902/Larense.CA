@@ -1,0 +1,107 @@
+.card-body {
+    background-color: white;
+    border-radius: 20px;
+    padding: 2rem;
+}
+
+.input_username, .input_pw {
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 12px 50px 12px 20px; /* Espacio para iconos laterales */
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.input_username:focus, .input_pw:focus {
+    background-color: white;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Error container con altura fija */
+.error-container {
+    min-height: 20px;
+    margin-top: 5px;
+    padding-left: 1px; /* Alinea con input-group-text */
+}
+
+.error-messege {
+    color: #dc3545;
+    font-size: 0.875rem;
+    display: block;
+}
+
+/* Icono de validación superpuesto */
+.input-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #28a745;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.input-icon.show {
+    opacity: 1;
+}
+
+.input-icon.error {
+    color: #dc3545;
+}
+
+/* Estados de validación */
+.input-error {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25) !important;
+}
+
+.input-valid {
+    border-color: #28a745 !important;
+    background-color: #f0fff4;
+    box-shadow: 0 0 0 0.2rem rgba(40,167,69,.25) !important;
+}
+
+.btn_ingresar {
+    background: linear-gradient(135deg, #000 0%, #333 100%);
+    color: white !important;
+    border: none;
+    border-radius: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.6s ease;
+    width: 100%;
+    cursor: pointer;
+}
+
+.btn_ingresar:hover {
+  transition: all 0.6s ease;
+  background: linear-gradient(135deg, #ff0000 0%, #5b3434 100%);
+    color: white !important;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .card-body {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .input_username, .input_pw {
+        padding: 10px 40px 10px 40px;
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+    
+    .btn_ingre {
+        padding: 14px;
+        font-size: 1.1rem;
+    }
+}

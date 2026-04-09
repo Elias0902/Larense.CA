@@ -1,0 +1,40 @@
+/*estilos del mensage de error*/
+.error-messege {
+    color: red;
+    font-size: 1rem;
+}
+
+.modal-body {
+  position: relative;
+}
+
+.input-icon span {
+  display: block;
+  line-height: 1;
+}
+
+
+.input-icon {
+  position: absolute;
+  font-size: 1.5rem;
+  right: 1.5rem;
+  top: 44%; /* cambia de 40% a 50% */
+  transform: translateY(); /* centra verticalmente */
+  user-select: none;
+  color: green; /* color por defecto para válido */
+}
+
+.input-icon.error {
+  color: red;
+}
+
+.input-error {
+  border-color: red !important;
+  box-shadow: 0 0 5px red !important;
+}
+
+.input-valid {
+  border-color: green !important;
+  box-shadow: 0 0 5px green !important;
+}
+

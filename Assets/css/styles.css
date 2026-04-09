@@ -1,0 +1,82 @@
+.dolar_group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    background-color: rgba(21, 252, 0, 0.164);
+    border-radius: 50px;
+    border: 1px solid rgba(21, 252, 0, 0.544);
+}
+
+.tasa_text {
+    font-size: 1.1rem;
+    color: rgb(5, 61, 0);
+}
+
+.valor_text {
+    font-size: 1.1rem;
+    color: black;
+    font-weight: bold;
+}
+
+.stock-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.stock-badge:hover {
+    transform: scale(1.05);
+}
+
+.stock-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.stock-low {
+    background: linear-gradient(45deg, #ff4444, #ff6b6b);
+    color: white;
+}
+
+.stock-low .stock-dot {
+    background: #ff0000;
+    box-shadow: 0 0 10px #ff4444;
+}
+
+.stock-medium {
+    background: linear-gradient(45deg, #ffaa00, #ffdd44);
+    color: #333;
+}
+
+.stock-medium .stock-dot {
+    background: #ff8800;
+    box-shadow: 0 0 10px #ffaa00;
+}
+
+.stock-high {
+    background: linear-gradient(45deg, #0BDA51, #20E277);
+    color: white;
+}
+
+.stock-high .stock-dot {
+    background: #00cc44;
+    box-shadow: 0 0 10px #0BDA51;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+}
+
+.input-valid { border-color: #28a745 !important; }
+.input-error { border-color: #dc3545 !important; }
+.error { color: #dc3545; }

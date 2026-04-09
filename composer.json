@@ -1,0 +1,27 @@
+{
+    "name": "usuario/natys",
+    "description": "Sistema de Gestión de Pedidos, Créditos y Compras para La Larense C.A.",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^7.0",
+        "setasign/fpdf": "^1.8"
+    },
+    "authors": [
+        {
+            "name": "moises"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/",
+            "config\\": "config/",
+            "api\\": "api/",
+            "assets\\": "assets/",
+            "bd\\": "bd/",
+            "components\\": "components/",
+            "helpers\\": "helpers/",
+            "src\\": "src/",
+            "vendor\\": "vendor/"
+        }
+    }
+}
