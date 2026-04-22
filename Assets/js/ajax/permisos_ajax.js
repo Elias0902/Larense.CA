@@ -65,7 +65,7 @@ function llenarTablaPermisos(data) {
     });
 }
 
-// 🔥 FUNCIÓN AJAX DIRECTA (para oninput)
+// FUNCIÓN AJAX DIRECTA (para oninput)
 function togglePermisoAjax(permisoElement) {
     const idModulo = permisoElement.dataset.modulo;
     const idPermiso = permisoElement.dataset.permiso;

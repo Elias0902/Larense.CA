@@ -111,7 +111,7 @@
                     $bitacora->manejarAccion('agregar', $bitacora_json);
 
                     //carga la vista
-                    //require_once 'app/views/permisosView.php';
+                    require_once 'app/views/permisosView.php';
 
                     // termina el script
                     exit();
@@ -122,7 +122,7 @@
                     setError($resultado['msj']);
 
                     //carga la vista
-                    //require_once 'app/views/permisosView.php';
+                    require_once 'app/views/permisosView.php';
 
                     // termina el script
                     exit();
@@ -144,7 +144,7 @@
     setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/categoriasView.php';
+    require_once 'app/views/permisosView.php';
                 
     // termina el script
     exit();
@@ -299,7 +299,7 @@
                     setError($resultado['msj']);
 
                     //carga la vista
-                    require_once 'app/views/dashboard_permisos.php';
+                    require_once 'app/views/permisosView.php';
 
                     // termina el script
                     exit();

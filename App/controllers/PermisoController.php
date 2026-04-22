@@ -87,7 +87,7 @@
                     $bitacoras = $resultado['data'];
 
                     //carga la vista
-                    require_once 'app/views/permisosView.php';
+                    require_once 'app/views/dashboard_bitacora.php';
 
                     // termina el script
                     exit();
@@ -98,7 +98,7 @@
                     setError($resultado['msj']);
 
                     //carga la vista
-                    require_once 'app/views/permisosView.php';
+                    require_once 'app/views/dashboard_bitacora.php';
 
                     // termina el script
                     exit();
@@ -120,7 +120,7 @@
     //setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/categoriasView.php';
+    //require_once 'app/views/dashboard_categorias.php';
                 
     // termina el script
     //exit();
@@ -253,10 +253,10 @@
             setError('Todos los campos son requeridos no se puede enviar vacios.');
 
             //redirec
-            //header('Location: index.php?url=bitacora');
+            header('Location: index.php?url=roles');
 
             //termina el script
-            //exit();
+            exit();
         }
 
             // se arma el josn
@@ -286,7 +286,7 @@ function Actualizar() {
     $modelo = new Permiso();
     $resultado = $modelo->manejarAccion('actualizar', json_encode($datos));
     
-    // 🔥 ENVIAR resultado COMPLETO del modelo
+    // ENVIAR resultado COMPLETO del modelo
     echo json_encode($resultado);
     exit();
 }

@@ -1018,6 +1018,7 @@
 
     <script src="assets/js/ajax/permisos_ajax.js"></script>
     <script src="assets/js/ajax/roles_ajax.js"></script>
+    <script src="assets/js/validaciones/roles_validaciones.js"></script>
     <script src="assets/js/animacionesJs/dashboard_perfiles.js"></script>
     <?php require_once 'components/scripts.php'; ?>
     <?php //require_once 'components/footer.php'; ?>
