@@ -1,0 +1,26 @@
+[33me848ebb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: commit (merge): Merge remote changes
+[33m2c51063[m HEAD@{1}: commit: Factorizacion Js y Renombrar View en lugar de dashboard
+[33m126a338[m[33m ([m[1;31morigin/master[m[33m)[m HEAD@{2}: reset: moving to origin/master
+[33m850d443[m HEAD@{3}: commit: Solo cambios del modo oscuro del header y dashboard modo oscuro vista
+[33meda6a62[m HEAD@{4}: commit (merge): Finalizar unión de cambios remotos con ajustes locales
+[33m91350c8[m HEAD@{5}: commit: cambios del perfil y las tablas
+[33m1d2bc5b[m HEAD@{6}: commit: Ajuste delmodo oscuro en el header
+[33meedf928[m HEAD@{7}: commit: cambios modo oscuro footer los clientes el select
+[33m10616b0[m HEAD@{8}: commit: cambios de modo oscruro
+[33ma122808[m HEAD@{9}: pull origin main: Fast-forward
+[33m7d37aab[m HEAD@{10}: pull origin main: Fast-forward
+[33m10d11e0[m HEAD@{11}: pull origin main: Fast-forward
+[33m7af6c8f[m HEAD@{12}: commit: quite 2fa eso no va
+[33m4587ec0[m HEAD@{13}: commit: configuracion de acceso ya registra la hora cuando entra, elimine el ver como de un usuario ya que solo debe verlo admin y configuracion del header no cumple ninguna funcion
+[33m521eccd[m HEAD@{14}: commit: quite boton de subir pdf
+[33m490b373[m HEAD@{15}: commit: manual de usuario y acomodar el sidebar (menu desplegable) clientes antes que catalogo
+[33m15705fc[m HEAD@{16}: pull origin main: Fast-forward
+[33ma127a45[m HEAD@{17}: commit: Landing en vista y abre directamente al login tiene el ecomerse dentro
+[33m31c933d[m HEAD@{18}: commit: Cambios landing y E comerce
+[33m148c6fe[m HEAD@{19}: pull origin main: Fast-forward
+[33m1d90f34[m HEAD@{20}: commit: integracion de bitacoras en el modulo de tipos de Cliente
+[33ma6fc24b[m HEAD@{21}: commit: integracion de bitacoras en el modulo de tipos de clientes
+[33ma51058d[m HEAD@{22}: commit: integracion de bitacoras en el modulo de materias primas
+[33m6c65c97[m HEAD@{23}: commit: integracion de bitacoras en el modulos de productos
+[33mb30953d[m HEAD@{24}: commit: integracion de bitacoras en el modulos de productos
+[33m70884df[m HEAD@{25}: clone: from https://github.com/Elias0902/Larense.CA
