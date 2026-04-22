@@ -57,7 +57,7 @@ function llenarTablaPermisos(data) {
          data-id-rol="${data[0].id_rol}">
         <i class="fas fa-check"></i>
     </div>
-</td>`;
+    </td>`;
         });
 
         fila += '</tr>';

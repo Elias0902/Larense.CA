@@ -194,9 +194,15 @@
           <h4 class="text-section"><i class="fa fa-cog"></i> Configuracion</h4>
         </li>
         <li class="nav-item">
-          <a href="index.php?url=perfiles">
+          <a href="index.php?url=roles">
             <i class="fas fa-user-shield"></i>
-            <p>Perfiles, Roles y Permisos</p>
+            <p>Roles y Permisos</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="index.php?url=usuarios">
+            <i class="fas fa-users"></i>
+            <p>Usuarios</p>
           </a>
         </li>
         <li class="nav-item">

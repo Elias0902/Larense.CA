@@ -2,7 +2,7 @@
 function ObtenerRoles() {
 
     // url del ajax
-  fetch('index.php?url=roles&action=')
+  fetch('index.php?url=roles&action=obtener_roles')
     
   // reponse de la peticion
     .then(response => response.json())
@@ -63,3 +63,34 @@ function poblarSelectRoles(roles) {
 
 // llama la funcion por defecto cada ves que se carga la pagina
 ObtenerRoles();
+
+// funcion para optener Rol
+function ObtenerRol(id) {
+      //console.log(id);
+
+    // url del ajax
+  fetch('index.php?url=roles&action=obtener&ID=' + id)
+    
+  // reponse de la peticion
+    .then(response => response.json())
+    
+    // apunte de la data
+    .then(data => {
+    
+      //console.log(data);
+
+      document.getElementById('id').value = data.id_rol;
+    
+      document.getElementById('nombreRolEdit').value = data.nombre_rol;
+    
+    })
+    
+    // en caso de error
+    .catch(error => {
+    
+    // imprime el error
+      console.error('Error:', error);
+    
+    });
+  
+}
