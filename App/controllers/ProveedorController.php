@@ -51,12 +51,12 @@
        
         // instacia el modelo
         $modelo = new Proveedor();
+        $permiso = new Permiso();
         $bitacora = new Bitacora();
 
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        /*$permiso = new Permiso();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -72,7 +72,7 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida*/
 
@@ -114,13 +114,13 @@
                 else {
                                 
                     // usa mensaje dinamico del modelo
-                    //setError($resultado['msj']);
+                    setError($resultado['msj']);
 
                     //carga la vista
                     require_once 'app/views/proveedoresView.php';
 
                     // termina el script
-                    //exit();
+                    exit();
                 }
             }
             catch (Exception $e) {
@@ -137,27 +137,27 @@
         }
     
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error acceso no permitido");
+    setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/proveedoresView.php';
+    require_once 'app/views/proveedoresView.php';
                 
     // termina el script
-    //exit();
+    exit();
     
-//}
+}
 
     //funcion para guardar datos
     function Agregar() {
 
         // instacia el modelo
         $modelo = new Proveedor();
+        $permiso = new Permiso();
         $bitacora = new Bitacora();
 
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
         
-        /*$permiso = new Permiso();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -268,27 +268,27 @@
         }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=productoss');
+    header('Location: index.php?url=productoss');
             
     // termina el script
-    //exit();
+    exit();
         
-    //}
+    }
 
     //funcion para modificar datos
     function Actualizar() {
 
          // instacia el modelo
         $modelo = new Proveedor();
+        $permiso = new Permiso();
         $bitacora = new Bitacora();
 
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        /*$permiso = new Permiso();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -304,7 +304,7 @@
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
         
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
 
             // Ejecutar acción permitida*/
 
@@ -407,15 +407,15 @@
         }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=productos');
+    header('Location: index.php?url=productos');
             
     // termina el script
-    //exit();
+    exit();
 
-    //}
+    }
 
     // function para obtener un dato
     function Obtener() {
@@ -483,12 +483,12 @@
 
          // instacia el modelo
         $modelo = new Proveedor();
+        $permiso = new Permiso();
         $bitacora = new Bitacora();
 
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        /*$permiso = new Permiso();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -503,7 +503,7 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida*/
 
@@ -591,13 +591,13 @@
     }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=productos');
+    header('Location: index.php?url=productos');
             
     // termina el script
-    //exit();    
+    exit();    
     
-//}
+}
 ?>

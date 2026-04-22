@@ -2,7 +2,7 @@
  * JavaScript para categoriasView.php
  * Gestión de Categorías
  */
-
+/*
 document.addEventListener('DOMContentLoaded', function() {
     inicializarCategorias();
 });
@@ -562,3 +562,4 @@ window.categoriasFunctions = {
     verProductosPorCategoria,
     reinicializarCategorias
 };
+*/

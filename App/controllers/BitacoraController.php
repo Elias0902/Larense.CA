@@ -38,24 +38,27 @@
        
         // instacia el modelo
         $modelo = new Bitacora();
-        //$permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         // se arma el json
-        //$permiso_json = json_encode([
-        //    'modulo' => 'Categorias',
-        //    'permiso' => 'Consultar',
-         //   'rol' => $_SESSION['s_usuario']['id_rol_usuario']
-        //]);
+        $permiso_json = json_encode([
+            'modulo' => 'Categorias',
+            'permiso' => 'Consultar',
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
 
 
         // captura el resultado de la consulta
-        //$status = $permiso->manejarAccion("verificar", $permiso_json);
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
 
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        //if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida
 
@@ -74,6 +77,19 @@
 
                     // extrae los datos
                     $bitacoras = $resultado['data'];
+
+                    // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Bitacoras',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en el dashboard de bitaoras en el sistema',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
 
                     //carga la vista
                     require_once 'app/views/bitacoraView.php';
@@ -106,126 +122,18 @@
             }
         }
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error acceso no permitido");
+    setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/categoriasView.php';
+    require_once 'app/views/categoriasView.php';
                 
     // termina el script
-    //exit();
+    exit();
     
-//}
+}
 
     //funcion para guardar datos
-    function Agregar() {
-
-        // instacia el modelo
-        $modelo = new Categoria();
-        $permiso = new Permiso();
-        //$bitacora = new Bitacora();
-
-        /*// se arma el json
-        $permiso_json = json_encode([
-            'modulo' => 'Categorias',
-            'permiso' => 'Agregar',
-            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
-        ]);
-
-        // captura el resultado de la consulta
-        $status = $permiso->manejarAccion("verificar", $permiso_json);
-
-        //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
-        //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
-        //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] === true) {*/
-            
-            // Ejecutar acción permitida
-
-            // obtiene y sinatiza los valores
-            $nombre_categoria = filter_var($_POST['nombreCategoria'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
-
-            // valida si los campos no estan vacios
-            if (empty($nombre_categoria)) {
-
-                // manda mensaje de error
-                setError('Todos los campos son requeridos no se puede enviar vacios.');
-
-                //redirec
-                header('Location: index.php?url=bitacora');
-
-                //termina el script
-                exit();
-            }
-
-            // se arma el josn
-            $categoria_json = json_encode([
-                'nombre' => $nombre_categoria
-            ]);
-
-                // para manejo de errores
-                try {
-
-                    // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
-                    // primer para metro la accion y luego el objeto usuario_json
-                    $resultado = $modelo->manejarAccion('agregar', $categoria_json);
-
-                    // valida si exixtes el staus del resultado y si es true 
-                    if (isset($resultado['status']) && $resultado['status'] === true) {
-
-                        // usa mensaje dinamico del modelo
-                        setSuccess($resultado['msj']);
-
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Categorias',
-                            'titulos' => 'Registro de Categorias',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro de la siguiente categoria: ' . $categoria_json['nombre'] . ', en 
-                                                el modulo de categorias.',
-                            'fecha' => date('Y-m-d H:i:s')
-                        ]);
-
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
-                    }
-                    else {
-                                    
-                        // usa mensaje dinamico del modelo
-                        setError($resultado['msj']);
-
-                        //redirect
-                        header('Location: index.php?url=bitacora');
-
-                    }
-                }
-                catch (Exception $e) {
-
-                    //mensaje del exception de pdo
-                    error_log('Error al registrar...' . $e->getMessage());
-                    
-                    // carga la alerta
-                    setError('Error en operacion.');
-                }
-
-            //redirect
-            header('Location: index.php?url=bitacora');
-            
-            // termina el script
-            exit();
-        }
-
-    //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
-
-    //redirect
-    //header('Location: index.php?url=categorias');
-            
-    // termina el script
-    //exit();
-        
-    //}
-
+    function Agregar() {}
 
     // function para obtener un dato
     function Obtener() {

@@ -51,28 +51,28 @@
        
         // instacia el modelo
         $modelo = new TipoCliente();
+        $permiso = new Permiso();
         $bitacora = new Bitacora();
 
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        //$permiso = new Permiso();
 
         // se arma el json
-        //$permiso_json = json_encode([
-        //    'modulo' => 'Categorias',
-        //    'permiso' => 'Consultar',
-         //   'rol' => $_SESSION['s_usuario']['id_rol_usuario']
-        //]);
+        $permiso_json = json_encode([
+            'modulo' => 'Categorias',
+            'permiso' => 'Consultar',
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
 
 
         // captura el resultado de la consulta
-        //$status = $permiso->manejarAccion("verificar", $permiso_json);
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
 
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        //if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida
 
@@ -114,7 +114,7 @@
                 else {
                                 
                     // usa mensaje dinamico del modelo
-                    //setError($resultado['msj']);
+                    setError($resultado['msj']);
 
                     //carga la vista
                     require_once 'app/views/tipoClientesView.php';
@@ -136,15 +136,15 @@
             }
         }
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error acceso no permitido");
+    setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/categoriasView.php';
+    require_once 'app/views/categoriasView.php';
                 
     // termina el script
-    //exit();
+    exit();
     
-//}
+}
 
     //funcion para guardar datos
     function Agregar() {
@@ -157,7 +157,7 @@
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        /*// se arma el json
+        // se arma el json
         $permiso_json = json_encode([
             'modulo' => 'Tipos de Clientes',
             'permiso' => 'Agregar',
@@ -170,7 +170,7 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] === true) {*/
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida
 
@@ -253,33 +253,33 @@
         }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=tipos_clientes');
+    header('Location: index.php?url=tipos_clientes');
             
     // termina el script
-    //exit();
+    exit();
         
-    //}
+    }
 
     //funcion para modificar datos
     function Actualizar() {
 
          // instacia el modelo
         $modelo = new TipoCliente();
+        $permiso = new Permiso();
         $bitacora = new Bitacora();
 
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        /*$permiso = new Permiso();
 
         // se arma el json
         $permiso_json = json_encode([
             'modulo' => 'Tipos de Clientes',
             'permiso' => 'Modificar',
-            'rol' => $_SESSION['s_usuario']['usuario_rol_id']
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
 
         // captura el resultado de la consulta
@@ -288,7 +288,7 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida*/
 
@@ -393,15 +393,15 @@
         }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=categorias');
+    header('Location: index.php?url=categorias');
             
     // termina el script
-    //exit();
+    exit();
 
-    //}
+}
 
     // function para obtener un dato
     function Obtener() {
@@ -468,12 +468,12 @@
 
          // instacia el modelo
         $modelo = new TipoCliente();
+        $permiso = new Permiso();
         $bitacora = new Bitacora();
 
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        /*$permiso = new Permiso();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -488,7 +488,7 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida*/
 
@@ -581,13 +581,13 @@
     }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=tipos_clientes');
+    header('Location: index.php?url=tipos_clientes');
             
     // termina el script
-    //exit();    
+    exit();    
     
-//}
+}
 ?>
