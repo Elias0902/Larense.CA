@@ -36,7 +36,7 @@
     <!--<link rel="stylesheet" href="assets/css/bootstrap.min.css" />-->
     <link rel="stylesheet" href="assets/css/styles.css" />
     <link rel="stylesheet" href="assets/css/plugins.min.css" />
-    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="assets/css/Kaiadmin.min.css" />
     <!-- Boostrap CSS -->
     <link rel="stylesheet" href="assets/css/boostrap/bootstrap-grid.css">
     <link rel="stylesheet" href="assets/css/boostrap/bootstrap-grid.css.map">
@@ -57,3 +57,5 @@
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="assets/css/demo.css" />
     
+    <!-- CSS Personalizados -->
+    <link rel="stylesheet" href="assets/css/custom.css" />

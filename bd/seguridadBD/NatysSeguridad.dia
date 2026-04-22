@@ -80,7 +80,7 @@
                 <dia:real val="3.5"/>
             </dia:attribute>
             <dia:attribute name="text_colour">
-                <dia:color val="#000099"/>
+                <dia:color val="#00FF00"/>
             </dia:attribute>
             <dia:attribute name="line_colour">
                 <dia:color val="#000000"/>
@@ -793,7 +793,7 @@
                 <dia:real val="3.5"/>
             </dia:attribute>
             <dia:attribute name="text_colour">
-                <dia:color val="#00FF00"/>
+                <dia:color val="#000099"/>
             </dia:attribute>
             <dia:attribute name="line_colour">
                 <dia:color val="#000000"/>
@@ -986,7 +986,7 @@
                 <dia:real val="3.5"/>
             </dia:attribute>
             <dia:attribute name="text_colour">
-                <dia:color val="#000099"/>
+                <dia:color val="#FF0000"/>
             </dia:attribute>
             <dia:attribute name="line_colour">
                 <dia:color val="#000000"/>
@@ -1228,6 +1228,24 @@
                 </dia:composite><dia:composite type="table_attribute">
                     <dia:attribute name="name">
                 <dia:string>#id_rol_usuario#</dia:string>
+                </dia:attribute>
+                <dia:attribute name="type">
+                    <dia:string>##</dia:string>
+                </dia:attribute>
+                    <dia:attribute name="comment">
+                <dia:string>##</dia:string>
+                </dia:attribute><dia:attribute name="primary_key">
+                    <dia:boolean val="false"/>
+                </dia:attribute>
+                <dia:attribute name="nullable">
+                    <dia:boolean val="false"/>
+                </dia:attribute>
+                <dia:attribute name="unique">
+                    <dia:boolean val="false"/>
+                </dia:attribute>
+                </dia:composite><dia:composite type="table_attribute">
+                    <dia:attribute name="name">
+                <dia:string>#img_usuario#</dia:string>
                 </dia:attribute>
                 <dia:attribute name="type">
                     <dia:string>##</dia:string>
@@ -1502,7 +1520,7 @@
                 <dia:color val="#000000"/>
             </dia:attribute>
             <dia:attribute name="line_colour">
-                <dia:color val="#FF0000"/>
+                <dia:color val="#00FF00"/>
             </dia:attribute>
             <dia:attribute name="line_width">
                 <dia:real val="0.10000000000000001"/>
@@ -1709,7 +1727,7 @@
                 <dia:color val="#000000"/>
             </dia:attribute>
             <dia:attribute name="line_colour">
-                <dia:color val="#FF0000"/>
+                <dia:color val="#00FF00"/>
             </dia:attribute>
             <dia:attribute name="line_width">
                 <dia:real val="0.10000000000000001"/>

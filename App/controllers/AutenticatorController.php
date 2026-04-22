@@ -7,8 +7,9 @@
     use PHPMailer\PHPMailer\Exception;
 
 
-    //llama al modelo
-    require_once 'app/models/AutenticatorModel.php';
+    //llama a los modelos
+    require_once 'app/models/AutenticatorModel.php'; // al modelo de Autenticator
+    require_once 'app/models/BitacoraModel.php'; // llama al modelo bitacra 
     
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -95,6 +96,10 @@
 
         // crea el objeto
         $modelo = new Autenticator();
+        $bitacora = new Bitacora(); // se crea el modelo bitacora
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         //obtiene los valores y lo sinatiza
         $username = filter_var($_POST['username'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -127,6 +132,18 @@
 
                 // usa el mensaje dinamico del modelo
                 setSuccess($resultado['msj']);
+
+                // se arma el json de bitacora
+                    $bitacora_json = json_encode([
+                        'id_usuario' => null,
+                        'modulo' => 'Autenticator',
+                        'accion' => 'Registrarse',
+                        'descripcion' => 'El usuario:' . ' ' . $username . ' ' . 'se ha registrado en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
             }
             else {
                 
@@ -135,7 +152,7 @@
                 setError($mensajeError);
 
                 //redirect
-                header('Location: index.php?url=autenticator&action=register');
+                header('Location: index.php?url=autenticator&action=');
             }
         }
         catch (Exception $e) {
@@ -146,7 +163,7 @@
         }
 
         //redirect
-        header('Location: index.php?url=autenticator&action=login');
+        header('Location: index.php?url=autenticator&action=');
         exit();
     }
 
@@ -155,6 +172,10 @@
 
         // crea el objeto
         $modelo = new Autenticator();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         //obtiene y sinatiza los datos
         $username = filter_var($_POST['username'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -164,7 +185,7 @@
         if (empty($username) || empty($password)) {
 
             setError("Todos los campos no pueden ser enviados vacios.");
-            header("Location: index.php?url=atenticator?action=login");
+            header("Location: index.php?url=atenticator?action=");
             exit();
         }
 
@@ -199,11 +220,24 @@
                     'nombre_usuario' => $usuario['nombre_usuario'],
                     'email_usuario' => $usuario['email_usuario'],
                     'id_rol_usuario' => $usuario['id_rol_usuario'],
-                    'rol_nombre_usuario' => $usuario['nombre_rol'],
+                    'rol_usuario' => $usuario['nombre_rol'],
+                    'imagen_perfil' => $usuario['img_usuario'] ?? null,
                 ];
 
                 // mensaje de bienvenida
                 setSuccess("Bienvenido!. Usuario autenticado correctamente.");
+
+                // se arma el json de bitacora
+                $bitacora_json = json_encode([
+                    'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                    'modulo' => 'Autenticator',
+                    'accion' => 'LOGIN',
+                    'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha iniciado session en el sistema.',
+                    'fecha' => $fecha
+                ]);
+
+                //realiza la insercion de la bitacora
+                $bitacora->manejarAccion('agregar', $bitacora_json);
 
                 // redirect
                 header("Location: index.php?url=dashboard");
@@ -217,7 +251,7 @@
                 setError("Datos incorrectos intentelo de nuevo.");
 
                 // redirect
-                header("Location: index.php?url=autenticator&action=login");
+                header("Location: index.php?url=autenticator&action=");
 
                 // termina el script
                 exit();
@@ -229,7 +263,7 @@
             setError("Usuario no encontrado intentelo de nuevo o cree una cuenta.");
 
             // redirect
-            header("Location: index.php?url=autenticator&action=login");
+            header("Location: index.php?url=autenticator&action=");
 
             //termina el script
             exit();
@@ -239,11 +273,29 @@
     // funcion para cerrar session de un usuario
     function Cerrar_Session() {
 
+        // se crea el modelo bitacora
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         // inicializa la session
         session_start();
 
         // destruye la session
         session_destroy();
+
+        // se arma el json de bitacora
+        $bitacora_json = json_encode([
+            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+            'modulo' => 'Autenticator',
+            'accion' => 'Cerrar Session',
+            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha Cerrado session en el sistema.',
+            'fecha' => $fecha
+        ]);
+
+        //realiza la insercion de la bitacora
+        $bitacora->manejarAccion('agregar', $bitacora_json);
 
         // redirect
         header('location:index.php');
@@ -277,6 +329,10 @@
         
         //crea el objeto
         $modelo = new Autenticator();
+        $bitacora = new Bitacora(); // se crea el modelo bitacora
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
             //obtiene y sinatiza los datos
             $username = filter_var($_POST['username'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -316,7 +372,19 @@
     
                     // usa el mensaje dinamico del modelo
                     setSuccess($resultado['msj']);
-    
+
+                    // se arma el json de bitacora
+                    $bitacora_json = json_encode([
+                        'id_usuario' => null,
+                        'modulo' => 'Autenticator',
+                        'accion' => 'Cambio de Clave',
+                        'descripcion' => 'El usuario:' . ' ' . $username . ' ' . 'ha realizado un cambio de clave en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     //redirect
                     header('Location: index.php?url=autenticator&action=login');
                 }
@@ -384,7 +452,7 @@
                 setSuccess($resultado['msj']);
 
                 //redirect
-                header('Location: index.php?url=autenticator&action=ajustes');
+                header('Location: index.php?url=autenticator&action=');
             }
             else {
                 

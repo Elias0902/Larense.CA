@@ -3,25 +3,25 @@
             <nav class="pull-left">
               <ul class="nav">
                 <li class="nav-item">
-                  <a class="nav-link" href="http://www.themekita.com">
-                    ThemeKita
+                  <a class="nav-link" href="">
+                    Larense CA
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#"> Help </a>
+                  <a class="nav-link" href="#"> Ayuda </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#"> Licenses </a>
+                  <a class="nav-link" href="#"> Instagram </a>
                 </li>
               </ul>
             </nav>
             <div class="copyright">
-              2024, made with <i class="fa fa-heart heart text-danger"></i> by
-              <a href="http://www.themekita.com">ThemeKita</a>
+              2026 Larense CA</i>
+              <a href="https://natys.com.ve/home">Natys</a>
             </div>
             <div>
               Distributed by
-              <a target="_blank" href="https://themewagon.com/">ThemeWagon</a>.
+              <a target="_blank" href="https://www.instagram.com/distlarense/">Larense</a>.
             </div>
           </div>
         </footer>
@@ -215,9 +215,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="custom-toggle">
-          <i class="icon-settings"></i>
         </div>
       </div>
       <!-- End Custom template -->

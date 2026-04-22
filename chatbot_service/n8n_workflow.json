@@ -1,0 +1,133 @@
+{
+  "name": "Natys Asistente - Larense C.A",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatbot-larence",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook - Chatbot",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "chatbot-larence"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Procesar datos del webhook\nconst body = $input.first().json.body;\n\nreturn {\n  json: {\n    message: body.message || '',\n    session_id: body.session_id || 'default',\n    timestamp: body.timestamp || new Date().toISOString(),\n    user_info: body.user_info || {}\n  }\n};"
+      },
+      "name": "Parse Input",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5000/webhook/chatbot",
+        "body": {
+          "message": "={{ $json.message }}",
+          "session_id": "={{ $json.session_id }}",
+          "user_info": "={{ $json.user_info }}"
+        },
+        "options": {}
+      },
+      "name": "Python Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Formatear respuesta para el frontend\nconst response = $input.first().json;\n\nreturn {\n  json: {\n    success: true,\n    response: response.response || 'Lo siento, no pude procesar tu consulta.',\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "name": "Format Response",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "chatbot",
+      "id": "chatbot-tag"
+    },
+    {
+      "name": "larence",
+      "id": "larence-tag"
+    }
+  ],
+  "connections": {
+    "Webhook - Chatbot": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Python Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Python Service": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

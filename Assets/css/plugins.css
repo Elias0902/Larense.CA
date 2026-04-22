@@ -3548,8 +3548,8 @@ temporary rendered events).
     background: #1572E8 !important;
     border-color: #1572E8 !important; }
   .fc-event.fc-secondary .fc-content:before {
-    background: #6861CE !important;
-    border-color: #6861CE !important; }
+    background: #cc1d1d !important;
+    border-color:#cccccc  !important; }
   .fc-event.fc-info .fc-content:before {
     background: #48ABF7 !important;
     border-color: #48ABF7 !important; }
@@ -3574,8 +3574,8 @@ temporary rendered events).
     background: #1572E8 !important;
     border-color: #1572E8 !important; }
   .fc-event.fc-secondary-solid {
-    background: #6861CE !important;
-    border-color: #6861CE !important; }
+    background: #cc1d1d !important;
+    border-color:#cccccc  !important; }
   .fc-event.fc-info-solid {
     background: #48ABF7 !important;
     border-color: #48ABF7 !important; }
@@ -3594,7 +3594,7 @@ temporary rendered events).
 .fc-list-item.fc-primary .fc-event-dot, .fc-list-item.fc-primary-solid .fc-event-dot {
   background: #1572E8 !important; }
 .fc-list-item.fc-secondary .fc-event-dot, .fc-list-item.fc-secondary-solid .fc-event-dot {
-  background: #6861CE !important; }
+  background: #cc1d1d !important; }
 .fc-list-item.fc-info .fc-event-dot, .fc-list-item.fc-info-solid .fc-event-dot {
   background: #48ABF7 !important; }
 .fc-list-item.fc-success .fc-event-dot, .fc-list-item.fc-success-solid .fc-event-dot {
@@ -5722,8 +5722,8 @@ div.table-responsive > div.dataTables_wrapper > div.row {
   color: #ffffff !important; }
 
 .select2-secondary .select2-selection__choice {
-  background: #6861CE !important;
-  border-color: #6861CE !important;
+  background: #cc1d1d !important;
+  border-color:#cccccc  !important;
   color: #ffffff !important; }
 
 .select2-info .select2-selection__choice {

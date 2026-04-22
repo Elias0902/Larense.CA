@@ -1,5 +1,8 @@
-      <!-- End Custom template -->
+<!-- End Custom template -->
     </div>
+
+    <!-- Theme Manager Global -->
+    <script src="assets/js/theme-manager.js"></script>
 
     <!-- API DOLLAR -->
     <script src="api/DolarApi.js"></script>
@@ -37,11 +40,11 @@
     <script src="assets/js/sweetalert2.min.js"></script>
 
     <!-- Kaiadmin JS -->
-    <script src="assets/js/kaiadmin.min.js"></script>
+    <script src="assets/js/Kaiadmin.min.js"></script>
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="assets/js/setting-demo.js"></script>
-    <script src="assets/js/demo.js"></script>
+    <script src="assets/js/demo.js?v=2"></script>
     <script>
       $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
         type: "line",
@@ -74,6 +77,13 @@
    <script>
    $(function () {
       // $(".datatable").DataTable();
+      
+      // Verificar si DataTable ya está inicializado para evitar reinitialización
+      if ($.fn.DataTable.isDataTable('#add-row')) {
+         // Destruir la instancia existente antes de crear una nueva
+         $('#add-row').DataTable().destroy();
+      }
+      
       $("#add-row").DataTable({
          "language": {
             "url": "assets/js/DataTables/spanish.json",
@@ -97,5 +107,3 @@
     color: white !important;
 }
 </style>
-
-

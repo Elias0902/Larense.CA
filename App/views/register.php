@@ -6,7 +6,7 @@
     require_once "components/links.php";
     require_once "components/alerts.php";
     ?>
-    <title>Larense CA : Register</title>
+    <title>Kaiadmin : Register</title>
 </head>
 <body style='
   background-color: black;
@@ -24,7 +24,7 @@
                             <div class="col-lg-6 d-flex align-items-center justify-content-center">
                                 <div class="text-center">
                                     <h1 class="h2 text-gray-900 "><b>Bienvenido</b></h1>
-                                <img class="logo m-5" src="assets/img/natys.png" width="330" alt="logo">
+                                <img class="logo m-5" src="assets/img/Kaiadmin.png" width="330" alt="logo">
                                 </div>
                             </div>
                             <div class="col-lg-6">

@@ -1,0 +1,27 @@
+# Dependencies
+
+
+# Logs
+*.log
+*.log.*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# XAMPP / Desarrollo
+xampp/
+htdocs/
+cache/
+temp/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store

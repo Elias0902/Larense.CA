@@ -9,6 +9,7 @@
 
 // llama al modelo conexion
 require_once "ConexionModel.php";
+require_once "AuditoriaModel.php";
 
 class Autenticator extends Conexion {
 
@@ -557,7 +558,7 @@ class Autenticator extends Conexion {
 
                 // almacena los datos extraidos de la base de datos 
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
+                
                 //retorna el status con el mensaje y los datos de usuario
                 return['status' => true, 'msj' => 'Usuario encontrado con exito.', 'data' => $data];
             }
@@ -567,7 +568,7 @@ class Autenticator extends Conexion {
                 return['status' => false, 'msj' => 'Usuario no encontrado o inactivo'];
             }
         } catch (PDOException $e) {
-            
+                       
             // retorna mensaje de error del exception del pdo
             return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
         }
@@ -675,15 +676,15 @@ class Autenticator extends Conexion {
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'moises2005pereira@gmail.com';     // GMAIL del sistema
-            $mail->Password   = 'glir tswr elhu iwcr'; // ← APP PASSWORD del gmail del sistema
+            $mail->Username   = 'proyectonatys2026@gmail.com';     // GMAIL del sistema
+            $mail->Password   = 'phst vnxb myoz vcij'; // ← APP PASSWORD del gmail del sistema
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
             
             //REMITENTE
-            $mail->setFrom('moises2005pereira@gmail.com', 'Natys');
+            $mail->setFrom('proyectonatys2026@gmail.com', 'Natys');
             $mail->addAddress($email);
-            $mail->addReplyTo('moises2005pereira@gmail.com', 'Soporte Natys');
+            $mail->addReplyTo('proyectonatys2026@gmail.com', 'Soporte Natys');
             
             //CONTENIDO HTML
             $mail->isHTML(true);
@@ -810,7 +811,7 @@ class Autenticator extends Conexion {
             $update_codigo->bindValue(':codigo', $this->getCodigo());
             $update_codigo->bindValue(':token', $this->getToken());
             
-            // Si no se pudo marcar como usado, algo salió mal
+            // Si se ejecuta correctamente, algo salió mal
             if (!$update_codigo->execute()) {
 
                 // revierte la transaccion
@@ -820,7 +821,7 @@ class Autenticator extends Conexion {
                 return ['status' => false, 'msj' => 'Error al procesar código de verificación.'];
             }
             
-            //ACTUALIZAR PASSWORD
+            //ACTUALIZAR CONTRASEÑA
             $query_password = "UPDATE usuarios SET password_usuario = :password 
                             WHERE id_usuario = :id";
             $stmt_password = $conn->prepare($query_password);

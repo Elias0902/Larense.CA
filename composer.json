@@ -1,10 +1,11 @@
 {
-    "name": "usuario/natys",
+    "name": "usuario/kaiadmin",
     "description": "Sistema de Gestión de Pedidos, Créditos y Compras para La Larense C.A.",
     "type": "project",
     "require": {
         "phpmailer/phpmailer": "^7.0",
-        "setasign/fpdf": "^1.8"
+        "setasign/fpdf": "^1.8",
+        "phpoffice/phpword": "^0.18"
     },
     "authors": [
         {

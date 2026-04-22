@@ -43,7 +43,7 @@
     position: absolute;
     width: 45px;
     height: 45px;
-    background: #5867dd;
+    background: #cc1d1d;
     top: 50%;
     left: -45px;
     transform: translateY(-50%);
@@ -68,7 +68,7 @@
     color: #ffffff;
     border-top-left-radius: 5px;
     border-bottom: 1px solid #ebedf2;
-    background: #5867dd; }
+    background: #cc1d1d; }
   .custom-template .custom-content {
     padding: 20px 15px;
     max-height: calc(100vh - 90px);
@@ -192,7 +192,7 @@ body[data-background-color="dark"] .demo-icon .icon-class {
 .btnSwitch button[data-color="blue"] {
   background-color: #1572E8; }
 .btnSwitch button[data-color="purple"] {
-  background-color: #6861CE; }
+  background-color: #cc1d1d; }
 .btnSwitch button[data-color="light-blue"] {
   background-color: #48ABF7; }
 .btnSwitch button[data-color="green"] {

@@ -1,6 +1,7 @@
 <?php
 // llama al modelo conexion
 require_once "ConexionModel.php";
+require_once "AuditoriaModel.php";
 
 // se difine la clase
 class Categoria extends Conexion {
@@ -320,6 +321,9 @@ class Categoria extends Conexion {
 
              // se valida si se ejecuto la sentencia y si es true
             if ($stmt->execute()) {
+                
+                // Obtener el ID del registro creado
+                $id_creado = $conn->lastInsertId();
 
                 //retorna el status con el mensaje y los datos de usuario
                 return['status' => true, 'msj' => 'Categoria Registrada con exito.'];
@@ -372,7 +376,7 @@ class Categoria extends Conexion {
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Categoria encontrada con exito.', 'data' => $data];
+                return['status' => true, 'msj' => 'Categoria encontrada con exito.', 'data' => $data, 'data_bitacora' => $data];
             }
             else {
 
@@ -403,13 +407,30 @@ class Categoria extends Conexion {
             
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de actualizar (para bitacora)
+            $query_select = "SELECT * FROM categorias 
+                                    WHERE id_categoria = :id 
+                                    AND status = 1";
 
-            // inserta una categoria
+            // prepara la consulta
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getCategoriaID());
+            
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // el arry assoc se almacena en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
+            // modificar una categoria
             $query = "UPDATE categorias 
                         SET nombre_categoria = :nombre 
                         WHERE id_categoria = :id ";
 
-            // prepar la sentencia 
+            // prepara la sentencia 
             $stmt = $conn->prepare($query);
 
             // vincula los parametros
@@ -420,7 +441,7 @@ class Categoria extends Conexion {
             if ($stmt->execute()) {
 
                 //retorna el status con el mensaje y los datos de usuario
-                return['status' => true, 'msj' => 'Categoria Actualizada con exito.'];
+                return['status' => true, 'msj' => 'Categoria Actualizada con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 
@@ -451,6 +472,23 @@ class Categoria extends Conexion {
             
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de eliminar (para bitacora)
+            $query_select = "SELECT * FROM categorias 
+                                    WHERE id_categoria = :id 
+                                    AND status = 1";
+
+            // oeroara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getCategoriaID());
+
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena arry asocc en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
 
             // actualiza el status la categoria
             $query = "UPDATE categorias
@@ -467,7 +505,7 @@ class Categoria extends Conexion {
             if ($stmt->execute()) {
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Categoria Eliminada con exito.'];
+                return['status' => true, 'msj' => 'Categoria Eliminada con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 

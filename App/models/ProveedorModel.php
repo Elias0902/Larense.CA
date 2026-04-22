@@ -369,7 +369,7 @@ class Proveedor extends Conexion {
     }
 
     // funcion para registrar categoria
-    private function Guardar_Proveedor                                                                                        () {
+    private function Guardar_Proveedor() {
 
         // la conxecion es null por defecto
         $this->closeConnection();
@@ -449,7 +449,7 @@ class Proveedor extends Conexion {
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Proveedor encontrado con exito.', 'data' => $data];
+                return['status' => true, 'msj' => 'Proveedor encontrado con exito.', 'data' => $data, 'data_bitacora' => $data];
             }
             else {
 
@@ -481,6 +481,23 @@ class Proveedor extends Conexion {
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
 
+            // Obtener datos actuales antes de eliminar (para bitacora)
+            $query_select = "SELECT * FROM proveedores 
+                                    WHERE id_proveedor = :id 
+                                    AND status = 1";
+
+            // oeroara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getProveedorID());
+
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena arry asocc en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
             // inserta una categoria
             $query = "UPDATE proveedores
                         SET id_proveedor = :id,
@@ -506,7 +523,7 @@ class Proveedor extends Conexion {
             if ($stmt->execute()) {
 
                 //retorna el status con el mensaje y los datos de usuario
-                return['status' => true, 'msj' => 'Proveedor Actualizado con exito.'];
+                return['status' => true, 'msj' => 'Proveedor Actualizado con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 
@@ -538,6 +555,23 @@ class Proveedor extends Conexion {
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
 
+            // Obtener datos actuales antes de eliminar (para bitacora)
+            $query_select = "SELECT * FROM proveedores
+                                    WHERE id_proveedor = :id 
+                                    AND status = 1";
+
+            // oeroara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getProveedorID());
+
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena arry asocc en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
             // actualiza el status la categoria
             $query = "UPDATE proveedores
                         SET status = 0
@@ -553,7 +587,7 @@ class Proveedor extends Conexion {
             if ($stmt->execute()) {
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Proveedor Eliminado con exito.'];
+                return['status' => true, 'msj' => 'Proveedor Eliminado con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 

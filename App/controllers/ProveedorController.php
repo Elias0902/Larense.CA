@@ -1,8 +1,8 @@
 <?php
     // llama el archivo del modelo
-    require_once 'app/models/ProveedorModel.php';
-    require_once 'app/models/PermisoModel.php';
-    //require_once 'app/models/BitacoraModel.php';
+    require_once 'app/models/ProveedorModel.php'; // para el proveedor
+    require_once 'app/models/BitacoraModel.php'; // para la bitacora
+    require_once 'app/models/PermisoModel.php'; // para los permisos
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -51,8 +51,12 @@
        
         // instacia el modelo
         $modelo = new Proveedor();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -88,8 +92,21 @@
                     // extrae los datos de los proveedores
                     $proveedores = $resultado['data'];
 
+                    // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Proveedores',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en el dashboard de proveedores en el sistema',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     //carga la vista
-                    require_once 'app/views/dashboard_proveedores.php';
+                    require_once 'app/views/proveedoresView.php';
 
                     // termina el script
                     exit();
@@ -100,7 +117,7 @@
                     //setError($resultado['msj']);
 
                     //carga la vista
-                    require_once 'app/views/dashboard_proveedores.php';
+                    require_once 'app/views/proveedoresView.php';
 
                     // termina el script
                     //exit();
@@ -123,7 +140,7 @@
     //setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/dashboard_proveedores.php';
+    //require_once 'app/views/proveedoresView.php';
                 
     // termina el script
     //exit();
@@ -135,8 +152,12 @@
 
         // instacia el modelo
         $modelo = new Proveedor();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+        
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -201,19 +222,24 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Productos',
-                            'titulos' => 'Registro de Productos',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro del siguiente producto: ' . $proucto_json['nombre'] . ', en 
-                                                el modulo de productos.',
-                            'fecha' => date('Y-m-d H:i:s')
-                        ]);
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Proveedores',
+                        'accion' => 'Agregar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha registrado el siguiente Proveedor' . ' ' .
+                            'RIF' . ' ' . $tipo_id . '-' . $id_proveedor . ' ' .  
+                            'Nombre' . ' ' . $nombre_proveedor . ' ' .
+                            'Tlf' . ' ' . $tlf_proveedor . ' ' . 
+                            'Email' . ' ' . $email_proveedor . ' ' . 
+                            'Direccion' . ' ' . $direccion_proveedor . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     }
                     else {
                                     
@@ -257,8 +283,12 @@
 
          // instacia el modelo
         $modelo = new Proveedor();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -273,8 +303,9 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
+        
         if (isset($status['status']) && $status['status'] == 1) {
-            
+
             // Ejecutar acción permitida*/
 
             // obtiene y sinatiza los valores
@@ -321,19 +352,33 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Productos',
-                            'titulos' => 'Registro de Producto',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro del siguiente producto: ' . $producto_json['nombre'] . ', en 
-                                                el modulo de productos.',
-                            'fecha' => date('Y-m-d H:i:s')
+                        // se almacena para la bitacora
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Proveedores',
+                        'accion' => 'Modificar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha modificado el siguiente Proveedor' . ' ' .
+                            'RIF' . ' ' . $data_bitacora['tipo_id'] . $data_bitacora['id_proveedor'] . ' ' . 
+                            'Nombre' . ' ' . $data_bitacora['nombre_proveedor'] . ' ' . 
+                            'Tlf' . ' ' . $data_bitacora['tlf_proveedor'] . ' ' . 
+                            'Email' . ' ' . $data_bitacora['email_proveedor'] . ' ' . 
+                            'Direccion' . ' ' . $data_bitacora['direccion_proveedor'] . ' ' . 
+                            'Por los siguientes datos nuevos' . ' ' . 
+                            'RIF' . ' ' . $tipo_id . '-' . $id_proveedor . ' ' .  
+                            'Nombre' . ' ' . $nombre_proveedor . ' ' .
+                            'Tlf' . ' ' . $tlf_proveedor . ' ' . 
+                            'Email' . ' ' . $email_proveedor . ' ' . 
+                            'Direccion' . ' ' . $direccion_proveedor . ' ' . 'en el sistema.',
+                            'fecha' => $fecha
                         ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     }
                     else {
                                     
@@ -377,6 +422,10 @@
 
         // instacia el modelo
         $modelo = new Proveedor();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         $id = $_GET['ID'];
 
@@ -400,7 +449,29 @@
 
             $resultado = $modelo->manejarAccion('obtener', $proveedor_json);
 
+            // se almacena para la vista
             $proveedor = $resultado['data'];
+
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Proveedores',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos del siguiente proveedor' . ' ' .  
+                    'RIF' . ' ' . $data_bitacora['tipo_id'] . $data_bitacora['id_proveedor'] . ' ' . 
+                    'Nombre' . ' ' . $data_bitacora['nombre_proveedor'] . ' ' . 
+                    'Tlf' . ' ' . $data_bitacora['tlf_proveedor'] . ' ' . 
+                    'Email' . ' ' . $data_bitacora['email_proveedor'] . ' ' . 
+                    'Direccion' . ' ' . $data_bitacora['direccion_proveedor'] . ' ' . 'en el sistema',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
 
             echo json_encode($proveedor);
 
@@ -412,8 +483,12 @@
 
          // instacia el modelo
         $modelo = new Proveedor();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -465,6 +540,28 @@
 
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
+
+                        // se almacena para bitacoras
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Proveedores',
+                        'accion' => 'Eliminar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha elimando el siguiente proveedor' . ' ' .
+                            'RIF' . ' ' . $data_bitacora['tipo_id'] . $data_bitacora['id_proveedor'] . ' ' . 
+                            'Nombre' . ' ' . $data_bitacora['nombre_proveedor'] . ' ' . 
+                            'Tlf' . ' ' . $data_bitacora['tlf_proveedor'] . ' ' . 
+                            'Email' . ' ' . $data_bitacora['email_proveedor'] . ' ' . 
+                            'Direccion' . ' ' . $data_bitacora['direccion_proveedor'] . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                        ]);
+
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     }
                     else {
                                     

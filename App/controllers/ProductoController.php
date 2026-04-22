@@ -3,7 +3,7 @@
     require_once 'app/models/ProductoModel.php';
     require_once 'app/models/CategoriaModel.php';
     require_once 'app/models/PermisoModel.php';
-    //require_once 'app/models/BitacoraModel.php';
+    require_once 'app/models/BitacoraModel.php';
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -53,8 +53,12 @@
         // instacia el modelo
         $modelo = new Producto();
         $categoria = new Categoria();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -93,8 +97,21 @@
                     // extrae los datos de las categorias
                     $cat = $categorias = $categoria->manejarAccion('consultar', null)['data'];
 
+                    // se arma el json de bitacora
+                    $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Productos',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en dashboard de los productos en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     //carga la vista
-                    require_once 'app/views/dashboard_productos.php';
+                    require_once 'app/views/productosView.php';
 
                     // termina el script
                     exit();
@@ -105,7 +122,7 @@
                     setError($resultado['msj']);
 
                     //carga la vista
-                    require_once 'app/views/dashboard_productos.php';
+                    require_once 'app/views/productosView.php';
 
                     // termina el script
                     //exit();
@@ -128,7 +145,7 @@
     //setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/dashboard_productos.php';
+    //require_once 'app/views/productosView.php';
                 
     // termina el script
     //exit();
@@ -140,8 +157,12 @@
 
         // instacia el modelo
         $modelo = new Producto();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -263,19 +284,24 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Productos',
-                            'titulos' => 'Registro de Productos',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro del siguiente producto: ' . $proucto_json['nombre'] . ', en 
-                                                el modulo de productos.',
-                            'fecha' => date('Y-m-d H:i:s')
-                        ]);
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Productos',
+                        'accion' => 'Agregar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha ragistrado el siguiente producto' . ' ' . 
+                            'Nombre' . ' ' . $nombre_producto . ' ' .
+                            'Precio' . ' ' . $precio_producto . ' ' . 
+                            'Stock' . ' ' . $stock_producto . ' ' . 
+                            'Fecha Registro' . ' ' . $fecha_registro_producto . ' ' . 
+                            'Fecha vencimiento' . ' ' . $fecha_vencimiento_producto . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     }
                     else {
                                     
@@ -319,8 +345,12 @@
 
          // instacia el modelo
         $modelo = new Producto();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -385,19 +415,35 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Productos',
-                            'titulos' => 'Registro de Producto',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro del siguiente producto: ' . $producto_json['nombre'] . ', en 
-                                                el modulo de productos.',
-                            'fecha' => date('Y-m-d H:i:s')
-                        ]);
+                        // para la bitacoras
+                        $data_bitacora = $resultado['data_bitacora'];
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Productos',
+                        'accion' => 'Modificar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha modificado el siguiente producto' . ' ' .
+                            'Codigo del producto' . ' ' . $data_bitacora['id_producto'] . ' ' . 
+                            'Nombre' . ' ' . $data_bitacora['nombre_producto'] . ' ' . 
+                            'Precio' . ' ' . $data_bitacora['precio_venta'] . ' ' . 
+                            'Stock' . ' ' . $data_bitacora['stock'] . ' ' . 
+                            'Fecha Registro' . ' ' . $data_bitacora['fecha_registro'] . ' ' . 
+                            'Fecha Vencimiento' . ' ' . $data_bitacora['fecha_vencimiento'] . ' ' . 
+                            'Por los siguientes datos nuevos' . ' '. 
+                            'Codigo del producto' . ' ' . $id_producto . ' ' .  
+                            'Nombre' . ' ' . $nombre_producto . ' ' .
+                            'Precio' . ' ' . $precio_producto . ' ' . 
+                            'Stock' . ' ' . $stock_producto . ' ' . 
+                            'Fecha Registro' . ' ' . $fecha_registro_producto . ' ' . 
+                            'Fecha vencimiento' . ' ' . $fecha_vencimiento_producto . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     }
                     else {
                                     
@@ -441,6 +487,10 @@
 
         // instacia el modelo
         $modelo = new Producto();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         $id = $_GET['ID'];
 
@@ -464,7 +514,31 @@
 
             $resultado = $modelo->manejarAccion('obtener', $producto_json);
 
+            // se almacena para la vista
             $producto = $resultado['data'];
+
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Productos',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos del siguiente producto' . ' ' . 'COD-00' . 
+                    'Codigo del producto' . ' ' . $data_bitacora['id_producto'] . ' ' . 
+                    'Nombre' . ' ' . $data_bitacora['nombre_producto'] . ' ' . 
+                    'Precio' . ' ' . $data_bitacora['precio_venta'] . ' ' . 
+                    'Stock' . ' ' . $data_bitacora['stock'] . ' ' . 
+                    'Fecha Registro' . ' ' . $data_bitacora['fecha_registro'] . ' ' . 
+                    'Fecha Vencimiento' . ' ' . $data_bitacora['fecha_vencimiento'] . ' ' . 
+                    ' ' . 'en el sistema.',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
 
             echo json_encode($producto);
 
@@ -476,8 +550,12 @@
 
          // instacia el modelo
         $modelo = new Producto();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -529,6 +607,30 @@
 
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
+
+                        // se almacena para la bitacora
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Productos',
+                        'accion' => 'Eliminar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha eliminado el siguiente producto' . ' ' .
+                            'Codigo del producto' . ' ' . $data_bitacora['id_producto'] . ' ' . 
+                            'Nombre' . ' ' . $data_bitacora['nombre_producto'] . ' ' . 
+                            'Precio' . ' ' . $data_bitacora['precio_venta'] . ' ' . 
+                            'Stock' . ' ' . $data_bitacora['stock'] . ' ' . 
+                            'Fecha Registro' . ' ' . $data_bitacora['fecha_registro'] . ' ' . 
+                            'Fecha Vencimiento' . ' ' . $data_bitacora['fecha_vencimiento'] . ' ' . 
+                            ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     }
                     else {
                                     

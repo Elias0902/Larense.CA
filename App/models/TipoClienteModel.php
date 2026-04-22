@@ -412,7 +412,7 @@ class TipoCliente extends Conexion {
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Tipo de cliente encontrado con exito.', 'data' => $data];
+                return['status' => true, 'msj' => 'Tipo de cliente encontrado con exito.', 'data' => $data, 'data_bitacora' => $data];
             }
             else {
 
@@ -444,6 +444,23 @@ class TipoCliente extends Conexion {
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
 
+            // Obtener datos actuales antes de eliminar (para bitacora)
+            $query_select = "SELECT * FROM tipos_clientes 
+                                    WHERE id_tipo_cliente = :id 
+                                    AND status = 1";
+
+            // oeroara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getTipoClienteID());
+
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena arry asocc en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
             // inserta una categoria
             $query = "UPDATE tipos_clientes 
                         SET nombre_tipo_cliente = :nombre, 
@@ -462,7 +479,7 @@ class TipoCliente extends Conexion {
             if ($stmt->execute()) {
 
                 //retorna el status con el mensaje y los datos de usuario
-                return['status' => true, 'msj' => 'Tipo de cliente Actualizado con exito.'];
+                return['status' => true, 'msj' => 'Tipo de cliente Actualizado con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 
@@ -494,6 +511,23 @@ class TipoCliente extends Conexion {
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
 
+            // Obtener datos actuales antes de eliminar (para bitacora)
+            $query_select = "SELECT * FROM tipos_clientes 
+                                    WHERE id_tipo_cliente = :id 
+                                    AND status = 1";
+
+            // oeroara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getTipoClienteID());
+
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena arry asocc en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
             // actualiza el status el tipo de cliente
             $query = "UPDATE tipos_clientes
                         SET status = 0
@@ -509,7 +543,7 @@ class TipoCliente extends Conexion {
             if ($stmt->execute()) {
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Tipo de cliente Eliminado con exito.'];
+                return['status' => true, 'msj' => 'Tipo de cliente Eliminado con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 
@@ -525,6 +559,31 @@ class TipoCliente extends Conexion {
         finally {
 
             // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para obtener estadisticas de clientes por tipo/categoria
+    public function Estadisticas_Clientes_Por_Categoria() {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            $query = "SELECT 
+                        tc.id_tipo_cliente,
+                        tc.nombre_tipo_cliente as categoria,
+                        COUNT(c.id_cliente) as total_clientes
+                      FROM tipos_clientes tc
+                      LEFT JOIN clientes c ON tc.id_tipo_cliente = c.id_tipo_cliente AND c.status = 1
+                      WHERE tc.status = 1
+                      GROUP BY tc.id_tipo_cliente, tc.nombre_tipo_cliente
+                      ORDER BY tc.id_tipo_cliente DESC";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return ['status' => true, 'msj' => 'Estadísticas obtenidas', 'data' => $data];
+        } catch (PDOException $e) {
+            return ['status' => false, 'msj' => 'Error: ' . $e->getMessage()];
+        } finally {
             $this->closeConnection();
         }
     }

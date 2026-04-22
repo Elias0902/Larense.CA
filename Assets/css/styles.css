@@ -80,3 +80,32 @@
 .input-valid { border-color: #28a745 !important; }
 .input-error { border-color: #dc3545 !important; }
 .error { color: #dc3545; }
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.status-badge:hover {
+    transform: scale(1.05);
+}
+
+.status-badge .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-activo { background: linear-gradient(45deg, #008719, #28a745); }
+.status-pendiente { background: linear-gradient(45deg, #ae7d00, #ffc107); }
+.status-anulado { background: linear-gradient(45deg, #dc3545, #ff0000); }

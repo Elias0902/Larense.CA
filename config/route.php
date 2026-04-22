@@ -21,9 +21,15 @@
         'entregas' => 'app/controllers/EntregaController.php',
         'notificaciones' => 'app/controllers/NotificacionController.php',
         'usuarios' => 'app/controllers/UsuarioController.php',
+        'perfiles' => 'app/controllers/PerfilesController.php',
         'roles' => 'app/controllers/RolController.php',
-        'seguridad' => 'app/controllers/SeguridadController.php',
+        'permisos' => 'app/controllers/PermisoController.php',
+        'seguridad' => 'app/controllers/PerfilesController.php',
         'bitacora' => 'app/controllers/BitacoraController.php',
+        'perfil' => 'app/controllers/PerfilController.php',
+        'reportes' => 'app/controllers/ReporteController.php',
+        'documentacion' => 'app/controllers/DocumentacionController.php',
+        'manual' => 'app/controllers/ManualController.php',
     ])
 
 ?>

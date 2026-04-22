@@ -1,8 +1,8 @@
 <?php
     // llama el archivo del modelo
-    require_once 'app/models/TipoClienteModel.php';
-    require_once 'app/models/PermisoModel.php';
-    //require_once 'app/models/BitacoraModel.php';
+    require_once 'app/models/TipoClienteModel.php'; // para tipos de clientes
+    require_once 'app/models/PermisoModel.php'; // para los permisos
+    require_once 'app/models/BitacoraModel.php'; // para la bitacora
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -51,8 +51,12 @@
        
         // instacia el modelo
         $modelo = new TipoCliente();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         //$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         //$permiso_json = json_encode([
@@ -88,8 +92,21 @@
                     // extrae los datos
                     $tipoClientes = $resultado['data'];
 
+                    // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Tipos Clientes',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en el dashboard de tipos de clientes en el sistema',
+                            'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     //carga la vista
-                    require_once 'app/views/dashboard_tipoClientes.php';
+                    require_once 'app/views/tipoClientesView.php';
 
                     // termina el script
                     exit();
@@ -100,7 +117,7 @@
                     //setError($resultado['msj']);
 
                     //carga la vista
-                    require_once 'app/views/dashboard_tipoClientes.php';
+                    require_once 'app/views/tipoClientesView.php';
 
                     // termina el script
                     exit();
@@ -122,7 +139,7 @@
     //setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/dashboard_categorias.php';
+    //require_once 'app/views/categoriasView.php';
                 
     // termina el script
     //exit();
@@ -135,7 +152,10 @@
         // instacia el modelo
         $modelo = new TipoCliente();
         $permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         /*// se arma el json
         $permiso_json = json_encode([
@@ -190,19 +210,21 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Tipos de Clientes',
-                            'titulos' => 'Registro de Tipos de Clientes',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro de la siguiente categoria: ' . $categoria_json['nombre'] . ', en 
-                                                el modulo de categorias.',
-                            'fecha' => date('Y-m-d H:i:s')
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Tipos Clientes',
+                        'accion' => 'Agregar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha ragistrado un Tipo de Cliente' . ' ' . 
+                            'Nombre' . ' ' . $nombre_tipo_cliente . ' ' .
+                            'Dias de credito' . ' ' . $dias_credito . ' ' .  'en el sistema.',
+                            'fecha' => $fecha
                         ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     }
                     else {
                                     
@@ -246,8 +268,12 @@
 
          // instacia el modelo
         $modelo = new TipoCliente();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -305,19 +331,28 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Categorias',
-                            'titulos' => 'Registro de Categorias',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro de la siguiente categoria: ' . $categoria_json['nombre'] . ', en 
-                                                el modulo de categorias.',
-                            'fecha' => date('Y-m-d H:i:s')
+                        // se almacena para la bitacora
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Tipos Clientes',
+                        'accion' => 'Modificar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha modificado el Tipo de cliente' . ' ' .
+                            'Codigo del Tipo Cliente' . ' ' . $data_bitacora['id_tipo_cliente'] . ' ' .
+                            'Nombre' . ' ' . $data_bitacora['nombre_tipo_cliente'] . ' ' . 
+                            'Dias de Credito' . ' ' . $data_bitacora['dias_credito'] . ' ' . 
+                            'Por los siguientes datos nuevos' . ' ' . 
+                            'Codigo del Tipo de Cliente' . ' ' . $id . ' ' . 
+                            'Nombre' . ' ' . $nombre_tipo_cliente . ' ' .
+                            'Dias de creditos' . ' ' . $dias_credito . ' ' . 'en el sistema.',
+                            'fecha' => $fecha
                         ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
 
                         //redirect
                         header('Location: index.php?url=tipos_clientes');
@@ -373,6 +408,10 @@
 
         // instacia el modelo
         $modelo = new TipoCliente();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         $id = $_GET['ID'];
 
@@ -398,6 +437,27 @@
 
             $tipoCliente = $resultado['data'];
 
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+            'modulo' => 'Tipos Clientes',
+            'accion' => 'Obetener',
+            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                'ha obtenido el siguiente Tipo de Cliente' . ' ' .
+                'Codigo del Tipo Cliente' . ' ' . $data_bitacora['id_tipo_cliente'] . ' ' .
+                'Nombre' . ' ' . $data_bitacora['nombre_tipo_cliente'] . ' ' . 'en el sistema.',
+            'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
+
             echo json_encode($tipoCliente);
 
             exit();
@@ -408,8 +468,12 @@
 
          // instacia el modelo
         $modelo = new TipoCliente();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -461,6 +525,24 @@
 
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
+
+                        // se almacena para la bitacora
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Tipos Clientes',
+                        'accion' => 'Eliminar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha eliminado el siguiente Tipo de Cliente' . ' ' .
+                            'Codigo del Tipo Cliente' . ' ' . $data_bitacora['id_tipo_cliente'] . ' ' .
+                            'Nombre' . ' ' . $data_bitacora['nombre_tipo_cliente'] . ' ' . 'en el sistema.',
+                            'fecha' => $fecha
+                        ]);
+
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
                         
                         //redirect
                         header('Location: index.php?url=tipos_clientes');

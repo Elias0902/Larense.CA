@@ -9,8 +9,8 @@ if (isset($_SESSION['message']) && isset($_SESSION['message_type'])) {
     echo "<script>
         document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
-                icon: '" . ($js_message_type === 'success' ? 'success' : 'error') . "',
-                title: '" . ($js_message_type === 'success' ? '¡Exitoso!' : '¡Error!') . "',
+                icon: '" . ($js_message_type === 'success' ? 'success' : ($js_message_type === 'warning' ? 'warning' : 'error')) . "',
+                title: '" . ($js_message_type === 'success' ? '¡Exitoso!' : ($js_message_type === 'warning' ? '¡Atención!' : '¡Error!')) . "',
                 text: '{$js_message}',
                 confirmButtonText: 'Cerrar',
                 timer: 6000,

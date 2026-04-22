@@ -15,5 +15,7 @@ return array(
     'assets\\' => array($baseDir . '/assets'),
     'app\\' => array($baseDir . '/app'),
     'api\\' => array($baseDir . '/api'),
+    'PhpOffice\\PhpWord\\' => array($vendorDir . '/phpoffice/phpword/src/PhpWord'),
     'PHPMailer\\PHPMailer\\' => array($vendorDir . '/phpmailer/phpmailer/src'),
+    'Laminas\\Escaper\\' => array($vendorDir . '/laminas/laminas-escaper/src'),
 );

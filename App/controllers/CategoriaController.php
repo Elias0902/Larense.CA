@@ -2,7 +2,7 @@
     // llama el archivo del modelo
     require_once 'app/models/CategoriaModel.php';
     require_once 'app/models/PermisoModel.php';
-    //require_once 'app/models/BitacoraModel.php';
+    require_once 'app/models/BitacoraModel.php';
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -51,24 +51,28 @@
        
         // instacia el modelo
         $modelo = new Categoria();
-        //$permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+        
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+        
 
         // se arma el json
-        //$permiso_json = json_encode([
-        //    'modulo' => 'Categorias',
-        //    'permiso' => 'Consultar',
-         //   'rol' => $_SESSION['s_usuario']['id_rol_usuario']
-        //]);
+        $permiso_json = json_encode([
+            'modulo' => 'Categorias',
+            'permiso' => 'Consultar',
+           'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
 
 
         // captura el resultado de la consulta
-        //$status = $permiso->manejarAccion("verificar", $permiso_json);
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
 
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        //if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida
 
@@ -88,8 +92,21 @@
                     // extrae los datos
                     $categorias = $resultado['data'];
 
+                    // se arma el json de bitacora
+                    $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Categorias',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en dashboard de las categorias' . ' ' . 'CT-00' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
                     //carga la vista
-                    require_once 'app/views/dashboard_categorias.php';
+                    require_once 'app/views/categoriasView.php';
 
                     // termina el script
                     exit();
@@ -100,7 +117,7 @@
                     //setError($resultado['msj']);
 
                     //carga la vista
-                    require_once 'app/views/dashboard_categorias.php';
+                    require_once 'app/views/categoriasView.php';
 
                     // termina el script
                     exit();
@@ -119,23 +136,26 @@
             }
         }
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error acceso no permitido");
+    setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/dashboard_categorias.php';
+    require_once 'app/views/categoriasView.php';
                 
     // termina el script
-    //exit();
+    exit();
     
-//}
+}
 
     //funcion para guardar datos
     function Agregar() {
 
         // instacia el modelo
         $modelo = new Categoria();
+        $bitacora = new Bitacora();
         $permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         /*// se arma el json
         $permiso_json = json_encode([
@@ -188,19 +208,17 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Categorias',
-                            'titulos' => 'Registro de Categorias',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro de la siguiente categoria: ' . $categoria_json['nombre'] . ', en 
-                                                el modulo de categorias.',
-                            'fecha' => date('Y-m-d H:i:s')
-                        ]);
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Categorias',
+                        'accion' => 'Agregar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha ragistras la siguiente categoria' . ' ' . $nombre_categoria . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
                     }
                     else {
                                     
@@ -244,8 +262,11 @@
 
          // instacia el modelo
         $modelo = new Categoria();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -300,19 +321,24 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
+                        //datos para la bitacora
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
                             'modulo' => 'Categorias',
-                            'titulos' => 'Registro de Categorias',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro de la siguiente categoria: ' . $categoria_json['nombre'] . ', en 
-                                                el modulo de categorias.',
-                            'fecha' => date('Y-m-d H:i:s')
+                            'accion' => 'Modificar',
+                            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                                                'ha modificado los datos de la siguiente categoria' . ' ' . 'CT-00' . 
+                                                $data_bitacora['id_categoria'] . ' ' . $data_bitacora['nombre_categoria'] . 
+                                                ' ' . 'por los siguientes datos' . ' ' . 'CT-00' . $id . ' ' . $nombre_categoria . 
+                                                ' ' . 'en el sistema.',
+                            'fecha' => $fecha
                         ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
 
                         //redirect
                         header('Location: index.php?url=categorias');
@@ -368,6 +394,10 @@
 
         // instacia el modelo
         $modelo = new Categoria();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         $id = $_GET['ID'];
 
@@ -391,7 +421,26 @@
 
             $resultado = $modelo->manejarAccion('obtener', $categoria_json);
 
+            // se almacena para la vista
             $categoria = $resultado['data'];
+
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Categorias',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos de la siguiente categoria' . ' ' . 'CT-00' . 
+                    $data_bitacora['id_categoria'] . ' ' . $data_bitacora['nombre_categoria'] . 
+                    ' ' . 'en el sistema.',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
 
             echo json_encode($categoria);
 
@@ -403,8 +452,12 @@
 
          // instacia el modelo
         $modelo = new Categoria();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
         /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
 
         // se arma el json
         $permiso_json = json_encode([
@@ -456,6 +509,21 @@
 
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
+
+                        //datos para bitacoras
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                            'modulo' => 'Categorias',
+                            'accion' => 'Eliminar',
+                            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha eliminado una categoria de codigo' . ' ' . 'CT-00' . $data_bitacora['id_categoria'] . ' ' . $data_bitacora['nombre_categoria'] . ' ' . 'en el sistema.',
+                            'fecha' => $fecha
+                        ]);
+
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
                         
                         //redirect
                         header('Location: index.php?url=categorias');

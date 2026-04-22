@@ -1,6 +1,7 @@
 <?php
 // llama al modelo conexion
 require_once "ConexionModel.php";
+require_once "AuditoriaModel.php";
 
 // se difine la clase
 class Producto extends Conexion {
@@ -716,7 +717,7 @@ class Producto extends Conexion {
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Producto encontrado con exito.', 'data' => $data];
+                return['status' => true, 'msj' => 'Producto encontrado con exito.', 'data' => $data, 'data_bitacora' => $data];
             }
             else {
 
@@ -747,6 +748,23 @@ class Producto extends Conexion {
             
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de actualizar (para bitacora)
+            $query_select = "SELECT * FROM productos 
+                                    WHERE id_producto = :id 
+                                    AND status = 1";
+
+            // prepara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getProdutoID());
+
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena los datos anteriores
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
 
             // inserta una categoria
             $query = "UPDATE productos 
@@ -774,7 +792,7 @@ class Producto extends Conexion {
             if ($stmt->execute()) {
 
                 //retorna el status con el mensaje y los datos de usuario
-                return['status' => true, 'msj' => 'Producto Actualizada con exito.'];
+                return['status' => true, 'msj' => 'Producto Actualizada con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 
@@ -805,6 +823,23 @@ class Producto extends Conexion {
             
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de eliminar (para bitacora)
+            $query_select = "SELECT * FROM productos 
+                                    WHERE id_producto = :id 
+                                    AND status = 1";
+
+            // prepala la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getProdutoID());
+            
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena los datos para la bitacora
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
 
             // actualiza el status la categoria
             $query = "UPDATE productos
@@ -819,9 +854,10 @@ class Producto extends Conexion {
 
              // se valida si se ejecuto la sentencia y si es true
             if ($stmt->execute()) {
+                
 
                 //retorna el status con el mensaje y los datos
-                return['status' => true, 'msj' => 'Producto Eliminada con exito.'];
+                return['status' => true, 'msj' => 'Producto Eliminada con exito.', 'data_bitacora' => $datos_anteriores];
             }
             else {
 
@@ -837,6 +873,41 @@ class Producto extends Conexion {
         finally {
 
             // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para obtener el producto mas vendido
+    public function Producto_Mas_Vendido() {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            $query = "SELECT 
+                        p.id_producto,
+                        p.nombre_producto,
+                        p.img as imagen_producto,
+                        c.nombre_categoria,
+                        COALESCE(SUM(dp.cantidad), 0) as total_vendido,
+                        COALESCE(SUM(dp.cantidad * dp.precio_unitario), 0) as total_ingresos
+                      FROM productos p
+                      INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                      LEFT JOIN detalle_pedidos dp ON p.id_producto = dp.id_producto
+                      LEFT JOIN pedidos ped ON dp.id_pedido = ped.id_pedido AND ped.status = 1
+                      WHERE p.status = 1
+                      GROUP BY p.id_producto, p.nombre_producto, p.img, c.nombre_categoria
+                      ORDER BY total_vendido DESC
+                      LIMIT 1";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
+                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+                return ['status' => true, 'msj' => 'Producto más vendido encontrado', 'data' => $data];
+            } else {
+                return ['status' => false, 'msj' => 'No hay ventas registradas'];
+            }
+        } catch (PDOException $e) {
+            return ['status' => false, 'msj' => 'Error: ' . $e->getMessage()];
+        } finally {
             $this->closeConnection();
         }
     }

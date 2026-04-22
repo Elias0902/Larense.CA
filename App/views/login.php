@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Natys - Sistema de Gestión</title>
-    
+    <title>Larense CA Natys- Sistema de Gestión</title>
+    <?php
+    require_once 'components/links.php';
+    ?>
     <?php 
     require_once "components/links.php";
     require_once "components/alerts.php";
@@ -20,7 +22,6 @@
             --text-gray: #6b7280;
             --bg-gray: #f4f6f9;
             --border-color: #e5e7eb;
-            --success-color: #10b981; 
         }
 
         * {
@@ -38,6 +39,75 @@
             min-height: 100vh;
             padding: 20px;
             overflow-x: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        body.dark-mode {
+            background-color: #1a1b2b;
+        }
+
+        /* Toggle switch */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            border-radius: 50px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .theme-toggle .toggle-switch {
+            width: 50px;
+            height: 26px;
+            background: #e5e7eb;
+            border-radius: 13px;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        .theme-toggle.dark .toggle-switch {
+            background: var(--primary-color);
+        }
+
+        .theme-toggle .toggle-slider {
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .theme-toggle.dark .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .theme-toggle i {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .theme-toggle.dark i.fa-sun {
+            color: var(--primary-color);
+        }
+
+        .theme-toggle:not(.dark) i.fa-moon {
+            color: var(--primary-color);
         }
 
         .container {
@@ -142,49 +212,66 @@
             margin-bottom: 8px;
         }
 
-        /* ----- AJUSTES DE LOS INPUTS Y LOS ÍCONOS CORREGIDOS ----- */
         .input-group {
             position: relative;
             display: flex;
             align-items: center;
-            width: 100%;
+            isolation: isolate;
         }
 
-        /* Ícono izquierdo con Z-INDEX ALTO */
-        .input-group .left-icon {
+        .input-group .input-icon-left {
             position: absolute;
-            left: 15px;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--text-gray);
-            font-size: 16px;
+            z-index: 10;
             pointer-events: none;
-            z-index: 10; /* Evita que el input lo cubra */
+            transition: color 0.3s ease;
+            font-size: 14px;
         }
 
-        /* Ícono derecho con Z-INDEX ALTO */
-        .input-group .right-icon {
+        .input-group .input-icon-right {
             position: absolute;
-            right: 15px;
-            font-size: 16px;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            z-index: 5;
             pointer-events: none;
-            z-index: 10; /* Evita que el input lo cubra */
+            transition: color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .input-group .input-icon-right.error {
+            color: #dc3545;
+        }
+
+        .input-group .input-icon-right.success {
+            color: #28a745;
         }
 
         .form-control {
-            position: relative;
-            z-index: 1; /* El input queda por debajo de los íconos */
             width: 100%;
-            padding: 12px 40px; 
+            padding: 12px 40px 12px 40px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.3s;
-            background-color: transparent;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
         .form-control:focus { 
             border-color: var(--primary-color);
-            background-color: #f4f6fc; 
+            box-shadow: 0 0 0 3px rgba(204, 29, 29, 0.1);
+        }
+
+        .form-control.is-valid {
+            border-color: #28a745;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
         }
 
         .form-options {
@@ -242,7 +329,24 @@
             margin-top: 10px;
         }
 
-        /* PANEL DERECHO */
+        .code-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+        .code-input {
+            width: 45px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+        }
+        .code-input:focus { border-color: var(--primary-color); }
+
         .system-info {
             align-self: flex-end;
             text-align: right;
@@ -274,6 +378,58 @@
             margin-top: 20px;
         }
 
+        /* Estilos modo oscuro para login */
+        body.dark-mode .container {
+            background-color: #1a1f2e;
+        }
+
+        body.dark-mode .left-panel {
+            background-color: #1a1f2e;
+        }
+
+        body.dark-mode .right-panel {
+            background-color: #131725;
+        }
+
+        body.dark-mode h1,
+        body.dark-mode .form-group label,
+        body.dark-mode .system-info h3,
+        body.dark-mode .system-info p {
+            color: #e7e9f0 !important;
+        }
+
+        body.dark-mode .form-control {
+            background-color: #2a3041;
+            border-color: #3a4055;
+            color: #e7e9f0;
+        }
+
+        body.dark-mode .form-control:focus {
+            border-color: #cc1d1d;
+            box-shadow: 0 0 0 3px rgba(204, 29, 29, 0.2);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: #2a3041;
+        }
+
+        body.dark-mode .theme-toggle .toggle-switch {
+            background: #3a4055;
+        }
+
+        body.dark-mode .system-info {
+            background: #131725;
+        }
+
+        body.dark-mode .bottom-text,
+        body.dark-mode .form-options {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .checkbox-group {
+            color: #9ca3af;
+        }
+
         @media (max-width: 768px) {
             .container { flex-direction: column; min-height: auto; }
             .left-panel, .right-panel { width: 100%; padding: 30px 20px; }
@@ -283,6 +439,15 @@
     </style>
 </head>
 <body>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
+        <i class="fa fa-sun"></i>
+        <div class="toggle-switch">
+            <div class="toggle-slider"></div>
+        </div>
+        <i class="fa fa-moon"></i>
+    </div>
 
     <div class="container" id="main-container">
         
@@ -306,11 +471,9 @@
                         <div class="form-group">
                             <label>Usuario</label>
                             <div class="input-group">
-                                <span class="fa fa-user left-icon"></span>
-                                
+                                <i class="fa fa-user input-icon-left"></i>
                                 <input type="text" class="form-control input_username" name="username" id="username" placeholder="Username" oninput="username_validacion()" required>
-                                
-                                <span id="icono-validacionUsername" class="right-icon"></span>
+                                <span id="icono-validacionUsername" class="input-icon-right"></span>
                             </div>
                             <span id="errorUsername" class="error-messege" style="color: red; font-size: 12px; margin-top: 4px; display: block;"></span>
                         </div>
@@ -318,11 +481,9 @@
                         <div class="form-group">
                             <label>Contraseña</label>
                             <div class="input-group">
-                                <span class="fa fa-lock left-icon"></span>
-                                
+                                <i class="fa fa-lock input-icon-left"></i>
                                 <input type="password" class="form-control input_pw" name="password" id="password" placeholder="••••••••" oninput="password_validacion()" required>
-                                
-                                <span id="icono-validacionPW" class="right-icon"></span>
+                                <span id="icono-validacionPW" class="input-icon-right"></span>
                             </div>
                             <span id="errorPW" class="error-messege" style="color: red; font-size: 12px; margin-top: 4px; display: block;"></span>
                         </div>
@@ -343,30 +504,44 @@
                     </div>
                 </div>
 
+                <div id="view-2fa" class="form-view">
+                    <h1>Verificación de Seguridad</h1>
+                    <p style="text-align: center; color: var(--text-gray); margin-bottom: 25px; font-size: 14px;">
+                        Hemos enviado un código de 6 dígitos a tu correo electrónico para verificar tu identidad.
+                    </p>
+                    
+                    <form onsubmit="event.preventDefault(); alert('Código verificado. Redirigiendo...');">
+                        <div class="code-input-group">
+                            <input type="text" class="code-input" maxlength="1" pattern="\d" required>
+                            <input type="text" class="code-input" maxlength="1" pattern="\d" required>
+                            <input type="text" class="code-input" maxlength="1" pattern="\d" required>
+                            <input type="text" class="code-input" maxlength="1" pattern="\d" required>
+                            <input type="text" class="code-input" maxlength="1" pattern="\d" required>
+                            <input type="text" class="code-input" maxlength="1" pattern="\d" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Verificar Código &rarr;</button>
+                    </form>
+
+                    <div class="bottom-text">
+                        ¿No recibiste el código? <a href="#" class="switch-link">Reenviar</a>
+                    </div>
+                </div>
+
                 <div id="view-register" class="form-view">
                     <h1>Crear Cuenta</h1>
                     
                     <form action="index.php?url=autenticator&action=registrar" method="post">
                         <div class="form-group">
                             <label>Nombre Completo</label>
-                            <div class="input-group">
-                                <span class="fa fa-address-card left-icon"></span>
-                                <input type="text" class="form-control" name="nombre" placeholder="Juan Pérez" required>
-                            </div>
+                            <input type="text" class="form-control" name="username" placeholder="Juan Pérez" required>
                         </div>
                         <div class="form-group">
                             <label>Correo Electrónico / Usuario</label>
-                            <div class="input-group">
-                                <span class="fa fa-user left-icon"></span>
-                                <input type="text" class="form-control" name="username_reg" placeholder="usuario" required>
-                            </div>
+                            <input type="text" class="form-control" name="email" placeholder="usuario" required>
                         </div>
                         <div class="form-group">
                             <label>Contraseña</label>
-                            <div class="input-group">
-                                <span class="fa fa-lock left-icon"></span>
-                                <input type="password" class="form-control" name="password_reg" placeholder="••••••••" required>
-                            </div>
+                            <input type="password" class="form-control" name="password" placeholder="••••••••" required>
                         </div>
                         <button type="submit" class="submit-btn">Registrarse &rarr;</button>
                     </form>
@@ -382,13 +557,10 @@
                         Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
                     </p>
                     
-                    <form action="index.php?url=autenticator&action=ajustes" method="post">
+                    <form action="index.php?url=autenticator&action=recuperar" method="post">
                         <div class="form-group">
                             <label>Correo Electrónico</label>
-                            <div class="input-group">
-                                <span class="fa fa-envelope left-icon"></span>
-                                <input type="email" class="form-control" name="correo_recuperacion" placeholder="usuario@correo.com" required>
-                            </div>
+                            <input type="email" class="form-control" name="email" placeholder="usuario@correo.com" required>
                         </div>
                         <button type="submit" class="submit-btn">Enviar enlace de recuperación &rarr;</button>
                     </form>
@@ -436,6 +608,29 @@
 
             document.getElementById(viewId).classList.add('active');
         }
+
+        const inputs2FA = document.querySelectorAll('.code-input');
+        inputs2FA.forEach((input, index) => {
+            input.addEventListener('keyup', (e) => {
+                if (e.key >= 0 && e.key <= 9) {
+                    if (index < inputs2FA.length - 1) {
+                        inputs2FA[index + 1].focus();
+                    }
+                } else if (e.key === 'Backspace') {
+                    if (index > 0) {
+                        inputs2FA[index - 1].focus();
+                    }
+                }
+            });
+        });
+
+        // Detectar si se debe mostrar la vista de registro
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('view') === 'register') {
+                switchView('view-register');
+            }
+        });
     </script>
 </body>
 </html>
