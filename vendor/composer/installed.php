@@ -3,7 +3,7 @@
         'name' => 'usuario/kaiadmin',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '5929f45b8d8406f756dd331a8291337d144c5cf4',
+        'reference' => '28f5619a6bb97542ce5a23d369f3c9fac73c30eb',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -49,7 +49,7 @@
         'usuario/kaiadmin' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '5929f45b8d8406f756dd331a8291337d144c5cf4',
+            'reference' => '28f5619a6bb97542ce5a23d369f3c9fac73c30eb',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

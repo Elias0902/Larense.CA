@@ -1,9 +1,14 @@
 {
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "fd43bb17957922f023f21b21327d69fb",
     "packages": [
         {
             "name": "laminas/laminas-escaper",
             "version": "2.18.0",
-            "version_normalized": "2.18.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-escaper.git",
@@ -30,9 +35,7 @@
                 "psalm/plugin-phpunit": "^0.19.5",
                 "vimeo/psalm": "^6.13.1"
             },
-            "time": "2025-10-14T18:31:13+00:00",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "Laminas\\Escaper\\": "src/"
@@ -62,12 +65,11 @@
                     "type": "community_bridge"
                 }
             ],
-            "install-path": "../laminas/laminas-escaper"
+            "time": "2025-10-14T18:31:13+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
             "version": "v7.0.2",
-            "version_normalized": "7.0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
@@ -107,9 +109,7 @@
                 "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)",
                 "thenetworg/oauth2-azure": "Needed for Microsoft XOAUTH2 authentication"
             },
-            "time": "2026-01-09T18:02:33+00:00",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "PHPMailer\\PHPMailer\\": "src/"
@@ -147,12 +147,11 @@
                     "type": "github"
                 }
             ],
-            "install-path": "../phpmailer/phpmailer"
+            "time": "2026-01-09T18:02:33+00:00"
         },
         {
             "name": "phpoffice/phpword",
             "version": "0.18.3",
-            "version_normalized": "0.18.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PHPWord.git",
@@ -189,14 +188,12 @@
                 "ext-xsl": "Allows applying XSL style sheet to headers, to main document part, and to footers of an OOXML template",
                 "ext-zip": "Allows writing OOXML and ODF"
             },
-            "time": "2022-02-17T15:40:03+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
                     "dev-develop": "0.19-dev"
                 }
             },
-            "installation-source": "dist",
             "autoload": {
                 "psr-4": {
                     "PhpOffice\\PhpWord\\": "src/PhpWord"
@@ -262,12 +259,11 @@
                 "issues": "https://github.com/PHPOffice/PHPWord/issues",
                 "source": "https://github.com/PHPOffice/PHPWord/tree/0.18.3"
             },
-            "install-path": "../phpoffice/phpword"
+            "time": "2022-02-17T15:40:03+00:00"
         },
         {
             "name": "setasign/fpdf",
             "version": "1.8.6",
-            "version_normalized": "1.8.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Setasign/FPDF.git",
@@ -283,9 +279,7 @@
                 "ext-gd": "*",
                 "ext-zlib": "*"
             },
-            "time": "2023-06-26T14:44:25+00:00",
             "type": "library",
-            "installation-source": "dist",
             "autoload": {
                 "classmap": [
                     "fpdf.php"
@@ -311,9 +305,16 @@
             "support": {
                 "source": "https://github.com/Setasign/FPDF/tree/1.8.6"
             },
-            "install-path": "../setasign/fpdf"
+            "time": "2023-06-26T14:44:25+00:00"
         }
     ],
-    "dev": true,
-    "dev-package-names": []
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }
