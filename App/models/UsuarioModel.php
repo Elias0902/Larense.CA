@@ -2,7 +2,6 @@
 
 // llama al modelo conexion
 require_once "ConexionModel.php";
-require_once "AuditoriaModel.php";
 
 class Usuario extends Conexion {
 
@@ -19,388 +18,623 @@ class Usuario extends Conexion {
         parent::__construct();
     }
 
-    // metodo para obtener todos los usuarios
-    public function ObtenerTodosUsuarios() {
-        try {
-            $sql = "SELECT u.id_usuario, u.nombre_usuario, u.email_usuario,
-                           u.id_rol_usuario, r.nombre_rol, u.status, u.imagen_perfil
-                    FROM usuarios u
-                    INNER JOIN roles r ON u.id_rol_usuario = r.id_rol
-                    ORDER BY u.id_usuario DESC";
+     // metodo que me valida y asigna los datos del objeto recibido para la funcion registrar
+    private function setUsuarioUpdateData($usuario_json) {
 
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->execute();
+        // valida si el json es string y lo descompone
+        if (is_string($usuario_json)) {
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
-    }
+            // se almacena el contenido del json en la variable usuario
+            $usuario = json_decode($usuario_json, true);
+            
+            // valida que el json cumpla con el formato requerido
+            if ($usuario === null) {
 
-    // metodo para obtener un usuario por ID
-    public function ObtenerUsuarioPorId($id_usuario) {
-        try {
-            $sql = "SELECT u.id_usuario, u.nombre_usuario, u.email_usuario,
-                           u.id_rol_usuario, r.nombre_rol, u.status, u.imagen_perfil
-                    FROM usuarios u
-                    INNER JOIN roles r ON u.id_rol_usuario = r.id_rol
-                    WHERE u.id_usuario = :id_usuario";
-
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-            $stmt->execute();
-
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return null;
-        }
-    }
-
-    // metodo para obtener los roles
-    public function ObtenerRoles() {
-        try {
-            $sql = "SELECT id_rol, nombre_rol FROM roles WHERE status = 1 ORDER BY nombre_rol";
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
-    }
-
-    // metodo para verificar si un usuario ya existe
-    public function ExisteUsuario($nombre_usuario, $email_usuario) {
-        try {
-            $sql = "SELECT COUNT(*) as total FROM usuarios
-                    WHERE (nombre_usuario = :nombre_usuario OR email_usuario = :email_usuario)
-                    AND status = 1";
-
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
-            $stmt->bindParam(':email_usuario', $email_usuario, PDO::PARAM_STR);
-            $stmt->execute();
-
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $resultado['total'] > 0;
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-
-    // metodo para verificar si un usuario ya existe con otro ID
-    public function ExisteUsuarioOtroId($nombre_usuario, $email_usuario, $id_usuario) {
-        try {
-            $sql = "SELECT COUNT(*) as total FROM usuarios
-                    WHERE (nombre_usuario = :nombre_usuario OR email_usuario = :email_usuario)
-                    AND id_usuario != :id_usuario AND status = 1";
-
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
-            $stmt->bindParam(':email_usuario', $email_usuario, PDO::PARAM_STR);
-            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-            $stmt->execute();
-
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $resultado['total'] > 0;
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-
-    // metodo para crear un nuevo usuario
-    public function CrearUsuario($nombre_usuario, $email_usuario, $password, $id_rol) {
-        try {
-            // hashea la contrasena
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
-            $sql = "INSERT INTO usuarios (nombre_usuario, email_usuario, password_usuario, id_rol_usuario, status)
-                    VALUES (:nombre_usuario, :email_usuario, :password, :id_rol, 1)";
-
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
-            $stmt->bindParam(':email_usuario', $email_usuario, PDO::PARAM_STR);
-            $stmt->bindParam(':password', $password_hash, PDO::PARAM_STR);
-            $stmt->bindParam(':id_rol', $id_rol, PDO::PARAM_INT);
-
-            if ($stmt->execute()) {
-                $id_creado = $this->connSeguridad->lastInsertId();
-                
-                // Registrar en bitacora
-                Auditoria::logCrud(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    Auditoria::OP_INSERT,
-                    'usuarios',
-                    $id_creado,
-                    'Usuario creado: ' . $nombre_usuario . ' (Rol: ' . $id_rol . ')',
-                    null,
-                    ['id_usuario' => $id_creado, 'nombre_usuario' => $nombre_usuario, 'email_usuario' => $email_usuario, 'id_rol_usuario' => $id_rol, 'status' => 1]
-                );
-                
-                return ['status' => true, 'msj' => 'Usuario creado correctamente', 'id' => $id_creado];
-            } else {
-                
-                // Registrar error en bitacora
-                Auditoria::logError(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    'usuarios',
-                    Auditoria::OP_INSERT,
-                    'Error al ejecutar query de insercion',
-                    ['nombre_usuario' => $nombre_usuario, 'email_usuario' => $email_usuario, 'id_rol' => $id_rol]
-                );
-                
-                return ['status' => false, 'msj' => 'Error al crear el usuario'];
+                // retorna un arry con el mensaje y el status
+                return ['status' => false, 'msj' => 'JSON invalido.'];
             }
-        } catch (PDOException $e) {
+        }
+
+        // expreciones regulares y validaciones
+        $expre_username = '/^[a-zA-Z0-9@_]+$/'; //para el usernmae
+        $expre_email = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'; // para el email
+        $expre_password = '/^(?=.*[A-Z])(?=.*\.)[a-zA-Z0-9.]{6,}$/'; // para el password
+        $expre_numeric = '/^\d+$/'; // para los numeros
+
+        // almacena el id en la variable para despues validar
+        $id = trim($usuario['id'] ?? '');
+        // valida el rol si cumple con todos los requisitos
+        if ($id === '' || !preg_match($expre_numeric, $id)) {
+            //retorna un arry de status con el mensaje en caso de error 
+            return['status' => false, 'msj' => 'El id es invalido intentenlo de nuevo.'];
+        }
+
+        // asigna el valor en el atributo del objeto si todo salio bien
+        $this->id_usuario = $id;
+
+        // almacena el username en la variable para despues validar
+        $username = trim($usuario['nombre'] ?? '');
+        // valida el username si cumple con los requisitos
+        if ($username === '' || !preg_match($expre_username, $username) || strlen($username) > 20 || strlen($username) < 5) {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'EL nombre de usuario es invalido debe tener minimo 5 y maximo 20 caracteres y debe tener un @ y/o un _  ej:@usuario_123 .'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->nombre_usuario = $username;
+
+        // almacena el email en la variable para despues validar
+        $email = trim($usuario['email'] ?? '');
+        // valida el email si cumple con los requisitos
+        if ($email === '' || !preg_match($expre_email, $email) || strlen($email) > 60 || strlen($email) < 7) {
+            //retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'El email es invalido debe tener minimo 7 y maximo 60 caracteres y debe tener un @ y un .com  ej: example@email.com .'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->email_usuario = $email;
+
+        // almacena la password en la variable para despues validar
+        $password = trim($usuario['password'] ?? '');
+        // valida la password si cumple con todos los requisitos
+        if ($password === '' || !preg_match($expre_password, $password) || strlen($password) > 11 || strlen($password) < 6) {
+            //retorna un arry de status con el mensaje en caso de error
+            return['status' => false, 'msj' => 'La password es invalida debe tener minimo 6 y maximo 11 caracteres y debe tener un caracter mayuscula y un .  ej: Example12. .'];
+        }
+
+        // encripta la password una ves validada
+        $password_hash = password_hash($password, PASSWORD_DEFAULT); 
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->password_usuario = $password_hash;
+
+        // almacena el rol en la variable para despues validar
+        $rol = trim($usuario['rol'] ?? '');
+        // valida el rol si cumple con todos los requisitos
+        if ($rol === '' && !preg_match($expre_numeric, $rol)) {
+            //retorna un arry de status con el mensaje en caso de error 
+            return['status' => true, 'msj' => 'El rol es invalido intentenlo de nuevo.'];
+        }
+
+        // asigna el valor en el atributo del objeto si todo salio bien
+        $this->id_rol_usuario = $rol;
+
+        // retorna true si todo fue validado y asignado correctamente
+        return['status' => true, 'msj' => 'Datos validados y asignados correctamente.']; 
+    }
+
+    private function setUsuarioData($usuario_json) {
+
+        // valida si el json es string y lo descompone
+        if (is_string($usuario_json)) {
+
+            // se almacena el contenido del json en la variable usuario
+            $usuario = json_decode($usuario_json, true);
             
-            // Registrar error en bitacora
-            Auditoria::logError(
-                Auditoria::getUsuarioActual(),
-                'Usuarios',
-                'usuarios',
-                Auditoria::OP_INSERT,
-                $e->getMessage(),
-                ['nombre_usuario' => $nombre_usuario, 'email_usuario' => $email_usuario, 'id_rol' => $id_rol]
-            );
+            // valida que el json cumpla con el formato requerido
+            if ($usuario === null) {
+
+                // retorna un arry con el mensaje y el status
+                return ['status' => false, 'msj' => 'JSON invalido.'];
+            }
+        }
+
+        // expreciones regulares y validaciones
+        $expre_username = '/^[a-zA-Z0-9@_]+$/'; //para el usernmae
+        $expre_email = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'; // para el email
+        $expre_password = '/^(?=.*[A-Z])(?=.*\.)[a-zA-Z0-9.]{6,}$/'; // para el password
+        $expre_numeric = '/^\d+$/'; // para los numeros
+
+        // almacena el username en la variable para despues validar
+        $username = trim($usuario['nombre'] ?? '');
+        // valida el username si cumple con los requisitos
+        if ($username === '' || !preg_match($expre_username, $username) || strlen($username) > 20 || strlen($username) < 5) {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'EL nombre de usuario es invalido debe tener minimo 5 y maximo 20 caracteres y debe tener un @ y/o un _  ej:@usuario_123 .'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->nombre_usuario = $username;
+
+        // almacena el email en la variable para despues validar
+        $email = trim($usuario['email'] ?? '');
+        // valida el email si cumple con los requisitos
+        if ($email === '' || !preg_match($expre_email, $email) || strlen($email) > 60 || strlen($email) < 7) {
+            //retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'El email es invalido debe tener minimo 7 y maximo 60 caracteres y debe tener un @ y un .com  ej: example@email.com .'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->email_usuario = $email;
+
+        // almacena la password en la variable para despues validar
+        $password = trim($usuario['password'] ?? '');
+        // valida la password si cumple con todos los requisitos
+        if ($password === '' || !preg_match($expre_password, $password) || strlen($password) > 11 || strlen($password) < 6) {
+            //retorna un arry de status con el mensaje en caso de error
+            return['status' => false, 'msj' => 'La password es invalida debe tener minimo 6 y maximo 11 caracteres y debe tener un caracter mayuscula y un .  ej: Example12. .'];
+        }
+
+        // encripta la password una ves validada
+        $password_hash = password_hash($password, PASSWORD_DEFAULT); 
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->password_usuario = $password_hash;
+
+        // almacena el rol en la variable para despues validar
+        $rol = trim($usuario['rol'] ?? '');
+        // valida el rol si cumple con todos los requisitos
+        if ($rol === '' && !preg_match($expre_numeric, $rol)) {
+            //retorna un arry de status con el mensaje en caso de error 
+            return['status' => true, 'msj' => 'El rol es invalido intentenlo de nuevo.'];
+        }
+
+        // asigna el valor en el atributo del objeto si todo salio bien
+        $this->id_rol_usuario = $rol;
+
+        // retorna true si todo fue validado y asignado correctamente
+        return['status' => true, 'msj' => 'Datos validados y asignados correctamente.']; 
+    }
+
+    // metodo que me valida y asigna los datos del objeto recibido para la funcion obtener
+    private function setUsuarioID($usuario_json) {
+
+         // valida si el json es string y lo descompone
+        if (is_string($usuario_json)) {
+
+            // se almacena el contenido del json en la variable usuario
+            $usuario = json_decode($usuario_json, true);
             
-            return ['status' => false, 'msj' => 'Error: ' . $e->getMessage()];
+            // valida que el json cumpla con el formato requerido
+            if ($usuario === null) {
+
+                // retorna un arry con el mensaje y el status
+                return ['status' => false, 'msj' => 'JSON invalido.'];
+            }
+        }
+
+        $expre_numeric = '/^\d+$/'; // para los numeros
+
+        // almacena el id en la variable para despues validar
+        $id = trim($usuario['id'] ?? '');
+        // valida el rol si cumple con todos los requisitos
+        if ($id === '' || !preg_match($expre_numeric, $id)) {
+            //retorna un arry de status con el mensaje en caso de error 
+            return['status' => false, 'msj' => 'El id es invalido intentenlo de nuevo.'];
+        }
+
+        // asigna el valor en el atributo del objeto si todo salio bien
+        $this->id_usuario = $id;
+
+        // retorna true si todo fue validado y asignado correctamente
+        return['status' => true, 'msj' => 'Datos validados y asignados correctamente.']; 
+    }
+
+        // GETTERS
+
+    // para el id
+    private function getID() {
+
+        // retorna el id
+        return $this->id_usuario;
+    }
+
+    // para el username
+    private function getNombre() {
+
+        // retorna el username
+        return $this->nombre_usuario;
+    }
+
+    // para el email
+    private function getEmail() {
+
+        // retorna el email
+        return $this->email_usuario;
+    }
+
+    // para el password
+    private function getPassword() {
+
+        //retorna el password
+        return $this->password_usuario;
+    }
+
+    // para el rol
+    private function getRol() {
+
+        //retorna el rol
+        return $this->id_rol_usuario;
+    }
+
+    // Esta se encarga de procesar los action indiferentemente cual sea llama la funcion de 
+    // validacio y luego al metodo correspondiente al action
+    // donde primero recibe el action como primer parametro que son los de agregar etc.. 
+    // y el objeto json como segundo parametro para las validaciones y asiganciones al objeto 
+    public function manejarAccion($action, $usuario_json ){
+
+        // maneja el action y carga la funcion correspondiente a la action
+        switch($action){
+
+            case 'agregar':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setUsuarioData($usuario_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Guardar_Usuario();
+
+            // termina el script    
+            break;
+
+            case 'obtener':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setUsuarioID($usuario_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Obtener_Usuario();
+
+            // termina el script    
+            break;
+
+            case 'modificar':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setUsuarioUpdateData($usuario_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Actualizar_Usuario();
+
+            // termina el script    
+            break;
+
+            case 'eliminar':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setUsuarioID($usuario_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Eliminar_Usuario();
+
+            // termina el script    
+            break;
+
+            case 'consultar':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_Usuario();
+
+            // termina el script
+            break;
+
+            default:
+
+                // retorna un mensaje de error en caso de no existir la accion
+                return['status' => false, 'msj' => 'Accion Invalida.'];
+
+            // termina el script
+            break;
         }
     }
 
-    // metodo para actualizar un usuario
-    public function ActualizarUsuario($id_usuario, $nombre_usuario, $email_usuario, $id_rol, $password = '') {
+   // funcion para consultar categorias
+    private function Mostrar_Usuario() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
         try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+
+            // consulta las categorias
+            $query = "SELECT u.*, r.nombre_rol
+                        FROM usuarios u
+                        INNER JOIN roles r ON r.id_rol = u.id_rol_usuario
+                        WHERE u.status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Usuarios encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Usuarios no encontrados o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para registrar categoria
+    private function Guardar_Usuario() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+
+            // ruta img default
+            $img = 'assets/img/perfiles/profile.jpg';
+
+            // inserta una categoria
+            $query = "INSERT INTO usuarios (nombre_usuario, password_usuario, email_usuario, id_rol_usuario, img_usuario)
+                                            VALUES (:nombre, :pw, :email, :rol, :img )";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // vincula los parametros
+            $stmt->bindValue(':nombre', $this->getNombre());
+            $stmt->bindValue(':pw', $this->getPassword());
+            $stmt->bindValue(':email', $this->getEmail());
+            $stmt->bindValue(':rol', $this->getRol());
+            $stmt->bindValue(':img', $img);
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+                
+                // Obtener el ID del registro creado
+                $id_creado = $conn->lastInsertId();
+
+                //retorna el status con el mensaje y los datos de usuario
+                return['status' => true, 'msj' => 'Usuario Registrado con exito.'];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Error al registar usuario.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para obtener un registro
+    private function Obtener_Usuario() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+
+            // actualiza el status la categoria
+            $query = "SELECT *
+                        FROM usuarios
+                        WHERE id_usuario = :id AND status = 1";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query); 
+
+            // vincula los parametros
+            $stmt->bindValue(":id", $this->getID());
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+
+                // obtiene los datos de la consulta
+                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Usuario encontrado con exito.', 'data' => $data, 'data_bitacora' => $data];
+            }
+            else {
+
+                // retiorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Usuario no encontrado error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para modificar categoria
+    private function Actualizar_Usuario() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+            
             // Obtener datos actuales antes de actualizar (para bitacora)
-            $sql_select = "SELECT * FROM usuarios WHERE id_usuario = :id_usuario";
-            $stmt_select = $this->connSeguridad->prepare($sql_select);
-            $stmt_select->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-            $stmt_select->execute();
-            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+            $query_select = "SELECT * FROM usuarios 
+                                    WHERE id_usuario = :id 
+                                    AND status = 1";
+
+            // prepara la consulta
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getID());
             
-            // si se proporciono una nueva contrasena, la actualiza tambien
-            if (!empty($password)) {
-                $expre_password = '/^(?=.*[A-Z])(?=.*\.)[a-zA-Z0-9.]{6,}$/';
-                if (!preg_match($expre_password, $password)) {
-                    return ['status' => false, 'msj' => 'La contrasena debe tener minimo 6 caracteres, una mayuscula y un punto'];
-                }
+            // ejecuta la sentencia
+            $stmt_select->execute();
 
-                $password_hash = password_hash($password, PASSWORD_DEFAULT);
+            // el arry assoc se almacena en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
 
-                $sql = "UPDATE usuarios
-                        SET nombre_usuario = :nombre_usuario,
-                            email_usuario = :email_usuario,
-                            id_rol_usuario = :id_rol,
-                            password_usuario = :password
-                        WHERE id_usuario = :id_usuario";
+            // modificar una categoria
+            $query = "UPDATE usuarios 
+                        SET nombre_usuario = :nombre, 
+                            email_usuario = :email,
+                            id_rol_usuario = :rol,
+                            password_usuario = :pw 
+                        WHERE id_usuario = :id ";
 
-                $stmt = $this->connSeguridad->prepare($sql);
-                $stmt->bindParam(':password', $password_hash, PDO::PARAM_STR);
-            } else {
-                $sql = "UPDATE usuarios
-                        SET nombre_usuario = :nombre_usuario,
-                            email_usuario = :email_usuario,
-                            id_rol_usuario = :id_rol
-                        WHERE id_usuario = :id_usuario";
+            // prepara la sentencia 
+            $stmt = $conn->prepare($query);
 
-                $stmt = $this->connSeguridad->prepare($sql);
-            }
-
-            $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
-            $stmt->bindParam(':email_usuario', $email_usuario, PDO::PARAM_STR);
-            $stmt->bindParam(':id_rol', $id_rol, PDO::PARAM_INT);
-            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-
+            // vincula los parametros
+            $stmt->bindValue(':id', $this->getID());
+            $stmt->bindValue(':nombre', $this->getNombre());
+            $stmt->bindValue(':email', $this->getEmail());
+            $stmt->bindValue(':rol', $this->getRol());
+            $stmt->bindValue(':pw', $this->getPassword());
+             
+            // se valida si se ejecuto la sentencia y si es true
             if ($stmt->execute()) {
-                
-                // Datos nuevos para auditoria
-                $datos_nuevos = [
-                    'id_usuario' => $id_usuario,
-                    'nombre_usuario' => $nombre_usuario,
-                    'email_usuario' => $email_usuario,
-                    'id_rol_usuario' => $id_rol
-                ];
-                if (!empty($password)) {
-                    $datos_nuevos['password_cambiado'] = true;
-                }
-                
-                // Registrar en bitacora
-                Auditoria::logCrud(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    Auditoria::OP_UPDATE,
-                    'usuarios',
-                    $id_usuario,
-                    'Usuario actualizado: ' . $nombre_usuario . ($datos_anteriores && $datos_anteriores['id_rol_usuario'] != $id_rol ? ' (Cambio de rol de ' . $datos_anteriores['id_rol_usuario'] . ' a ' . $id_rol . ')' : ''),
-                    $datos_anteriores,
-                    $datos_nuevos
-                );
-                
-                return ['status' => true, 'msj' => 'Usuario actualizado correctamente'];
-            } else {
-                
-                // Registrar error en bitacora
-                Auditoria::logError(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    'usuarios',
-                    Auditoria::OP_UPDATE,
-                    'Error al ejecutar query de actualizacion',
-                    ['id_usuario' => $id_usuario, 'nombre_usuario' => $nombre_usuario, 'id_rol' => $id_rol]
-                );
-                
-                return ['status' => false, 'msj' => 'Error al actualizar el usuario'];
+
+                //retorna el status con el mensaje y los datos de usuario
+                return['status' => true, 'msj' => 'Usuario Actualizado con exito.', 'data_bitacora' => $datos_anteriores];
             }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Error al actualizar usuario.'];
+            }
+
         } catch (PDOException $e) {
             
-            // Registrar error en bitacora
-            Auditoria::logError(
-                Auditoria::getUsuarioActual(),
-                'Usuarios',
-                'usuarios',
-                Auditoria::OP_UPDATE,
-                $e->getMessage(),
-                ['id_usuario' => $id_usuario, 'nombre_usuario' => $nombre_usuario, 'id_rol' => $id_rol]
-            );
-            
-            return ['status' => false, 'msj' => 'Error: ' . $e->getMessage()];
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
         }
     }
 
-    // metodo para eliminar un usuario (cambia el status a 0)
-    public function EliminarUsuario($id_usuario) {
+    // funcion para elimanar un registro
+    private function Eliminar_Usuario() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
         try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+            
             // Obtener datos actuales antes de eliminar (para bitacora)
-            $sql_select = "SELECT * FROM usuarios WHERE id_usuario = :id_usuario";
-            $stmt_select = $this->connSeguridad->prepare($sql_select);
-            $stmt_select->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+            $query_select = "SELECT * FROM usuarios 
+                                    WHERE id_usuario = :id 
+                                    AND status = 1";
+
+            // oeroara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getID());
+
+            // ejecuta la sentencia
             $stmt_select->execute();
+
+            // se almacena arry asocc en la var
             $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
-            
-            $sql = "UPDATE usuarios SET status = 0 WHERE id_usuario = :id_usuario";
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
 
+            // actualiza el status la categoria
+            $query = "UPDATE usuarios
+                        SET status = 0
+                        WHERE id_usuario = :id";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query); 
+
+            // vincula los parametros
+            $stmt->bindValue(":id", $this->getID());
+
+             // se valida si se ejecuto la sentencia y si es true
             if ($stmt->execute()) {
-                
-                // Registrar en bitacora
-                Auditoria::logCrud(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    Auditoria::OP_DELETE,
-                    'usuarios',
-                    $id_usuario,
-                    'Usuario eliminado (status=0): ' . ($datos_anteriores['nombre_usuario'] ?? 'ID ' . $id_usuario),
-                    $datos_anteriores,
-                    ['id_usuario' => $id_usuario, 'status' => 0, 'nombre_usuario' => $datos_anteriores['nombre_usuario'] ?? null]
-                );
-                
-                return ['status' => true, 'msj' => 'Usuario eliminado correctamente'];
-            } else {
-                
-                // Registrar error en bitacora
-                Auditoria::logError(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    'usuarios',
-                    Auditoria::OP_DELETE,
-                    'Error al ejecutar query de eliminacion',
-                    ['id_usuario' => $id_usuario]
-                );
-                
-                return ['status' => false, 'msj' => 'Error al eliminar el usuario'];
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Usuario Eliminado con exito.', 'data_bitacora' => $datos_anteriores];
             }
-        } catch (PDOException $e) {
-            
-            // Registrar error en bitacora
-            Auditoria::logError(
-                Auditoria::getUsuarioActual(),
-                'Usuarios',
-                'usuarios',
-                Auditoria::OP_DELETE,
-                $e->getMessage(),
-                ['id_usuario' => $id_usuario]
-            );
-            
-            return ['status' => false, 'msj' => 'Error: ' . $e->getMessage()];
-        }
-    }
+            else {
 
-    // metodo para cambiar el estado de un usuario
-    public function CambiarEstado($id_usuario, $nuevo_estado) {
-        try {
-            // Obtener datos actuales antes de cambiar estado (para bitacora)
-            $sql_select = "SELECT * FROM usuarios WHERE id_usuario = :id_usuario";
-            $stmt_select = $this->connSeguridad->prepare($sql_select);
-            $stmt_select->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-            $stmt_select->execute();
-            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
-            
-            $sql = "UPDATE usuarios SET status = :status WHERE id_usuario = :id_usuario";
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':status', $nuevo_estado, PDO::PARAM_INT);
-            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-
-            if ($stmt->execute()) {
-                $estado_texto = $nuevo_estado == 1 ? 'activado' : 'desactivado';
-                
-                // Registrar en bitacora
-                Auditoria::logCrud(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    Auditoria::OP_UPDATE,
-                    'usuarios',
-                    $id_usuario,
-                    'Usuario ' . $estado_texto . ': ' . ($datos_anteriores['nombre_usuario'] ?? 'ID ' . $id_usuario),
-                    $datos_anteriores,
-                    ['id_usuario' => $id_usuario, 'status' => $nuevo_estado, 'nombre_usuario' => $datos_anteriores['nombre_usuario'] ?? null]
-                );
-                
-                return ['status' => true, 'msj' => 'Usuario ' . $estado_texto . ' correctamente'];
-            } else {
-                
-                // Registrar error en bitacora
-                Auditoria::logError(
-                    Auditoria::getUsuarioActual(),
-                    'Usuarios',
-                    'usuarios',
-                    Auditoria::OP_UPDATE,
-                    'Error al cambiar estado del usuario',
-                    ['id_usuario' => $id_usuario, 'nuevo_estado' => $nuevo_estado]
-                );
-                
-                return ['status' => false, 'msj' => 'Error al cambiar el estado'];
+                // retiorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Usuario no eliminado error.'];
             }
+
         } catch (PDOException $e) {
             
-            // Registrar error en bitacora
-            Auditoria::logError(
-                Auditoria::getUsuarioActual(),
-                'Usuarios',
-                'usuarios',
-                Auditoria::OP_UPDATE,
-                $e->getMessage(),
-                ['id_usuario' => $id_usuario, 'nuevo_estado' => $nuevo_estado]
-            );
-            
-            return ['status' => false, 'msj' => 'Error: ' . $e->getMessage()];
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
         }
-    }
+        finally {
 
-    // metodo para registrar en bitacora
-    public function RegistrarBitacora($id_usuario, $modulo, $accion, $descripcion) {
-        try {
-            $sql = "INSERT INTO bitacoras (id_usuario, modulo, accion, descripcion, fecha_bitacora)
-                    VALUES (:id_usuario, :modulo, :accion, :descripcion, NOW())";
-
-            $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-            $stmt->bindParam(':modulo', $modulo, PDO::PARAM_STR);
-            $stmt->bindParam(':accion', $accion, PDO::PARAM_STR);
-            $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
-            $stmt->execute();
-        } catch (PDOException $e) {
-            // no hace nada si falla la bitacora
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
         }
     }
 }

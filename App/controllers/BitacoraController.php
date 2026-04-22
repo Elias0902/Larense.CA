@@ -125,7 +125,7 @@
     setError("Error acceso no permitido");
 
     //redirect
-    require_once 'app/views/categoriasView.php';
+    require_once 'app/views/bitacoraView.php';
                 
     // termina el script
     exit();

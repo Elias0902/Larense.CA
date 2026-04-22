@@ -276,143 +276,172 @@
     <?php require_once 'components/menu.php'; ?>
     <?php require_once 'components/header.php'; ?>
 
-    <div class="container">
+     <!-- Espaciado superior -->
+    <div style="padding-top: 120px;"></div>
+
+    <div class="container-fluid px-4">
         <div class="page-inner">
-            <!-- Header -->
-            <div class="page-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="page-title">
-                            <i class="fas fa-users me-2"></i>Control de Usuarios
-                        </h1>
-                        <p class="page-subtitle mb-0">Gestiona los usuarios del sistema y sus permisos</p>
-                    </div>
-                    <button class="btn btn-add" onclick="abrirModalCrear()">
-                        <i class="fas fa-plus me-2"></i>Nuevo Usuario
-                    </button>
-                </div>
+            <!-- Header de página estilizado -->
+        <div class="page-header-custom mb-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle me-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fa fa-tags" style="color: white; font-size: 20px;"></i>
+              </div>
+              <div>
+                <h3 class="fw-bold mb-0" style="color: #333;">Gestión de Usuarios</h3>
+                <nav aria-label="breadcrumb" class="mt-1">
+                  <ol class="breadcrumb mb-0" style="background: none; padding: 0;">
+                    <li class="breadcrumb-item"><a href="index.php?url=dashboard" style="color: #dc3545;"><i class="icon-home"></i></a></li>
+                    <li class="breadcrumb-item"><a href="index.php?url=dashboard" style="color: #666;">Dashboard</a></li>
+                    <li class="breadcrumb-item active" style="color: #333;">Usuarios</li>
+                  </ol>
+                </nav>
+              </div>
             </div>
-
-            <!-- Stats -->
-            <div class="row mb-4">
-                <?php
-                $total_usuarios = count($usuarios);
-                $activos = count(array_filter($usuarios, fn($u) => $u['status'] == 1));
-                $inactivos = count(array_filter($usuarios, fn($u) => $u['status'] == 0));
-                ?>
-                <div class="col-md-4 mb-3">
-                    <div class="stats-card">
-                        <div class="stats-number"><?php echo $total_usuarios; ?></div>
-                        <div class="stats-label">Total Usuarios</div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="stats-card">
-                        <div class="stats-number text-success"><?php echo $activos; ?></div>
-                        <div class="stats-label">Usuarios Activos</div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="stats-card">
-                        <div class="stats-number text-danger"><?php echo $inactivos; ?></div>
-                        <div class="stats-label">Usuarios Inactivos</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Filtros -->
-            <div class="card-users mb-4">
-                <div class="card-header-custom">
-                    <div class="row align-items-center">
-                        <div class="col-md-6 mb-2 mb-md-0">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" class="form-control" id="buscarUsuario" placeholder="Buscar usuario...">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-md-end">
-                                <select class="form-select filter-select" id="filtroRol" style="width: auto;">
-                                    <option value="">Todos los roles</option>
-                                    <?php foreach($roles as $rol): ?>
-                                    <option value="<?php echo htmlspecialchars($rol['nombre_rol']); ?>">
-                                        <?php echo htmlspecialchars($rol['nombre_rol']); ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <select class="form-select filter-select" id="filtroEstado" style="width: auto;">
-                                    <option value="">Todos los estados</option>
-                                    <option value="1">Activos</option>
-                                    <option value="0">Inactivos</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabla de usuarios -->
-            <div class="card-users">
-                <div class="table-responsive">
-                    <table class="table table-users" id="tablaUsuarios">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th class="text-end">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach($usuarios as $usuario): ?>
-                            <tr data-rol="<?php echo htmlspecialchars($usuario['nombre_rol']); ?>" data-estado="<?php echo $usuario['status']; ?>">
-                                <td>
-                                    <div class="user-info">
-                                        <?php if(!empty($usuario['imagen_perfil'])): ?>
-                                        <img src="<?php echo $usuario['imagen_perfil']; ?>" alt="Avatar" class="user-avatar">
-                                        <?php else: ?>
-                                        <div class="user-avatar-placeholder">
-                                            <?php echo strtoupper(substr($usuario['nombre_usuario'], 0, 1)); ?>
-                                        </div>
-                                        <?php endif; ?>
-                                        <div>
-                                            <div class="user-name"><?php echo htmlspecialchars($usuario['nombre_usuario']); ?></div>
-                                            <div class="user-email"><?php echo htmlspecialchars($usuario['email_usuario']); ?></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="role-badge role-<?php echo strtolower(str_replace(' ', '', $usuario['nombre_rol'])); ?>">
-                                        <?php echo htmlspecialchars($usuario['nombre_rol']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="status-badge <?php echo $usuario['status'] == 1 ? 'status-active' : 'status-inactive'; ?>">
-                                        <i class="fas fa-<?php echo $usuario['status'] == 1 ? 'check' : 'times'; ?> me-1"></i>
-                                        <?php echo $usuario['status'] == 1 ? 'Activo' : 'Inactivo'; ?>
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <button class="btn-action btn-edit" onclick="editarUsuario(<?php echo $usuario['id_usuario']; ?>)" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <?php if($usuario['id_usuario'] != $_SESSION['s_usuario']['id_usuario']): ?>
-                                    <button class="btn-action btn-delete" onclick="eliminarUsuario(<?php echo $usuario['id_usuario']; ?>, '<?php echo htmlspecialchars($usuario['nombre_usuario']); ?>')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <button
+              class="btn btn-danger btn-round shadow-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#usuarioModal"
+              style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; padding: 10px 20px;"
+            >
+              <i class="fa fa-plus me-2"></i>
+              Registrar Usuario
+            </button>
+          </div>
         </div>
-    </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card shadow border-0" style="border-radius: 12px; overflow: hidden;">
+              <!-- Header de tabla con color -->
+              <div class="card-header py-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none;">
+                <div class="d-flex align-items-center justify-content-between">
+                  <h4 class="card-title mb-0" style="color: white; font-weight: 600;">
+                    <i class="fa fa-list me-2"></i>Registros de Usuarios
+                  </h4>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table
+                    id="add-row"
+                    class="display table table-hover mb-0"
+                    style="width: 100%;"
+                  >
+                    <thead>
+                      <tr style="background: #f8f9fa;">
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">ID</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">IMG</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Nombre</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Email</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Rol</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545; text-align: center;">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                          <?php 
+                //verifica si cliente existe o esta vacia en dado caso que este vacia muestra clientes no 
+                // registrados ya que si el usuario que realizo la pedticion no tiene el permiso en cambio 
+                // si lo tiene muestra la informacion
+                if(isset($usuarios) && is_array($usuarios) && !empty($usuarios)){
+                foreach ($usuarios as $usuario): 
+            ?>
+                          <tr style="transition: all 0.2s;" data-id="<?php echo $usuario['id_usuario']; ?>">
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
+                              <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
+                                US-00<?php echo $usuario['id_usuario']; ?>
+                              </span>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle;">
+                              <img src="<?php echo $usuario['img_usuario']; ?>" 
+                                   style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 2px solid #f0f0f0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <?php echo $usuario['nombre_usuario']; ?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <?php echo $usuario['email_usuario']; ?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <?php echo $usuario['nombre_rol']; ?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; text-align: center;">
+                              <div class="btn-group" role="group">
+                                <!-- Ver Detalle -->
+                                <a
+                                  onclick="VerDetalleUsuario(<?php echo $usuario['id_usuario']; ?>)"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#usuarioDetalleModal"      
+                                  type="button"
+                                  class="btn btn-sm"
+                                  title='Ver Detalle'
+                                  style="background: #6c757d; color: white; border-radius: 6px 0 0 6px; border: none;"
+                                >
+                                  <i class="fa fa-eye"></i>
+                                </a>
+                                <a
+                                  onclick="ObtenerUsuario(<?php echo $usuario['id_usuario']; ?>)"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#usuarioModalModificar"      
+                                  type="button"
+                                  class="btn btn-sm"
+                                  title='Modificar'
+                                  style="background: #ffc107; color: #212529; border: none;"
+                                >
+                                  <i class="fa fa-edit"></i>
+                                </a>
+                                <a href="#"
+                                  onclick="return EliminarUsuario(event,<?php echo $usuario['id_usuario']; ?>)"
+                                  type="button"
+                                  data-bs-toggle="tooltip"
+                                  class="btn btn-sm"
+                                  title='Eliminar'
+                                  style="background: #dc3545; color: white; border-radius: 0 6px 6px 0; border: none;"
+                                >
+                                  <i class="fa fa-trash"></i>
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                                      <?php
+            //Imprime esta informacion en caso de estar vacia la variable             
+            endforeach; 
+        } else {
+            echo "<tr><td colspan='6'>No hay registros.</td></tr>";
+        } ?>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paginación -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center">
+                <span style="color: #666;">Mostrando registros</span>
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
+                  <button class="btn btn-danger btn-sm">1</button>
+                  <button class="btn btn-outline-secondary btn-sm" disabled>Siguiente</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+          <a href="index.php?url=dashboard" class="btn btn-secondary" style="border-radius: 8px; padding: 10px 20px;">
+            <i class="fa fa-home me-2"></i>Menú Principal
+          </a>
+        </div>
 
     <!-- Modal Crear/Editar Usuario -->
-    <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="usuarioModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -422,22 +451,24 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form id="formUsuario">
+                    <form id="formUsuario" onsubmit="return validar_formulario()" method="post" action="index.php?url=usuarios&action=agregar">
                         <input type="hidden" name="id_usuario" id="id_usuario">
 
                         <div class="mb-3">
                             <label class="form-label">Nombre de Usuario</label>
-                            <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" required>
+                            <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" oninput='username_validacion()' required>
+                            <span id="errorUsername" class="error-messege text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Correo Electronico</label>
-                            <input type="email" class="form-control" name="email_usuario" id="email_usuario" required>
+                            <input type="email" class="form-control" name="email_usuario" id="email_usuario" oninput='email_validacion()' required>
+                            <span id="errorEmail" class="error-messege text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Rol</label>
-                            <select class="form-select" name="id_rol" id="id_rol" required>
+                            <select class="form-select" name="id_rol" id="id_rol" oninput='validar_rol()' required>
                                 <option value="">Selecciona un rol</option>
                                 <?php foreach($roles as $rol): ?>
                                 <option value="<?php echo $rol['id_rol']; ?>">
@@ -445,11 +476,13 @@
                                 </option>
                                 <?php endforeach; ?>
                             </select>
+                            <span id="errorRol" class="error-messege text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Contrasena <small class="text-muted" id="passwordHelp">(Dejar en blanco para mantener actual)</small></label>
-                            <input type="password" class="form-control" name="password" id="password">
+                            <input type="password" class="form-control" name="password" id="password" oninput='password_validacion()' required>
+                            <span id="errorPW" class="error-messege text-danger small"></span>
                             <small class="text-muted">Minimo 6 caracteres, una mayuscula y un punto</small>
                         </div>
 
@@ -465,150 +498,73 @@
         </div>
     </div>
 
+    <!-- Modal MODIFICAR Usuario -->
+<div class="modal fade" id="usuarioModalModificar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTituloModificar">
+                    <i class="fas fa-user-edit me-2"></i>Modificar Usuario
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="formUsuarioModificar" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=usuarios&action=modificar">
+                    <!-- ID OCULTO (IMPORTANTE) -->
+                    <input type="hidden" name="id_usuarioEdit" id="id_usuarioEdit">
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" name="nombre_usuarioEdit" id="nombre_usuarioEdit" oninput='validar_nombre_modificado()' required>
+                        <span id="errorUsernameEdit" class="error-messege text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" name="email_usuarioEdit" id="email_usuarioEdit" oninput='validar_email_modificado()' required>
+                        <span id="errorEmailEdit" class="error-messege text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Rol</label>
+                        <select class="form-select" name="id_rolEdit" id="id_rolEdit" oninput='validar_rol_modificado()' required>
+                            <option value="">Selecciona un rol</option>
+                            <?php foreach($roles as $rol): ?>
+                            <option value="<?php echo $rol['id_rol']; ?>">
+                                <?php echo htmlspecialchars($rol['nombre_rol']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span id="errorRolEdit" class="error-messege text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Contraseña 
+                            <small class="text-muted">(Dejar en blanco para NO cambiar)</small>
+                        </label>
+                        <input type="password" class="form-control" name="passwordEdit" id="passwordEdit" placeholder="Nueva contraseña" oninput='validar_password_modificado()' required>
+                        <span id="errorPWMod" class="error-messege text-danger small"></span>
+                        <small class="text-muted">Mínimo 6 caracteres (solo si cambias contraseña)</small>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="limpiarModalModificar()">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save me-2"></i>Modificar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="assets/js/validaciones/usuarios_validaciones.js"></script>
+    <script src="assets/js/ajax/usuarios_ajax.js"></script>
+    <script src="assets/js/animacionesJs/dashboard_usuarios.js"></script>
+
     <?php require_once 'components/scripts.php'; ?>
-
-    <script>
-        // Buscar usuarios
-        document.getElementById('buscarUsuario').addEventListener('input', function() {
-            filtrarTabla();
-        });
-
-        // Filtro por rol
-        document.getElementById('filtroRol').addEventListener('change', function() {
-            filtrarTabla();
-        });
-
-        // Filtro por estado
-        document.getElementById('filtroEstado').addEventListener('change', function() {
-            filtrarTabla();
-        });
-
-        function filtrarTabla() {
-            const busqueda = document.getElementById('buscarUsuario').value.toLowerCase();
-            const rolFiltro = document.getElementById('filtroRol').value;
-            const estadoFiltro = document.getElementById('filtroEstado').value;
-            const filas = document.querySelectorAll('#tablaUsuarios tbody tr');
-
-            filas.forEach(fila => {
-                const texto = fila.textContent.toLowerCase();
-                const rol = fila.getAttribute('data-rol');
-                const estado = fila.getAttribute('data-estado');
-
-                const coincideBusqueda = texto.includes(busqueda);
-                const coincideRol = !rolFiltro || rol === rolFiltro;
-                const coincideEstado = !estadoFiltro || estado === estadoFiltro;
-
-                fila.style.display = coincideBusqueda && coincideRol && coincideEstado ? '' : 'none';
-            });
-        }
-
-        // Abrir modal para crear
-        function abrirModalCrear() {
-            document.getElementById('formUsuario').reset();
-            document.getElementById('id_usuario').value = '';
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-user-plus me-2"></i>Nuevo Usuario';
-            document.getElementById('passwordHelp').style.display = 'none';
-            document.getElementById('password').required = true;
-            new bootstrap.Modal(document.getElementById('modalUsuario')).show();
-        }
-
-        // Abrir modal para editar
-        function editarUsuario(id) {
-            fetch(`index.php?url=usuarios&action=ver&id=${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data) {
-                        document.getElementById('id_usuario').value = data.id_usuario;
-                        document.getElementById('nombre_usuario').value = data.nombre_usuario;
-                        document.getElementById('email_usuario').value = data.email_usuario;
-                        document.getElementById('id_rol').value = data.id_rol_usuario;
-                        document.getElementById('password').value = '';
-                        document.getElementById('passwordHelp').style.display = 'inline';
-                        document.getElementById('password').required = false;
-                        document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-user-edit me-2"></i>Editar Usuario';
-                        new bootstrap.Modal(document.getElementById('modalUsuario')).show();
-                    }
-                });
-        }
-
-        // Guardar usuario
-        document.getElementById('formUsuario').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const id = document.getElementById('id_usuario').value;
-            const formData = new FormData(this);
-            const url = id ? 'index.php?url=usuarios&action=actualizar' : 'index.php?url=usuarios&action=crear';
-
-            fetch(url, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Guardado',
-                        text: data.msj,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.msj
-                    });
-                }
-            });
-        });
-
-        // Eliminar usuario
-        function eliminarUsuario(id, nombre) {
-            Swal.fire({
-                title: 'Eliminar usuario?',
-                text: `Se eliminara a: ${nombre}`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d32f2f',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Si, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const formData = new FormData();
-                    formData.append('id_usuario', id);
-
-                    fetch('index.php?url=usuarios&action=eliminar', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Eliminado',
-                                text: data.msj,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                            setTimeout(() => location.reload(), 1500);
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.msj
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    </script>
-
     <?php require_once 'components/footer.php'; ?>
 </body>
 </html>

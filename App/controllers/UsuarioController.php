@@ -2,6 +2,9 @@
 
 // llama al modelo
 require_once 'app/models/UsuarioModel.php';
+require_once 'app/models/RolModel.php';
+require_once 'app/models/PermisoModel.php';
+require_once 'app/models/BitacoraModel.php';
 
 // llama el archivo que contiene la carga de alerta
 require_once 'components/utils.php';
@@ -13,225 +16,578 @@ date_default_timezone_set('America/Caracas');
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 switch ($action) {
-    case 'listar':
+
+    case 'obtener':
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            Listar_Usuarios();
+            Obtener();
         }
         break;
 
-    case 'ver':
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            Ver_Usuario();
-        }
-        break;
-
-    case 'crear':
+    case 'agregar':
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            Crear_Usuario();
+            Agregar();
         }
         break;
 
-    case 'actualizar':
+    case 'modificar':
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            Actualizar_Usuario();
+            Actualizar();
         }
         break;
 
     case 'eliminar':
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            Eliminar_Usuario();
-        }
-        break;
-
-    case 'cambiarEstado':
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            Cambiar_Estado();
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            Eliminar();
         }
         break;
 
     default:
-        Listar_Usuarios();
+        consultar();
         break;
 }
 
 // funcion para listar todos los usuarios
-function Listar_Usuarios() {
-    // verifica si hay sesion activa
-    if (!isset($_SESSION['s_usuario'])) {
-        header('Location: index.php?url=autenticator&action=login');
-        exit;
-    }
+function Consultar() {
+       
+        // instacia el modelo
+        $modelo = new Usuario();
+        $rol = new Rol();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
 
-    // crea el objeto
-    $modelo = new Usuario();
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-    // obtiene todos los usuarios
-    $usuarios = $modelo->ObtenerTodosUsuarios();
 
-    // obtiene los roles para el filtro
-    $roles = $modelo->ObtenerRoles();
+        // se arma el json
+        $permiso_json = json_encode([
+            'modulo' => 'Usuarios',
+            'permiso' => 'Consultar',
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
 
-    // carga la vista
+
+        // captura el resultado de la consulta
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
+
+        //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
+        //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
+        //action y el rol de usuario
+        if (isset($status['status']) && $status['status'] === true) {
+            
+            // Ejecutar acción permitida
+
+            // para manejo de errores
+            try {
+
+                // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
+                // primer para metro la accion y luego el objeto usuario_json
+                $resultado = $modelo->manejarAccion('consultar', null);
+
+                // valida si exixtes el staus del resultado y si es true 
+                if (isset($resultado['status']) && $resultado['status'] === true) {
+
+                    // usa mensaje dinamico del modelo
+                    //setSuccess($resultado['msj']);
+
+                    // extrae los datos
+                    $usuarios = $resultado['data'];
+                    
+                    $roles = $rol->manejarAccion('consultar', null)['data'];
+
+                    // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Usuarios',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en el dashboard de usuarios en el sistema',
+                            'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
+                    //carga la vista
+                    require_once 'app/views/usuariosView.php';
+
+                    // termina el script
+                    exit();
+                }
+                else {
+                                
+                    // usa mensaje dinamico del modelo
+                    setError($resultado['msj']);
+
+                    //carga la vista
+                    require_once 'app/views/usuariosView.php';
+
+                    // termina el script
+                    exit();
+                }
+            }
+            catch (Exception $e) {
+
+                //mensaje del exception de pdo
+                error_log('Error al registrar...' . $e->getMessage());
+                
+                // carga la alerta
+                setError('Error en operacion.');
+
+                //termina el script
+                exit();
+            }
+        }
+    //muestra un modal de info que dice acceso no permitido
+    setError("Error acceso no permitido");
+
+    //redirect
     require_once 'app/views/usuariosView.php';
+                
+    // termina el script
+    exit();
+    
 }
 
-// funcion para ver un usuario especifico
-function Ver_Usuario() {
-    if (!isset($_SESSION['s_usuario'])) {
-        echo json_encode(['status' => false, 'msj' => 'Sesion no iniciada']);
-        return;
-    }
+//funcion para guardar datos
+    function Agregar() {
 
-    $id_usuario = $_GET['id'] ?? 0;
+        // instacia el modelo
+        $modelo = new Usuario();
+        $bitacora = new Bitacora();
+        $permiso = new Permiso();
+        
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-    $modelo = new Usuario();
-    $usuario = $modelo->ObtenerUsuarioPorId($id_usuario);
+        // se arma el json
+        $permiso_json = json_encode([
+            'modulo' => 'Usuarios',
+            'permiso' => 'Agregar',
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
 
-    echo json_encode($usuario);
+        // captura el resultado de la consulta
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
+
+        //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
+        //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
+        //action y el rol de usuario
+        if (isset($status['status']) && $status['status'] === true) {
+            
+            // Ejecutar acción permitida
+
+            // obtiene y sinatiza los valores
+            $nombre_usuario = filter_var($_POST['nombre_usuario'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $password_usuario = filter_var($_POST['password'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $rol_usuario = filter_var($_POST['id_rol'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $email_usuario = filter_var($_POST['email_usuario'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+
+            // valida si los campos no estan vacios
+            if (empty($nombre_usuario) || empty($password_usuario) ||empty($email_usuario) || empty($rol_usuario)) {
+
+                // manda mensaje de error
+                setError('Todos los campos son requeridos no se puede enviar vacios.');
+
+                //redirec
+                header('Location: index.php?url=usuarios');
+
+                //termina el script
+                exit();
+            }
+
+            // se arma el josn
+            $usuario_json = json_encode([
+                'nombre' => $nombre_usuario,
+                'password' => $password_usuario,
+                'email' => $email_usuario,
+                'rol' => $rol_usuario
+            ]);
+            //print_r($usuario_json);
+
+                // para manejo de errores
+                try {
+
+                    // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
+                    // primer para metro la accion y luego el objeto usuario_json
+                    $resultado = $modelo->manejarAccion('agregar', $usuario_json);
+
+                    // valida si exixtes el staus del resultado y si es true 
+                    if (isset($resultado['status']) && $resultado['status'] === true) {
+
+                        // usa mensaje dinamico del modelo
+                        setSuccess($resultado['msj']);
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Usuarios',
+                        'accion' => 'Agregar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                        'ha ragistras el siguiente usuario' . ' ' . 
+                        $nombre_usuario . ' ' . $email_usuario . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+                    }
+                    else {
+                                    
+                        // usa mensaje dinamico del modelo
+                        setError($resultado['msj']);
+
+                        //redirect
+                        header('Location: index.php?url=usuarios');
+
+                    }
+                }
+                catch (Exception $e) {
+
+                    //mensaje del exception de pdo
+                    error_log('Error al registrar...' . $e->getMessage());
+                    
+                    // carga la alerta
+                    setError('Error en operacion.');
+                }
+
+            //redirect
+            header('Location: index.php?url=usuarios');
+            
+            // termina el script
+            exit();
+        }
+
+    //muestra un modal de info que dice acceso no permitido
+    setError("Error accion no permitida");
+
+    //redirect
+    header('Location: index.php?url=usuarios');
+            
+    // termina el script
+    exit();
+        
 }
 
-// funcion para crear un nuevo usuario
-function Crear_Usuario() {
-    if (!isset($_SESSION['s_usuario'])) {
-        echo json_encode(['status' => false, 'msj' => 'Sesion no iniciada']);
-        return;
+//funcion para modificar datos
+    function Actualizar() {
+
+         // instacia el modelo
+        $modelo = new Usuario();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
+        // se arma el json
+        $permiso_json = json_encode([
+            'modulo' => 'Usuarios',
+            'permiso' => 'Modificar',
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
+
+        // captura el resultado de la consulta
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
+
+        //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
+        //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
+        //action y el rol de usuario
+        if (isset($status['status']) && $status['status'] === true) {
+            
+            // Ejecutar acción permitida*/
+
+            // obtiene y sinatiza los valores
+            $id = $_POST['id_usuarioEdit'];
+            $nombre_usuario = filter_var($_POST['nombre_usuarioEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $password_usuario = filter_var($_POST['passwordEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $rol_usuario = filter_var($_POST['id_rolEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $email_usuario = filter_var($_POST['email_usuarioEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+
+            // valida si los campos no estan vacios
+            if (empty($nombre_usuario) || empty($password_usuario) ||empty($email_usuario) || empty($rol_usuario)) {
+
+                // manda mensaje de error
+                setError('Todos los campos son requeridos no se puede enviar vacios.');
+
+                //redirec
+                header('Location: index.php?url=usuarios');
+
+                //termina el script
+                exit();
+            }
+
+            // se arma el josn
+            $usuario_json = json_encode([
+                'id' => $id,
+                'nombre' => $nombre_usuario,
+                'password' => $password_usuario,
+                'email' => $email_usuario,
+                'rol' => $rol_usuario
+            ]);
+            //print_r($usuario_json);
+
+                // para manejo de errores
+                try {
+
+                    // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
+                    // primer para metro la accion y luego el objeto usuario_json
+                    $resultado = $modelo->manejarAccion('modificar', $usuario_json);
+
+                    // valida si exixtes el staus del resultado y si es true 
+                    if (isset($resultado['status']) && $resultado['status'] === true) {
+
+                        // usa mensaje dinamico del modelo
+                        setSuccess($resultado['msj']);
+
+                        //datos para la bitacora
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                            'modulo' => 'Usuarios',
+                            'accion' => 'Modificar',
+                            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                                                'ha modificado los datos del siguinte usuario' . ' ' . 'US-00' . 
+                                                $data_bitacora['id_usuario'] . ' ' . $data_bitacora['nombre_usuario'] . ' ' . $data_bitacora['email_usuario'] . 
+                                                ' ' . 'por los siguientes datos' . ' ' . 'US-00' . $id . ' ' . $nombre_usuario . ' ' . $email_usuario . 
+                                                ' ' . 'en el sistema.',
+                            'fecha' => $fecha
+                        ]);
+
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
+
+                        //redirect
+                        header('Location: index.php?url=usuarios');
+                        
+                        // termina el script
+                        exit();
+                    }
+                    else {
+                                    
+                        // usa mensaje dinamico del modelo
+                        setError($resultado['msj']);
+
+                        //redirect
+                        header('Location: index.php?url=usuarios');
+
+                        // termina el script
+                        exit();
+
+                    }
+                }
+                catch (Exception $e) {
+
+                    //mensaje del exception de pdo
+                    error_log('Error al registrar...' . $e->getMessage());
+                    
+                    // carga la alerta
+                    setError('Error en operacion.');
+
+                    // termina el script
+                    exit();
+                }
+
+            //redirect
+            header('Location: index.php?url=usuarios');
+            
+            // termina el script
+            exit();
+        }
+
+    //muestra un modal de info que dice acceso no permitido
+    setError("Error accion no permitida");
+
+    //redirect
+    header('Location: index.php?url=usuarios');
+            
+    // termina el script
+    exit();
+
     }
 
-    $modelo = new Usuario();
+    // function para obtener un dato
+    function Obtener() {
 
-    // obtiene los datos del formulario
-    $nombre_usuario = filter_var($_POST['nombre_usuario'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
-    $email_usuario = filter_var($_POST['email_usuario'] ?? '', FILTER_SANITIZE_EMAIL);
-    $id_rol = intval($_POST['id_rol'] ?? 0);
-    $password = $_POST['password'] ?? '';
+        // instacia el modelo
+        $modelo = new Usuario();
+        $bitacora = new Bitacora();
 
-    // validaciones basicas
-    if (empty($nombre_usuario) || empty($email_usuario) || empty($password) || $id_rol == 0) {
-        echo json_encode(['status' => false, 'msj' => 'Todos los campos son obligatorios']);
-        return;
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
+        $id = $_GET['ID'];
+
+         // valida si los campos no estan vacios
+        if (empty($id)) {
+
+            // manda mensaje de error
+            setError('Todos los campos son requeridos no se puede enviar vacios.');
+
+            //redirec
+            header('Location: index.php?url=usuarios');
+
+            //termina el script
+            exit();
+        }
+
+            // se arma el josn
+            $usuario_json = json_encode([
+                'id' => $id
+            ]);
+
+            $resultado = $modelo->manejarAccion('obtener', $usuario_json);
+
+            // se almacena para la vista
+            $usuario = $resultado['data'];
+
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'CUsuario',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos del usuario' . ' ' . 'US-00' . 
+                    $data_bitacora['id_usuario'] . ' ' . $data_bitacora['nombre_usuario'] . ' ' . 
+                    $data_bitacora['email_usuario'] . ' ' . 'en el sistema.',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
+
+            echo json_encode($usuario);
+
+            exit();
     }
 
-    // valida el formato del email
-    if (!filter_var($email_usuario, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(['status' => false, 'msj' => 'El correo electronico no es valido']);
-        return;
+    // funcion para eliminar un dato
+    function Eliminar() {
+
+         // instacia el modelo
+        $modelo = new Usuario();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
+
+        // se arma el json
+        $permiso_json = json_encode([
+            'modulo' => 'Usuarios',
+            'permiso' => 'Eliminar',
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
+
+        // captura el resultado de la consulta
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
+
+        //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
+        //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
+        //action y el rol de usuario
+        if (isset($status['status']) && $status['status'] == 1) {
+            
+            // Ejecutar acción permitida*/
+
+            // obtiene y sinatiza los valores
+            $id_usuario = $_GET['ID'];
+
+            // valida si los campos no estan vacios
+            if (empty($id_usuario)) {
+
+                // manda mensaje de error
+                setError('ID vacio.');
+
+                //redirec
+                header('Location: index.php?url=usuarios');
+
+                //termina el script
+                exit();
+            }
+
+            // se arma el josn
+            $usuario_json = json_encode([
+                'id' => $id_usuario
+            ]);
+
+                // para manejo de errores
+                try {
+
+                    // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
+                    // primer para metro la accion y luego el objeto usuario_json
+                    $resultado = $modelo->manejarAccion('eliminar', $usuario_json);
+
+                    // valida si exixtes el staus del resultado y si es true 
+                    if (isset($resultado['status']) && $resultado['status'] === true) {
+
+                        // usa mensaje dinamico del modelo
+                        setSuccess($resultado['msj']);
+
+                        //datos para bitacoras
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                            'modulo' => 'Usuarios',
+                            'accion' => 'Eliminar',
+                            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha eliminado un usuario' . ' ' . 'US-00' . $data_bitacora['id_usuario'] . ' ' . $data_bitacora['nombre_usuario'] . ' ' . 'en el sistema.',
+                            'fecha' => $fecha
+                        ]);
+
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
+                        
+                        //redirect
+                        header('Location: index.php?url=usuarios');
+                        
+                        // termina el script
+                        exit();
+                    }
+                    else {
+                                    
+                        // usa mensaje dinamico del modelo
+                        setError($resultado['msj']);
+
+                        //redirect
+                        header('Location: index.php?url=usuario');
+
+                        // termina el script
+                        exit();
+
+                    }
+                }
+                catch (Exception $e) {
+
+                    //mensaje del exception de pdo
+                    error_log('Error al registrar...' . $e->getMessage());
+                    
+                    // carga la alerta
+                    setError('Error en operacion.');
+                }
+
+        //redirect
+        header('Location: index.php?url=usuarios');
+
+        // termina el script
+        exit();
+
     }
 
-    // valida la contrasena
-    $expre_password = '/^(?=.*[A-Z])(?=.*\.)[a-zA-Z0-9.]{6,}$/';
-    if (!preg_match($expre_password, $password)) {
-        echo json_encode(['status' => false, 'msj' => 'La contrasena debe tener minimo 6 caracteres, una mayuscula y un punto']);
-        return;
-    }
+    //muestra un modal de info que dice acceso no permitido
+    setError("Error accion no permitida");
 
-    // verifica si el usuario ya existe
-    if ($modelo->ExisteUsuario($nombre_usuario, $email_usuario)) {
-        echo json_encode(['status' => false, 'msj' => 'El nombre de usuario o correo ya existe']);
-        return;
-    }
-
-    // crea el usuario
-    $resultado = $modelo->CrearUsuario($nombre_usuario, $email_usuario, $password, $id_rol);
-
-    // registra en bitacora
-    if ($resultado['status']) {
-        $modelo->RegistrarBitacora($_SESSION['s_usuario']['id_usuario'], 'USUARIOS', 'CREAR', 'Usuario creado: ' . $nombre_usuario);
-    }
-
-    echo json_encode($resultado);
+    //redirect
+    header('Location: index.php?url=usuarios');
+            
+    // termina el script
+    exit();    
+    
 }
-
-// funcion para actualizar un usuario
-function Actualizar_Usuario() {
-    if (!isset($_SESSION['s_usuario'])) {
-        echo json_encode(['status' => false, 'msj' => 'Sesion no iniciada']);
-        return;
-    }
-
-    $modelo = new Usuario();
-
-    // obtiene los datos del formulario
-    $id_usuario = intval($_POST['id_usuario'] ?? 0);
-    $nombre_usuario = filter_var($_POST['nombre_usuario'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
-    $email_usuario = filter_var($_POST['email_usuario'] ?? '', FILTER_SANITIZE_EMAIL);
-    $id_rol = intval($_POST['id_rol'] ?? 0);
-    $password = $_POST['password'] ?? '';
-
-    // validaciones basicas
-    if ($id_usuario == 0 || empty($nombre_usuario) || empty($email_usuario) || $id_rol == 0) {
-        echo json_encode(['status' => false, 'msj' => 'Todos los campos son obligatorios']);
-        return;
-    }
-
-    // valida el formato del email
-    if (!filter_var($email_usuario, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(['status' => false, 'msj' => 'El correo electronico no es valido']);
-        return;
-    }
-
-    // verifica si el usuario ya existe con otro ID
-    if ($modelo->ExisteUsuarioOtroId($nombre_usuario, $email_usuario, $id_usuario)) {
-        echo json_encode(['status' => false, 'msj' => 'El nombre de usuario o correo ya existe']);
-        return;
-    }
-
-    // actualiza el usuario
-    $resultado = $modelo->ActualizarUsuario($id_usuario, $nombre_usuario, $email_usuario, $id_rol, $password);
-
-    // registra en bitacora
-    if ($resultado['status']) {
-        $modelo->RegistrarBitacora($_SESSION['s_usuario']['id_usuario'], 'USUARIOS', 'ACTUALIZAR', 'Usuario actualizado: ' . $nombre_usuario);
-    }
-
-    echo json_encode($resultado);
-}
-
-// funcion para eliminar un usuario
-function Eliminar_Usuario() {
-    if (!isset($_SESSION['s_usuario'])) {
-        echo json_encode(['status' => false, 'msj' => 'Sesion no iniciada']);
-        return;
-    }
-
-    $id_usuario = intval($_POST['id_usuario'] ?? 0);
-
-    // no permite eliminar el usuario actual
-    if ($id_usuario == $_SESSION['s_usuario']['id_usuario']) {
-        echo json_encode(['status' => false, 'msj' => 'No puedes eliminar tu propio usuario']);
-        return;
-    }
-
-    $modelo = new Usuario();
-
-    // obtiene el nombre del usuario antes de eliminarlo
-    $usuario = $modelo->ObtenerUsuarioPorId($id_usuario);
-    $nombre_usuario = $usuario['nombre_usuario'] ?? 'Usuario #' . $id_usuario;
-
-    // elimina el usuario (cambia el status a 0)
-    $resultado = $modelo->EliminarUsuario($id_usuario);
-
-    // registra en bitacora
-    if ($resultado['status']) {
-        $modelo->RegistrarBitacora($_SESSION['s_usuario']['id_usuario'], 'USUARIOS', 'ELIMINAR', 'Usuario eliminado: ' . $nombre_usuario);
-    }
-
-    echo json_encode($resultado);
-}
-
-// funcion para cambiar el estado de un usuario
-function Cambiar_Estado() {
-    if (!isset($_SESSION['s_usuario'])) {
-        echo json_encode(['status' => false, 'msj' => 'Sesion no iniciada']);
-        return;
-    }
-
-    $id_usuario = intval($_POST['id_usuario'] ?? 0);
-    $nuevo_estado = intval($_POST['estado'] ?? 1);
-
-    $modelo = new Usuario();
-    $resultado = $modelo->CambiarEstado($id_usuario, $nuevo_estado);
-
-    echo json_encode($resultado);
-}
-
 ?>

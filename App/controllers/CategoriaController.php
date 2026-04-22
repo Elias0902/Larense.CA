@@ -281,7 +281,7 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida*/
 
