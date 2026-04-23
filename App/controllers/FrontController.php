@@ -57,10 +57,8 @@
                     exit();
                 }
 
-                //en caso contrario de que no este la url carga una pagina de error
-                require_once 'app/views/errors/404.php';
-                
-                //terina el scrpit
+                //en caso contrario de que no este la url redirige a pagina de error
+                header("Location: index.php?url=404");
                 exit();
             }
         }
