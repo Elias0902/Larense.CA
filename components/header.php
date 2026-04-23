@@ -767,7 +767,7 @@
             <div class="logo-header" data-background-color="dark">
               <a href="index.php?url=dashboard" class="logo">
                 <img
-                  src="assets/img/natys/natys.png" width="100"
+                  src="assets/img/Kaiadmin.png" width="100"
                   alt="navbar brand"
                   class="navbar-brand"
                   height="20"
@@ -792,9 +792,9 @@
             class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
           >
             <div class="container-fluid">
-              <div class="d-flex align-items-center me-auto">
+              <div class="d-flex align-items-center ms-4">
                 <a href="index.php?url=dashboard" class="navbar-brand d-flex align-items-center text-decoration-none me-3">
-                  <img src="assets/img/natys/natys.png" alt="Natys" width="80" height="80" class="me-2" style="border-radius: 8px; object-fit: contain;">
+                  <img src="Assets/img/natys/natys.png" alt="Natys" width="80" height="80" class="me-2" style="border-radius: 8px; object-fit: contain;">
                 </a>
               </div>
               <ul class="navbar-nav topbar-nav align-items-center">

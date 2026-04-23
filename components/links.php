@@ -37,19 +37,8 @@
     <link rel="stylesheet" href="assets/css/styles.css" />
     <link rel="stylesheet" href="assets/css/plugins.min.css" />
     <link rel="stylesheet" href="assets/css/Kaiadmin.min.css" />
-    <!-- Boostrap CSS -->
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-grid.css">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-grid.css.map">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-grid.min.css">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-grid.min.css.map">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-reboot.css">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-reboot.css.map">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-reboot.min.css">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap-reboot.min.css.map">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap.css">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap.css.map">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/boostrap/bootstrap.min.css.map">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/css/bootstrap/css/bootstrap.min.css">
     <!-- SweetAlert2 CSS -->
     <link href="assets/css/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="assets/js/DataTables/datatables.css">
