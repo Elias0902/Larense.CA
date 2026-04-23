@@ -253,7 +253,7 @@
 
         .password-toggle-btn {
             position: absolute;
-            right: 12px;
+            right: 45px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
@@ -285,7 +285,7 @@
 
         .form-control {
             width: 100%;
-            padding: 12px 40px 12px 40px;
+            padding: 12px 75px 12px 40px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 14px;
