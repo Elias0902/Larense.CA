@@ -62,6 +62,65 @@
             border: 4px solid white;
             object-fit: cover;
             background: #f0f0f0;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        /* Modal para ver imagen ampliada */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-modal-content {
+            max-width: 80%;
+            max-height: 80%;
+            border-radius: 10px;
+            animation: zoomIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 10001;
+        }
+
+        .image-modal-close:hover {
+            color: #cc1d1d;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .avatar-overlay {
@@ -628,30 +687,12 @@
 
                     <!-- Foto de perfil -->
                     <div class="profile-avatar-container">
-                        <img src="<?php 
-                        // Determinar la ruta de la imagen
-                        $ruta_imagen = 'Assets/img/default.PNG';
-                        
-                        // Priorizar imagen de sesión
-                        if (!empty($_SESSION['s_usuario']['img_usuario']) && file_exists($_SESSION['s_usuario']['img_usuario'])) {
-                            $ruta_imagen = $_SESSION['s_usuario']['img_usuario'];
-                        } elseif (!empty($usuario['img_usuario']) && file_exists($usuario['img_usuario'])) {
-                            $ruta_imagen = $usuario['img_usuario'];
-                            // Sincronizar sesión
-                            $_SESSION['s_usuario']['img_usuario'] = $usuario['img_usuario'];
-                        }
-                        
-                        // Si la imagen no existe físicamente, usar la imagen por defecto
-                        if (!file_exists($ruta_imagen)) {
-                            $ruta_imagen = 'Assets/img/default.PNG';
-                            $_SESSION['s_usuario']['img_usuario'] = $ruta_imagen;
-                        }
-                        
-                        echo $ruta_imagen . '?v=' . time();
-                        ?>"
+                        <img src="<?php echo !empty($usuario['imagen_perfil']) ? $usuario['imagen_perfil'] : 'assets/img/profile.jpg'; ?>"
                              alt="Foto de perfil"
                              class="profile-avatar"
-                             id="imagenPerfil">
+                             id="imagenPerfil"
+                             onclick="abrirModalImagen()"
+                             title="Click para ver más grande">
 
                         <!-- Boton para opciones de imagen -->
                         <div class="avatar-overlay" onclick="toggleAvatarOptions()">
@@ -664,7 +705,7 @@
                                 <i class="fas fa-upload"></i>
                                 <span>Cambiar imagen</span>
                             </div>
-                            <?php if (!empty($usuario['img_usuario']) && $usuario['img_usuario'] != 'Assets/img/default.PNG' && file_exists($usuario['img_usuario'])): ?>
+                            <?php if (!empty($usuario['imagen_perfil'])): ?>
                             <div class="avatar-option delete-option" onclick="eliminarImagen()">
                                 <i class="fas fa-trash"></i>
                                 <span>Eliminar imagen</span>
@@ -769,9 +810,12 @@
                         <i class="fas fa-shield-alt"></i>
                     </div>
                     <div class="security-card-title">
-                        <h3>Seguridad</h3>
-                        <p>Metodos de verificacion</p>
+                        <h3>Verificacion de Seguridad (2FA)</h3>
+                        <p>Estado de tus metodos de verificacion</p>
                     </div>
+                    <span class="badge-2fa">
+                        <i class="fas fa-check-circle"></i> 2FA
+                    </span>
                 </div>
 
                 <div class="security-list">
@@ -804,6 +848,26 @@
                         </div>
                     </div>
 
+                    <!-- ID Verification -->
+                    <div class="security-item">
+                        <div class="security-item-icon id">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div class="security-item-content">
+                            <h4>ID Verification</h4>
+                            <p>Verificacion de identidad oficial</p>
+                        </div>
+                        <div class="security-item-status status-pending-secondary">
+                            PENDING
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boton Configurar -->
+                <div class="security-actions">
+                    <button class="btn btn-configure" onclick="abrirModalConfigurar()">
+                        <i class="fas fa-cog"></i> Configurar Nuevo Metodo
+                    </button>
                 </div>
 
                 <!-- Alerta de Seguridad -->
@@ -876,6 +940,86 @@
     <!-- Input oculto para seleccionar imagen -->
     <input type="file" id="inputImagen" accept="image/*" style="display: none;" onchange="subirImagen(this)">
 
+    <!-- Modal Configurar Metodo 2FA -->
+    <div class="modal fade" id="modalConfigurar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-cog me-2"></i>Configurar Nuevo Metodo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Selecciona un metodo de verificacion adicional para aumentar la seguridad de tu cuenta.</p>
+
+                    <div class="method-option" onclick="seleccionarMetodo('sms')">
+                        <div class="method-option-icon sms">
+                            <i class="fas fa-sms"></i>
+                        </div>
+                        <div class="method-option-content">
+                            <h4>SMS Verification</h4>
+                            <p>Recibe codigos de verificacion por mensaje de texto</p>
+                        </div>
+                    </div>
+
+                    <div class="method-option" onclick="seleccionarMetodo('app')">
+                        <div class="method-option-icon app">
+                            <i class="fas fa-mobile"></i>
+                        </div>
+                        <div class="method-option-content">
+                            <h4>Authenticator App</h4>
+                            <p>Usa Google Authenticator o similar para generar codigos</p>
+                        </div>
+                    </div>
+
+                    <div class="method-option" onclick="seleccionarMetodo('email')">
+                        <div class="method-option-icon email-2fa">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="method-option-content">
+                            <h4>Email 2FA</h4>
+                            <p>Recibe codigos de verificacion en tu correo electronico</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal SMS -->
+    <div class="modal fade" id="modalSMS" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-sms me-2"></i>Verificacion SMS
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formSMS">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Numero de Telefono</label>
+                            <div class="input-group">
+                                <span class="input-group-text">+58</span>
+                                <input type="tel" class="form-control" name="telefono" id="telefono"
+                                       placeholder="4121234567" maxlength="10" required>
+                            </div>
+                            <small class="text-muted">Ingresa tu numero sin el codigo de pais</small>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-save">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar Codigo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php require_once 'components/scripts.php'; ?>
 
     <script>
@@ -938,8 +1082,12 @@
                         const headerImg = document.getElementById('headerAvatarImg');
                         if (headerImg) headerImg.src = nuevaRuta;
 
-                        // Recargar la página después de 2 segundos para sincronizar todo
-                        setTimeout(() => location.reload(), 2000);
+                        // Actualizar sesion mediante AJAX para que persista
+                        fetch('index.php?url=perfil&action=ver', { method: 'GET' })
+                            .then(() => console.log('Sesion actualizada'));
+
+                        // Opcional: recargar para sincronizar todo (descomentar si se prefiere)
+                        // setTimeout(() => location.reload(), 2000);
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -988,20 +1136,20 @@
                                 showConfirmButton: false
                             });
                             // Actualizar a imagen por defecto sin recargar
-                            const defaultImg = 'Assets/img/default.PNG';
-                            document.getElementById('imagenPerfil').src = defaultImg + '?' + new Date().getTime();
+                            const defaultImg = 'assets/img/profile.jpg';
+                            document.getElementById('imagenPerfil').src = defaultImg;
 
                             // Actualizar imagen del header si existe
                             const headerImg = document.getElementById('headerAvatarImg');
-                            if (headerImg) headerImg.src = defaultImg + '?' + new Date().getTime();
+                            if (headerImg) headerImg.src = defaultImg;
 
                             // Ocultar opcion de eliminar del menu
                             const avatarOptions = document.getElementById('avatarOptions');
                             const deleteOption = avatarOptions.querySelector('.delete-option');
                             if (deleteOption) deleteOption.style.display = 'none';
 
-                            // Recargar después de 2 segundos
-                            setTimeout(() => location.reload(), 2000);
+                            // Opcional: recargar para sincronizar todo
+                            // setTimeout(() => location.reload(), 2000);
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -1023,8 +1171,7 @@
         // Toggle mostrar/ocultar contrasena
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            const button = input.nextElementSibling;
-            const icon = button.querySelector('i');
+            const icon = input.nextElementSibling.querySelector('i');
 
             if (input.type === 'password') {
                 input.type = 'text';
@@ -1123,7 +1270,99 @@
             });
         }
 
+        // ===== FUNCIONES DE SEGURIDAD 2FA =====
+        function abrirModalConfigurar() {
+            const modal = new bootstrap.Modal(document.getElementById('modalConfigurar'));
+            modal.show();
+        }
+
+        function seleccionarMetodo(metodo) {
+            bootstrap.Modal.getInstance(document.getElementById('modalConfigurar')).hide();
+
+            if (metodo === 'sms') {
+                setTimeout(() => {
+                    const modalSMS = new bootstrap.Modal(document.getElementById('modalSMS'));
+                    modalSMS.show();
+                }, 300);
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Proximamente',
+                    text: 'Esta funcion estara disponible pronto.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        }
+
+        // Formulario SMS
+        document.getElementById('formSMS')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const telefono = document.getElementById('telefono').value;
+
+            // Validar formato
+            if (!/^[0-9]{10}$/.test(telefono)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Numero invalido',
+                    text: 'Ingresa un numero de 10 digitos valido.'
+                });
+                return;
+            }
+
+            // Simular envio
+            Swal.fire({
+                icon: 'success',
+                title: 'Codigo Enviado',
+                text: 'Se ha enviado un codigo de verificacion al +58 ' + telefono,
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            bootstrap.Modal.getInstance(document.getElementById('modalSMS')).hide();
+            this.reset();
+        });
+
+        // Solo permitir numeros en el campo telefono
+        document.getElementById('telefono')?.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // ===== FUNCIONES DE MODAL DE IMAGEN =====
+        function abrirModalImagen() {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImagen');
+            const perfilImg = document.getElementById('imagenPerfil');
+
+            modalImg.src = perfilImg.src;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModalImagen(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('imageModal');
+                if (modal.classList.contains('active')) {
+                    cerrarModalImagen();
+                }
+            }
+        });
     </script>
+
+    <!-- Modal para ver imagen ampliada -->
+    <div id="imageModal" class="image-modal" onclick="cerrarModalImagen(event)">
+        <span class="image-modal-close" onclick="cerrarModalImagen(event)">&times;</span>
+        <img class="image-modal-content" id="modalImagen" onclick="event.stopPropagation()">
+    </div>
 
     <?php require_once 'components/footer.php'; ?>
 </body>
