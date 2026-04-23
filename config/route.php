@@ -31,6 +31,7 @@
         'documentacion' => 'app/controllers/DocumentacionController.php',
         'manual' => 'app/controllers/ManualController.php',
         '404' => 'app/views/errors/404.php',
+        '403' => 'app/views/errors/403.php',
     ])
 
 ?>

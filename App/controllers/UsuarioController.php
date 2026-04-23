@@ -138,7 +138,7 @@ function Consultar() {
                 exit();
             }
         }
-    require_once 'App/views/errors/403.php';
+    header("Location: index.php?url=403");
     exit();
     
 }
@@ -252,7 +252,7 @@ function Consultar() {
             exit();
         }
 
-    require_once 'App/views/errors/403.php';
+    header("Location: index.php?url=403");
     exit();
             
     // termina el script
@@ -388,7 +388,7 @@ function Consultar() {
             exit();
         }
 
-    require_once 'App/views/errors/403.php';
+    header("Location: index.php?url=403");
     exit();
             
     // termina el script
@@ -568,7 +568,7 @@ function Consultar() {
 
     }
 
-    require_once 'App/views/errors/403.php';
+    header("Location: index.php?url=403");
     exit();
             
     // termina el script

@@ -135,7 +135,7 @@
                 exit();
             }
         }
-    require_once 'App/views/errors/403.php';
+    header("Location: index.php?url=403");
     exit();
     
 }
