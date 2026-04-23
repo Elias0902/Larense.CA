@@ -150,20 +150,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Paginación -->
-          <div class="row mt-3">
-            <div class="col-12">
-              <div class="d-flex justify-content-between align-items-center">
-                <span style="color: #666;">Mostrando registros</span>
-                <div class="btn-group">
-                  <button class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
-                  <button class="btn btn-danger btn-sm">1</button>
-                  <button class="btn btn-outline-secondary btn-sm" disabled>Siguiente</button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="text-center mt-4 mb-4">

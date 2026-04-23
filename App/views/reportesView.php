@@ -193,6 +193,30 @@
         body[data-background-color="dark"] .page-header-custom .icon-circle {
             background: var(--color-primary) !important;
         }
+
+        body.dark-mode {
+            background: #12131d !important;
+        }
+
+        body.dark-mode .container-fluid {
+            background: #12131d !important;
+        }
+
+        body.dark-mode .page-inner {
+            background: #12131d !important;
+        }
+
+        body[data-background-color="dark"] {
+            background: #12131d !important;
+        }
+
+        body[data-background-color="dark"] .container-fluid {
+            background: #12131d !important;
+        }
+
+        body[data-background-color="dark"] .page-inner {
+            background: #12131d !important;
+        }
     </style>
 </head>
 <body>
