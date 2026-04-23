@@ -30,13 +30,8 @@
         'reportes' => 'app/controllers/ReporteController.php',
         'documentacion' => 'app/controllers/DocumentacionController.php',
         'manual' => 'app/controllers/ManualController.php',
-<<<<<<< HEAD
         '403' => 'app/views/error/403.php',
         '404' => 'app/views/error/404.php',
-=======
-        '404' => 'app/views/errors/404.php',
-        '403' => 'app/views/errors/403.php',
->>>>>>> 53e9ed3346fa7b4a0a7dffadfb5279ef0aa710df
     ])
 
 ?>
