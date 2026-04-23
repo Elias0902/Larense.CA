@@ -5,4 +5,4 @@
     
     2. Usuario // usuario personal de moises
         usuario @moises24_
-        clave Moises24.
+        clave Super24.

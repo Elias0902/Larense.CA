@@ -613,6 +613,26 @@
             color: #e7e9f0 !important;
         }
 
+        /* Estilos submenu-back en modo oscuro */
+        body.dark-mode .submenu-header {
+            background: #181d2d !important;
+            border-bottom-color: #2a3041 !important;
+        }
+
+        body.dark-mode .submenu-back {
+            background: #181d2d !important;
+            color: #e7e9f0 !important;
+        }
+
+        body.dark-mode .submenu-back:hover {
+            background: #2a3041 !important;
+            color: #e7e9f0 !important;
+        }
+
+        body.dark-mode .submenu-back i {
+            color: #9ca3af !important;
+        }
+
         body.dark-mode .cart-item {
             border-bottom-color: #2a3041;
         }

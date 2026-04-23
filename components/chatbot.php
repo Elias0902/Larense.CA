@@ -152,8 +152,8 @@
 /* Botón flotante */
 .chatbot-toggle {
     background: linear-gradient(135deg, #cc1d1d 0%, #8b1515 100%);
-    border-radius: 50px;
-    padding: 12px 20px 12px 12px;
+    border-radius: 50%;
+    padding: 10px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -162,22 +162,28 @@
     transition: all 0.3s ease;
     border: none;
     color: white;
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
 }
 
 .chatbot-toggle:hover {
-    transform: scale(1.05);
+    width: auto;
+    padding: 10px 20px 10px 10px;
+    border-radius: 50px;
     box-shadow: 0 6px 25px rgba(204, 29, 29, 0.5);
 }
 
 .chatbot-avatar {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    flex-shrink: 0;
 }
 
 .chatbot-avatar i {
@@ -208,6 +214,16 @@
 .chatbot-label {
     font-weight: 600;
     font-size: 14px;
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.chatbot-toggle:hover .chatbot-label {
+    opacity: 1;
+    width: auto;
 }
 
 /* Ventana del chat */
