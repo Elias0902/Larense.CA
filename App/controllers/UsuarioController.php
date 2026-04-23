@@ -138,13 +138,7 @@ function Consultar() {
                 exit();
             }
         }
-    //muestra un modal de info que dice acceso no permitido
-    setError("Error acceso no permitido");
-
-    //redirect
-    require_once 'app/views/usuariosView.php';
-                
-    // termina el script
+    header("Location: index.php?url=403");
     exit();
     
 }
@@ -258,11 +252,8 @@ function Consultar() {
             exit();
         }
 
-    //muestra un modal de info que dice acceso no permitido
-    setError("Error accion no permitida");
-
-    //redirect
-    header('Location: index.php?url=usuarios');
+    header("Location: index.php?url=403");
+    exit();
             
     // termina el script
     exit();
@@ -397,11 +388,8 @@ function Consultar() {
             exit();
         }
 
-    //muestra un modal de info que dice acceso no permitido
-    setError("Error accion no permitida");
-
-    //redirect
-    header('Location: index.php?url=usuarios');
+    header("Location: index.php?url=403");
+    exit();
             
     // termina el script
     exit();
@@ -580,11 +568,8 @@ function Consultar() {
 
     }
 
-    //muestra un modal de info que dice acceso no permitido
-    setError("Error accion no permitida");
-
-    //redirect
-    header('Location: index.php?url=usuarios');
+    header("Location: index.php?url=403");
+    exit();
             
     // termina el script
     exit();    

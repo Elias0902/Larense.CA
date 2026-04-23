@@ -7,6 +7,7 @@
     require_once 'components/links.php';
     ?>
     <link rel="stylesheet" href="assets/css/validaciones.css" />
+    <link rel="stylesheet" href="assets/css/stylesModules/bitacora.css" />
   </head>
   <body>
     <?php
@@ -207,14 +208,6 @@ require_once 'components/scripts.php';
 
 <script src="assets/js/ajax/bitacoras_ajax.js"></script>
 
-<style>
-.text-center {
-    text-align: center;
-}
-.mt-3 {
-    margin-top: 1rem;
-}
-</style>
 <script src="assets/js/animacionesJs/dashboard_bitacora.js"></script>
   </body>
 </html>

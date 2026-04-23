@@ -5,13 +5,7 @@
     <title>Documentacion del Sistema - Larense C.A.</title>
     <?php require_once 'components/links.php'; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .code-block { background: #f8f9fa; border-left: 4px solid #1572E8; padding: 15px; font-family: monospace; font-size: 12px; max-height: 400px; overflow: auto; border-radius: 0 8px 8px 0; }
-        .doc-section { margin-bottom: 30px; }
-        .module-card { transition: transform 0.2s; border: none; border-radius: 12px; overflow: hidden; }
-        .module-card:hover { transform: translateY(-5px); }
-        .doc-header { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); }
-    </style>
+    <link rel="stylesheet" href="assets/css/stylesModules/documentacion.css" />
 </head>
 <body>
     <?php require_once 'components/menu.php'; ?>
