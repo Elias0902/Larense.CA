@@ -251,6 +251,38 @@
             color: #28a745;
         }
 
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--primary-color);
+            background: rgba(204, 29, 29, 0.1);
+        }
+
+        .password-toggle-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(204, 29, 29, 0.2);
+        }
+
+        .password-toggle-btn i {
+            font-size: 14px;
+        }
+
         .form-control {
             width: 100%;
             padding: 12px 40px 12px 40px;
@@ -484,6 +516,9 @@
                                 <i class="fa fa-lock input-icon-left"></i>
                                 <input type="password" class="form-control input_pw" name="password" id="password" placeholder="••••••••" oninput="password_validacion()" required>
                                 <span id="icono-validacionPW" class="input-icon-right"></span>
+                                <button type="button" class="password-toggle-btn" id="togglePassword" onclick="togglePasswordVisibility()">
+                                    <i class="fa fa-eye" id="toggleIcon"></i>
+                                </button>
                             </div>
                             <span id="errorPW" class="error-messege" style="color: red; font-size: 12px; margin-top: 4px; display: block;"></span>
                         </div>
@@ -623,6 +658,22 @@
                 }
             });
         });
+
+        // Función para mostrar/ocultar contraseña
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
 
         // Detectar si se debe mostrar la vista de registro
         document.addEventListener('DOMContentLoaded', function() {
