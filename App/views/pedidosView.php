@@ -7,6 +7,7 @@
     require_once 'components/links.php';
     ?>
     <link rel="stylesheet" href="assets/css/validaciones.css" />
+    <link rel="stylesheet" href="assets/css/stylesModules/pedidos.css" />
   </head>
   <body>
     <?php

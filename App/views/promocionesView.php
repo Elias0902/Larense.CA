@@ -7,18 +7,7 @@
     require_once 'components/links.php';
     ?>
     <link rel="stylesheet" href="assets/css/validaciones.css" />
-    <style>
-      /* Estilos para modo oscuro - Alert de promociones */
-      body.dark-mode .alert-info {
-        background: #1e3a5f !important;
-        border-color: #2c5282 !important;
-        color: #bee3f8 !important;
-      }
-      
-      body.dark-mode .alert-info i {
-        color: #63b3ed !important;
-      }
-    </style>
+    <link rel="stylesheet" href="assets/css/stylesModules/promociones.css" />
   </head>
   <body>
     <?php
