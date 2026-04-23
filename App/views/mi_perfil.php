@@ -629,11 +629,25 @@
                     <!-- Foto de perfil -->
                     <div class="profile-avatar-container">
                         <img src="<?php 
-                        if (!empty($usuario['imagen_perfil']) && file_exists($usuario['imagen_perfil'])) {
-                            echo $usuario['imagen_perfil'];
-                        } else {
-                            echo 'Assets/img/default.PNG';
+                        // Determinar la ruta de la imagen
+                        $ruta_imagen = 'Assets/img/default.PNG';
+                        
+                        // Priorizar imagen de sesión
+                        if (!empty($_SESSION['s_usuario']['img_usuario']) && file_exists($_SESSION['s_usuario']['img_usuario'])) {
+                            $ruta_imagen = $_SESSION['s_usuario']['img_usuario'];
+                        } elseif (!empty($usuario['img_usuario']) && file_exists($usuario['img_usuario'])) {
+                            $ruta_imagen = $usuario['img_usuario'];
+                            // Sincronizar sesión
+                            $_SESSION['s_usuario']['img_usuario'] = $usuario['img_usuario'];
                         }
+                        
+                        // Si la imagen no existe físicamente, usar la imagen por defecto
+                        if (!file_exists($ruta_imagen)) {
+                            $ruta_imagen = 'Assets/img/default.PNG';
+                            $_SESSION['s_usuario']['img_usuario'] = $ruta_imagen;
+                        }
+                        
+                        echo $ruta_imagen . '?v=' . time();
                         ?>"
                              alt="Foto de perfil"
                              class="profile-avatar"
@@ -650,7 +664,7 @@
                                 <i class="fas fa-upload"></i>
                                 <span>Cambiar imagen</span>
                             </div>
-                            <?php if (!empty($usuario['imagen_perfil'])): ?>
+                            <?php if (!empty($usuario['img_usuario']) && $usuario['img_usuario'] != 'Assets/img/default.PNG' && file_exists($usuario['img_usuario'])): ?>
                             <div class="avatar-option delete-option" onclick="eliminarImagen()">
                                 <i class="fas fa-trash"></i>
                                 <span>Eliminar imagen</span>
@@ -792,7 +806,6 @@
 
                 </div>
 
-
                 <!-- Alerta de Seguridad -->
                 <div class="security-alert">
                     <div class="security-alert-icon">
@@ -863,8 +876,6 @@
     <!-- Input oculto para seleccionar imagen -->
     <input type="file" id="inputImagen" accept="image/*" style="display: none;" onchange="subirImagen(this)">
 
-
-
     <?php require_once 'components/scripts.php'; ?>
 
     <script>
@@ -927,12 +938,8 @@
                         const headerImg = document.getElementById('headerAvatarImg');
                         if (headerImg) headerImg.src = nuevaRuta;
 
-                        // Actualizar sesion mediante AJAX para que persista
-                        fetch('index.php?url=perfil&action=ver', { method: 'GET' })
-                            .then(() => console.log('Sesion actualizada'));
-
-                        // Opcional: recargar para sincronizar todo (descomentar si se prefiere)
-                        // setTimeout(() => location.reload(), 2000);
+                        // Recargar la página después de 2 segundos para sincronizar todo
+                        setTimeout(() => location.reload(), 2000);
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -981,20 +988,20 @@
                                 showConfirmButton: false
                             });
                             // Actualizar a imagen por defecto sin recargar
-                            const defaultImg = 'assets/img/profile.jpg';
-                            document.getElementById('imagenPerfil').src = defaultImg;
+                            const defaultImg = 'Assets/img/default.PNG';
+                            document.getElementById('imagenPerfil').src = defaultImg + '?' + new Date().getTime();
 
                             // Actualizar imagen del header si existe
                             const headerImg = document.getElementById('headerAvatarImg');
-                            if (headerImg) headerImg.src = defaultImg;
+                            if (headerImg) headerImg.src = defaultImg + '?' + new Date().getTime();
 
                             // Ocultar opcion de eliminar del menu
                             const avatarOptions = document.getElementById('avatarOptions');
                             const deleteOption = avatarOptions.querySelector('.delete-option');
                             if (deleteOption) deleteOption.style.display = 'none';
 
-                            // Opcional: recargar para sincronizar todo
-                            // setTimeout(() => location.reload(), 2000);
+                            // Recargar después de 2 segundos
+                            setTimeout(() => location.reload(), 2000);
                         } else {
                             Swal.fire({
                                 icon: 'error',
@@ -1016,7 +1023,8 @@
         // Toggle mostrar/ocultar contrasena
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            const icon = input.nextElementSibling.querySelector('i');
+            const button = input.nextElementSibling;
+            const icon = button.querySelector('i');
 
             if (input.type === 'password') {
                 input.type = 'text';

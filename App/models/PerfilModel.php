@@ -5,13 +5,6 @@ require_once "ConexionModel.php";
 
 class Perfil extends Conexion {
 
-    // atributos
-    private $id_usuario;
-    private $nombre_usuario;
-    private $email_usuario;
-    private $id_rol_usuario;
-    private $imagen_perfil;
-
     // constructor
     public function __construct() {
         parent::__construct();
@@ -21,7 +14,7 @@ class Perfil extends Conexion {
     public function ObtenerUsuarioSeguridad($id_usuario) {
         try {
             $sql = "SELECT u.id_usuario, u.nombre_usuario, u.email_usuario,
-                           u.id_rol_usuario, r.nombre_rol, u.imagen_perfil,
+                           u.id_rol_usuario, r.nombre_rol, u.img_usuario,
                            u.telefono_usuario
                     FROM usuarios u
                     INNER JOIN roles r ON u.id_rol_usuario = r.id_rol
@@ -42,7 +35,7 @@ class Perfil extends Conexion {
                     'email_usuario' => $_SESSION['s_usuario']['email_usuario'] ?? '',
                     'id_rol_usuario' => $_SESSION['s_usuario']['id_rol_usuario'] ?? 0,
                     'nombre_rol' => 'Usuario',
-                    'imagen_perfil' => null,
+                    'img_usuario' => 'Assets/img/default.PNG',
                     'telefono_usuario' => null
                 ];
             }
@@ -53,7 +46,7 @@ class Perfil extends Conexion {
                 'email_usuario' => $_SESSION['s_usuario']['email_usuario'] ?? '',
                 'id_rol_usuario' => $_SESSION['s_usuario']['id_rol_usuario'] ?? 0,
                 'nombre_rol' => 'Usuario',
-                'imagen_perfil' => null,
+                'img_usuario' => 'Assets/img/default.PNG',
                 'telefono_usuario' => null
             ];
         }
@@ -63,7 +56,7 @@ class Perfil extends Conexion {
     public function ObtenerUsuario($id_usuario) {
         try {
             $sql = "SELECT u.id_usuario, u.nombre_usuario, u.email_usuario,
-                           u.id_rol_usuario, r.nombre_rol, u.imagen_perfil
+                           u.id_rol_usuario, r.nombre_rol, u.img_usuario
                     FROM usuarios u
                     INNER JOIN roles r ON u.id_rol_usuario = r.id_rol
                     WHERE u.id_usuario = :id_usuario AND u.status = 1";
@@ -83,7 +76,7 @@ class Perfil extends Conexion {
                     'email_usuario' => $_SESSION['s_usuario']['email_usuario'] ?? '',
                     'id_rol_usuario' => $_SESSION['s_usuario']['id_rol_usuario'] ?? 0,
                     'nombre_rol' => 'Usuario',
-                    'imagen_perfil' => null
+                    'img_usuario' => 'Assets/img/default.PNG'
                 ];
             }
         } catch (PDOException $e) {
@@ -93,7 +86,7 @@ class Perfil extends Conexion {
                 'email_usuario' => $_SESSION['s_usuario']['email_usuario'] ?? '',
                 'id_rol_usuario' => $_SESSION['s_usuario']['id_rol_usuario'] ?? 0,
                 'nombre_rol' => 'Usuario',
-                'imagen_perfil' => null
+                'img_usuario' => 'Assets/img/default.PNG'
             ];
         }
     }
@@ -116,26 +109,19 @@ class Perfil extends Conexion {
             if ($resultado) {
                 return $resultado['fecha_bitacora'];
             } else {
-                return date('Y-m-d H:i:s'); // fecha actual en formato datetime
+                return date('Y-m-d H:i:s');
             }
         } catch (PDOException $e) {
-            return date('Y-m-d H:i:s'); // fecha actual en formato datetime
+            return date('Y-m-d H:i:s');
         }
     }
 
     // metodo para actualizar la imagen de perfil
     public function ActualizarImagen($id_usuario, $ruta_imagen) {
         try {
-            // verifica si existe la columna imagen_perfil en la tabla
-            $checkColumn = $this->connSeguridad->query("SHOW COLUMNS FROM usuarios LIKE 'imagen_perfil'");
-            if ($checkColumn->rowCount() == 0) {
-                // crea la columna si no existe
-                $this->connSeguridad->exec("ALTER TABLE usuarios ADD COLUMN imagen_perfil VARCHAR(255) NULL");
-            }
-
-            $sql = "UPDATE usuarios SET imagen_perfil = :imagen_perfil WHERE id_usuario = :id_usuario";
+            $sql = "UPDATE usuarios SET img_usuario = :img_usuario WHERE id_usuario = :id_usuario";
             $stmt = $this->connSeguridad->prepare($sql);
-            $stmt->bindParam(':imagen_perfil', $ruta_imagen, PDO::PARAM_STR);
+            $stmt->bindParam(':img_usuario', $ruta_imagen, PDO::PARAM_STR);
             $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
@@ -151,7 +137,7 @@ class Perfil extends Conexion {
     // metodo para eliminar la imagen de perfil
     public function EliminarImagen($id_usuario) {
         try {
-            $sql = "UPDATE usuarios SET imagen_perfil = NULL WHERE id_usuario = :id_usuario";
+            $sql = "UPDATE usuarios SET img_usuario = 'Assets/img/default.PNG' WHERE id_usuario = :id_usuario";
             $stmt = $this->connSeguridad->prepare($sql);
             $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
 

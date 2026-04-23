@@ -16,7 +16,7 @@ class PerfilSistema extends Conexion {
     public function ObtenerTodosUsuarios() {
         try {
             $sql = "SELECT u.id_usuario, u.nombre_usuario, u.email_usuario,
-                           u.id_rol_usuario, r.nombre_rol, u.status, u.imagen_perfil
+                           u.id_rol_usuario, r.nombre_rol, u.status, u.img_usuario
                     FROM usuarios u
                     INNER JOIN roles r ON u.id_rol_usuario = r.id_rol
                     ORDER BY u.id_usuario DESC";
@@ -34,7 +34,7 @@ class PerfilSistema extends Conexion {
     public function ObtenerUsuarioPorId($id_usuario) {
         try {
             $sql = "SELECT u.id_usuario, u.nombre_usuario, u.email_usuario,
-                           u.id_rol_usuario, r.nombre_rol, u.status, u.imagen_perfil
+                           u.id_rol_usuario, r.nombre_rol, u.status, u.img_usuario
                     FROM usuarios u
                     INNER JOIN roles r ON u.id_rol_usuario = r.id_rol
                     WHERE u.id_usuario = :id_usuario";
@@ -49,7 +49,7 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // verificar si un usuario existe
+    // El resto de métodos se mantienen igual...
     public function ExisteUsuario($nombre_usuario, $email_usuario) {
         try {
             $sql = "SELECT COUNT(*) as total FROM usuarios
@@ -68,7 +68,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // verificar si un usuario existe con otro ID
     public function ExisteUsuarioOtroId($nombre_usuario, $email_usuario, $id_usuario) {
         try {
             $sql = "SELECT COUNT(*) as total FROM usuarios
@@ -88,13 +87,12 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // crear un nuevo usuario
     public function CrearUsuario($nombre_usuario, $email_usuario, $password, $id_rol) {
         try {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-            $sql = "INSERT INTO usuarios (nombre_usuario, email_usuario, password_usuario, id_rol_usuario, status)
-                    VALUES (:nombre_usuario, :email_usuario, :password, :id_rol, 1)";
+            $sql = "INSERT INTO usuarios (nombre_usuario, email_usuario, password_usuario, id_rol_usuario, status, img_usuario)
+                    VALUES (:nombre_usuario, :email_usuario, :password, :id_rol, 1, 'Assets/img/default.PNG')";
 
             $stmt = $this->connSeguridad->prepare($sql);
             $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
@@ -112,7 +110,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // actualizar un usuario
     public function ActualizarUsuario($id_usuario, $nombre_usuario, $email_usuario, $id_rol, $password = '') {
         try {
             if (!empty($password)) {
@@ -152,7 +149,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // eliminar un usuario (soft delete)
     public function EliminarUsuario($id_usuario) {
         try {
             $sql = "UPDATE usuarios SET status = 0 WHERE id_usuario = :id_usuario";
@@ -169,7 +165,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // cambiar estado de usuario
     public function CambiarEstadoUsuario($id_usuario, $nuevo_estado) {
         try {
             $sql = "UPDATE usuarios SET status = :status WHERE id_usuario = :id_usuario";
@@ -190,7 +185,6 @@ class PerfilSistema extends Conexion {
 
     // ==================== MÉTODOS PARA ROLES ====================
 
-    // obtener todos los roles
     public function ObtenerRoles() {
         try {
             $sql = "SELECT id_rol, nombre_rol, status FROM roles WHERE status = 1 ORDER BY nombre_rol";
@@ -202,7 +196,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // obtener un rol por ID
     public function ObtenerRolPorId($id_rol) {
         try {
             $sql = "SELECT id_rol, nombre_rol, status FROM roles WHERE id_rol = :id_rol";
@@ -215,7 +208,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // crear un nuevo rol
     public function CrearRol($nombre_rol) {
         try {
             $sql = "INSERT INTO roles (nombre_rol, status) VALUES (:nombre_rol, 1)";
@@ -224,7 +216,6 @@ class PerfilSistema extends Conexion {
 
             if ($stmt->execute()) {
                 $id_rol = $this->connSeguridad->lastInsertId();
-                // Inicializar permisos vacíos para el nuevo rol
                 $this->InicializarPermisosRol($id_rol);
                 return ['status' => true, 'msj' => 'Rol creado correctamente', 'id' => $id_rol];
             } else {
@@ -235,7 +226,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // actualizar un rol
     public function ActualizarRol($id_rol, $nombre_rol) {
         try {
             $sql = "UPDATE roles SET nombre_rol = :nombre_rol WHERE id_rol = :id_rol";
@@ -253,10 +243,8 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // eliminar un rol
     public function EliminarRol($id_rol) {
         try {
-            // Verificar si hay usuarios con este rol
             $sql = "SELECT COUNT(*) as total FROM usuarios WHERE id_rol_usuario = :id_rol AND status = 1";
             $stmt = $this->connSeguridad->prepare($sql);
             $stmt->bindParam(':id_rol', $id_rol, PDO::PARAM_INT);
@@ -283,7 +271,6 @@ class PerfilSistema extends Conexion {
 
     // ==================== MÉTODOS PARA MÓDULOS ====================
 
-    // obtener todos los módulos
     public function ObtenerModulos() {
         try {
             $sql = "SELECT id_modulo, nombre_modulo FROM modulos ORDER BY id_modulo";
@@ -295,15 +282,11 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // ==================== MÉTODOS PARA PERMISOS (ACCESOS) ====================
+    // ==================== MÉTODOS PARA PERMISOS ====================
 
-    // inicializar permisos vacíos para un nuevo rol
     private function InicializarPermisosRol($id_rol) {
         try {
             $modulos = $this->ObtenerModulos();
-            // Los permisos son: 1=Crear, 2=Leer, 3=Actualizar, 4=Eliminar
-            // Por defecto, solo se da permiso de Leer (2)
-
             $sql = "INSERT INTO accesos (id_rol, id_modulo, id_permiso, status) VALUES (:id_rol, :id_modulo, 2, 1)";
             $stmt = $this->connSeguridad->prepare($sql);
 
@@ -318,7 +301,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // obtener matriz de permisos para un rol
     public function ObtenerPermisosRol($id_rol) {
         try {
             $sql = "SELECT a.id_modulo, a.id_permiso, m.nombre_modulo
@@ -330,7 +312,6 @@ class PerfilSistema extends Conexion {
             $stmt->execute();
             $permisos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Organizar en formato [modulo][permiso] = true
             $matriz = [];
             foreach ($permisos as $p) {
                 $matriz[$p['id_modulo']][$p['id_permiso']] = true;
@@ -341,7 +322,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // obtener permisos de todos los roles (para la matriz completa)
     public function ObtenerMatrizPermisosCompleta() {
         try {
             $sql = "SELECT a.id_rol, a.id_modulo, a.id_permiso, r.nombre_rol, m.nombre_modulo
@@ -358,11 +338,9 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // asignar o quitar un permiso
     public function ActualizarPermiso($id_rol, $id_modulo, $id_permiso, $activo) {
         try {
             if ($activo) {
-                // Verificar si ya existe
                 $sql = "SELECT id_accesos FROM accesos 
                         WHERE id_rol = :id_rol AND id_modulo = :id_modulo AND id_permiso = :id_permiso";
                 $stmt = $this->connSeguridad->prepare($sql);
@@ -372,7 +350,6 @@ class PerfilSistema extends Conexion {
                 $stmt->execute();
 
                 if ($stmt->rowCount() == 0) {
-                    // Insertar nuevo permiso
                     $sql = "INSERT INTO accesos (id_rol, id_modulo, id_permiso, status) 
                             VALUES (:id_rol, :id_modulo, :id_permiso, 1)";
                     $stmt = $this->connSeguridad->prepare($sql);
@@ -381,7 +358,6 @@ class PerfilSistema extends Conexion {
                     $stmt->bindParam(':id_permiso', $id_permiso, PDO::PARAM_INT);
                     $stmt->execute();
                 } else {
-                    // Activar si estaba desactivado
                     $sql = "UPDATE accesos SET status = 1 
                             WHERE id_rol = :id_rol AND id_modulo = :id_modulo AND id_permiso = :id_permiso";
                     $stmt = $this->connSeguridad->prepare($sql);
@@ -391,7 +367,6 @@ class PerfilSistema extends Conexion {
                     $stmt->execute();
                 }
             } else {
-                // Desactivar permiso
                 $sql = "UPDATE accesos SET status = 0 
                         WHERE id_rol = :id_rol AND id_modulo = :id_modulo AND id_permiso = :id_permiso";
                 $stmt = $this->connSeguridad->prepare($sql);
@@ -407,7 +382,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // verificar si un usuario tiene un permiso específico
     public function VerificarPermiso($id_rol, $id_modulo, $id_permiso) {
         try {
             $sql = "SELECT COUNT(*) as tiene FROM accesos 
@@ -427,7 +401,6 @@ class PerfilSistema extends Conexion {
 
     // ==================== MÉTODOS PARA BITÁCORA ====================
 
-    // registrar en bitácora
     public function RegistrarBitacora($id_usuario, $modulo, $accion, $descripcion) {
         try {
             $sql = "INSERT INTO bitacoras (id_usuario, modulo, accion, descripcion, fecha_bitacora)
@@ -444,7 +417,6 @@ class PerfilSistema extends Conexion {
         }
     }
 
-    // obtener último acceso de un usuario
     public function ObtenerUltimoAcceso($id_usuario) {
         try {
             $sql = "SELECT fecha_bitacora FROM bitacoras 
