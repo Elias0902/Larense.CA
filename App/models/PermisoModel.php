@@ -92,7 +92,7 @@ class Permiso extends Conexion {
     }
 
     private function setPermisoRolData($permiso_json) {
-        
+
         // valida el json
         if (is_string($permiso_json)) {
 
@@ -102,19 +102,19 @@ class Permiso extends Conexion {
         // en caso de error
         else {
 
-            // retorna el estatus de mensaje 
+            // retorna el estatus de mensaje
             return['status' => false, 'msj' => 'JSON invalido.'];
         }
 
        if (empty($permiso['id'])) {
-            
+
             // retorna status de error
             return ['status' => false, 'msj' => 'Permisos vacios.'];
         }
 
         // asigna el rol
         $this->rol = $permiso['id'];
-        
+
         // retorna true con el mensaje
         return['status' => true, 'msj' => 'Datos asignados correctamente.'];
     }
@@ -197,7 +197,23 @@ class Permiso extends Conexion {
                 }
 
                 // llama el metodo en caso de axito y retorna el status del metodo
-                return $this->Obtener_Permisos(); 
+                return $this->Obtener_Permisos();
+            break;
+
+            case 'obtener_modulos':
+
+                // asidna el resultado de la validacion
+                $validacion = $this->setPermisoRolData($permiso_json);
+
+                // valida el estado de la valicacion
+                if (!$validacion['status']) {
+
+                    // retorna el status de la validacion
+                    return $validacion;
+                }
+
+                // llama el metodo en caso de axito y retorna el status del metodo
+                return $this->Obtener_Modulos_Por_Rol();
             break;
 
             default:
@@ -340,10 +356,10 @@ class Permiso extends Conexion {
     }
 
     private function Obtener_Permisos() {
-            
+
             // la conexion esta cerrado por defecto
             $this->closeConnection();
-            
+
             // para manejo de errores
             try {
 
@@ -351,7 +367,7 @@ class Permiso extends Conexion {
                 $conn = $this->getConnectionSeguridad();
 
                 // consulta sql
-                $query = "SELECT a.*, p.nombre_permiso, m.nombre_modulo 
+                $query = "SELECT a.*, p.nombre_permiso, m.nombre_modulo
                             FROM accesos a
                             JOIN modulos m ON a.id_modulo = m.id_modulo
                             JOIN permisos p ON a.id_permiso = p.id_permisos
@@ -360,10 +376,10 @@ class Permiso extends Conexion {
                 // prepara la sentencia
                 $stmt = $conn->prepare($query);
 
-                // vincula los parametros 
+                // vincula los parametros
                 $stmt->bindValue(":rol", $this->getRol());
 
-                // se ejecuta la sentencia  
+                // se ejecuta la sentencia
                 $stmt->execute();
 
                 // almacena el resultado de la sentencia
@@ -372,10 +388,10 @@ class Permiso extends Conexion {
                 // valida si existe y si es true
                 if ($resultado) {
 
-                    // retorna un status 
+                    // retorna un status
                     return['status' => true, 'msj' => 'Permiso concedido.', 'data' => $resultado];
                 }
-                    
+
                 // en caso de no tener permiso
                 else {
 
@@ -389,10 +405,74 @@ class Permiso extends Conexion {
 
                 // imprime el error en la consola
                 error_log("Error de permisos: " . $e->getMessage());
-                
+
                 // retorna estatus de error
                 return['status' => false, 'msj' => 'Error intentelo mas tarde' . $e->getMessage()];
-            } 
+            }
+
+            // para finalizar
+            finally {
+
+                // cierra la conexion
+                $this->closeConnection();
+            }
+        }
+
+    private function Obtener_Modulos_Por_Rol() {
+
+            // la conexion esta cerrado por defecto
+            $this->closeConnection();
+
+            // para manejo de errores
+            try {
+
+                // crea la conexion
+                $conn = $this->getConnectionSeguridad();
+
+                // consulta sql - obtiene módulos donde el rol tiene al menos un permiso activo
+                $query = "SELECT DISTINCT m.id_modulo, m.nombre_modulo
+                            FROM accesos a
+                            JOIN modulos m ON a.id_modulo = m.id_modulo
+                            WHERE a.id_rol = :rol
+                            AND a.status = 1
+                            ORDER BY m.id_modulo";
+
+                // prepara la sentencia
+                $stmt = $conn->prepare($query);
+
+                // vincula los parametros
+                $stmt->bindValue(":rol", $this->getRol());
+
+                // se ejecuta la sentencia
+                $stmt->execute();
+
+                // almacena el resultado de la sentencia
+                $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // valida si existe y si es true
+                if ($resultado) {
+
+                    // retorna un status con los módulos
+                    return['status' => true, 'msj' => 'Módulos encontrados.', 'data' => $resultado];
+                }
+
+                // en caso de no tener módulos
+                else {
+
+                    // retorna el status de error
+                    return['status' => false, 'msj' => 'No tiene módulos asignados.'];
+                }
+            }
+
+            // en caso de error en la consulta
+            catch(PDOException $e) {
+
+                // imprime el error en la consola
+                error_log("Error de módulos: " . $e->getMessage());
+
+                // retorna estatus de error
+                return['status' => false, 'msj' => 'Error intentelo mas tarde' . $e->getMessage()];
+            }
 
             // para finalizar
             finally {
@@ -402,5 +482,5 @@ class Permiso extends Conexion {
             }
         }
 }
-    
-?>
+
+    ?>
