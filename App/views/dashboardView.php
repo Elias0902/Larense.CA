@@ -741,11 +741,12 @@
             
             setInterval(updateDynamicData, 5000);
             
-            setInterval(() => {
-                if (Math.random() > 0.5) {
-                    showDynamicNotification();
-                }
-            }, 20000);
+            // Notificaciones automáticas desactivadas
+            // setInterval(() => {
+            //     if (Math.random() > 0.5) {
+            //         showDynamicNotification();
+            //     }
+            // }, 20000);
             
             document.querySelectorAll('.stat-card-1, .stat-card-2, .stat-card-3, .stat-card-4').forEach((card, index) => {
                 card.style.opacity = '0';
