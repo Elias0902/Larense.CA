@@ -7,135 +7,8 @@
     require_once 'components/links.php';
     ?>
     <link rel="stylesheet" href="assets/css/validaciones.css" />
-    <style>
-        /* Estilos modo oscuro para productos */
-        body.dark-mode {
-            background: #12131d !important;
-        }
-
-        body.dark-mode .page-header-custom {
-            background: #1a1f2e !important;
-            border-color: #2a3041 !important;
-        }
-
-        body.dark-mode .page-header-custom h3,
-        body.dark-mode .page-header-custom .fw-bold {
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .breadcrumb-item a {
-            color: #9ca3af !important;
-        }
-
-        body.dark-mode .breadcrumb-item.active {
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .card {
-            background: #1a1f2e !important;
-            border-color: #2a3041 !important;
-        }
-
-        body.dark-mode .card-header {
-            background: transparent !important;
-            border-bottom-color: #2a3041 !important;
-        }
-
-        body.dark-mode .card-title,
-        body.dark-mode .card-header h4 {
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .table thead th {
-            background: #131725 !important;
-            color: #e7e9f0 !important;
-            border-bottom-color: #2a3041 !important;
-        }
-
-        body.dark-mode .table tbody td {
-            color: #e7e9f0 !important;
-            border-bottom-color: #2a3041 !important;
-        }
-
-        body.dark-mode .table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.05) !important;
-        }
-
-        body.dark-mode .badge {
-            background: #2a3041 !important;
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .modal-content {
-            background: #1a1f2e !important;
-            border-color: #2a3041 !important;
-        }
-
-        body.dark-mode .modal-header {
-            background: transparent !important;
-            border-bottom-color: #2a3041 !important;
-        }
-
-        body.dark-mode .modal-title {
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .modal-body {
-            background: #1a1f2e !important;
-        }
-
-        body.dark-mode .form-label {
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .form-control,
-        body.dark-mode .form-select {
-            background: #2a3041 !important;
-            border-color: #3a4055 !important;
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .form-control:focus,
-        body.dark-mode .form-select:focus {
-            background: #2a3041 !important;
-            border-color: #cc1d1d !important;
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .text-muted {
-            color: #9ca3af !important;
-        }
-
-        body.dark-mode .alert-info {
-            background: #1a4a5a !important;
-            color: #6bc2d1 !important;
-            border-color: #1a5a6a !important;
-        }
-
-        body.dark-mode .btn-close {
-            filter: invert(1) brightness(2);
-        }
-
-        body.dark-mode .text-dark {
-            color: #e7e9f0 !important;
-        }
-
-        body.dark-mode .card-body {
-            background: #1a1f2e !important;
-        }
-
-        body.dark-mode .progress {
-            background: #2a3041 !important;
-        }
-
-        body.dark-mode .container-fluid {
-            background: #12131d !important;
-        }
-
-        body.dark-mode .page-inner {
-            background: #12131d !important;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/select.css" />
+    <link rel="stylesheet" href="assets/css/modoOscuro.css" />
   </head>
   <body>
     <?php
@@ -364,9 +237,18 @@ require_once 'components/scripts.php';
               <span id="errorFechaVencimiento" class="error-messege"></span>
               <br>
               
-              <label for="nombreCategoria" class="form-label"><b>Imagen</b></label>
-              <input type="file" multiple class="form-control" id="imagenProducto" name="imagenProducto" placeholder="Ingrese la URL de la imagen" oninput="validar_imagen()" required>
-              <span id="errorImagen" class="error-messege"></span>
+              <div class="mb-3">
+                <label class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-image me-2" style="color: #dc3545;"></i>Imagen del Producto *</label>
+                <div class="image-upload-container">
+                  <input type="file" multiple class="form-control" id="imagenProducto" name="imagenProducto" placeholder="Ingrese la URL de la imagen" oninput="validar_imagen()" required>
+                  <label for="imagenProducto" class="image-upload-label">
+                    <i class="fa fa-cloud-upload-alt"></i>
+                    <span>Haz clic para seleccionar una imagen</span>
+                  </label>
+                </div>
+                <div class="form-text text-muted mt-2">Seleccione una imagen para el producto (JPG, PNG, GIF)</div>
+                <span id="errorImagen" class="error-messege"></span>
+              </div>
               <br>
           <!-- Nota informativa -->
           <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #d1ecf1; border: none;">

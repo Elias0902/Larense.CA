@@ -145,7 +145,7 @@
     setError("Error acceso no permitido");
 
     //redirect
-    require_once 'app/views/productosView.php';
+    header('Location: index.php?url=403');
                 
     // termina el script
     exit();
@@ -333,7 +333,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productoss');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -475,7 +475,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productos');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -663,7 +663,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productos');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();    

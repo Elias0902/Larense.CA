@@ -139,7 +139,7 @@
     setError("Error acceso no permitido");
 
     //redirect
-    require_once 'app/views/categoriasView.php';
+    header('Location: index.php?url=403');
                 
     // termina el script
     exit();
@@ -250,7 +250,8 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=categorias');
+    header('Location: index.php?url=403');
+
             
     // termina el script
     exit();
@@ -382,7 +383,8 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=categorias');
+    header('Location: index.php?url=403');
+
             
     // termina el script
     exit();
@@ -565,7 +567,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=categorias');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();    

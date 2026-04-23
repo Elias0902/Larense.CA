@@ -31,7 +31,7 @@ function getProductImage($img) {
     if (!empty($img) && file_exists($img)) {
         return '../../' . $img;
     }
-    return '../../Assets/img/natys.png';
+    return '../../Assets/img/natys/natys.png';
 }
 
 // Función helper para el badge de stock
@@ -670,7 +670,7 @@ function getStockBadge($stock) {
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="../../Assets/img/natys.png" alt="Naty's">
+                <img src="../../Assets/img/natys/natys.png" alt="Naty's">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
@@ -698,7 +698,7 @@ function getStockBadge($stock) {
                     <a href="#productos" class="btn-hero">Ver Productos <i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img src="../../Assets/img/natys.png" alt="Naty's Logo" class="hero-logo">
+                    <img src="../../Assets/img/natys/natys.png" alt="Naty's Logo" class="hero-logo">
                 </div>
             </div>
         </div>
@@ -906,7 +906,7 @@ function getStockBadge($stock) {
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <img src="../../Assets/img/natys.png" alt="Naty's" class="footer-logo">
+                    <img src="../../Assets/img/natys/natys.png" alt="Naty's" class="footer-logo">
                     <p style="color: rgba(255,255,255,0.8); line-height: 1.7;">
                         Marca 100% venezolana, comprometida con la calidad y el sabor que une a las familias.
                     </p>

@@ -4,7 +4,7 @@
     />
     <link
       rel="icon"
-      href="assets/img/natys.png"
+      href="assets/img/natys/natys.png"
       type="image/x-icon"
     />
 <link
@@ -56,6 +56,9 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="assets/css/demo.css" />
+
+    <!-- CSS DRIVER -->
+    <link rel="stylesheet" href="assets/css/driver/driver.css" />
     
     <!-- CSS Personalizados -->
     <link rel="stylesheet" href="assets/css/custom.css" />

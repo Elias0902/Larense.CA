@@ -60,7 +60,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Categorias',
+            'modulo' => 'Tipos Clientes',
             'permiso' => 'Consultar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -139,7 +139,7 @@
     setError("Error acceso no permitido");
 
     //redirect
-    require_once 'app/views/categoriasView.php';
+    header('Location: index.php?url=403');
                 
     // termina el script
     exit();
@@ -159,7 +159,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Tipos de Clientes',
+            'modulo' => 'Tipos Clientes',
             'permiso' => 'Agregar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -256,7 +256,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=tipos_clientes');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -277,7 +277,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Tipos de Clientes',
+            'modulo' => 'Tipos Clientes',
             'permiso' => 'Modificar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -396,7 +396,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=categorias');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -477,7 +477,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Categorias',
+            'modulo' => 'Tipos Clientes',
             'permiso' => 'Eliminar',
             'rol' => $_SESSION['s_usuario']['usuario_rol_id']
         ]);
@@ -584,7 +584,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=tipos_clientes');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();    

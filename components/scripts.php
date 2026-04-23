@@ -39,6 +39,9 @@
     <!-- Sweet Alert -->
     <script src="assets/js/sweetalert2.min.js"></script>
 
+   <!-- DRIVER JS -->
+    <script src="assets/js/driver/driver.js"></script>
+
     <!-- Kaiadmin JS -->
     <script src="assets/js/Kaiadmin.min.js"></script>
 
@@ -97,13 +100,5 @@
 </script>
 
 <style>
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background-color: #d3d3d3 !important;
-    color: #000 !important;
-    cursor: pointer;
-}
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background-color: #a9a9a9 !important;
-    color: white !important;
-}
+
 </style>

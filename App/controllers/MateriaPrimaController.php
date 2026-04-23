@@ -62,7 +62,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Materias Prima',
             'permiso' => 'Consultar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -146,7 +146,7 @@
     setError("Error acceso no permitido");
 
     //redirect
-    require_once 'app/views/productosView.php';
+    header('Location: index.php?url=403');
                 
     // termina el script
     exit();
@@ -167,7 +167,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Materias Prima',
             'permiso' => 'Agregar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -274,7 +274,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productoss');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -295,7 +295,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Materias Prima',
             'permiso' => 'Modificar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -411,7 +411,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productos');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -493,7 +493,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Materias Prima',
             'permiso' => 'Eliminar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -595,7 +595,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productos');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();    

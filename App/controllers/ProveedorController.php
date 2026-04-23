@@ -60,7 +60,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Proveedores',
             'permiso' => 'Consultar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -140,7 +140,7 @@
     setError("Error acceso no permitido");
 
     //redirect
-    require_once 'app/views/proveedoresView.php';
+    header('Location: index.php?url=403');
                 
     // termina el script
     exit();
@@ -161,7 +161,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Proveedores',
             'permiso' => 'Agregar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -271,7 +271,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productoss');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -292,7 +292,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Proveedores',
             'permiso' => 'Modificar',
             'rol' => $_SESSION['s_usuario']['usuario_rol_id']
         ]);
@@ -410,7 +410,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productos');
+    header('Location: index.php?url=403');
             
     // termina el script
     exit();
@@ -492,7 +492,7 @@
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Productos',
+            'modulo' => 'Proveedores',
             'permiso' => 'Eliminar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -594,8 +594,7 @@
     setError("Error accion no permitida");
 
     //redirect
-    header('Location: index.php?url=productos');
-            
+    header('Location: index.php?url=403');            
     // termina el script
     exit();    
     

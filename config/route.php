@@ -30,6 +30,8 @@
         'reportes' => 'app/controllers/ReporteController.php',
         'documentacion' => 'app/controllers/DocumentacionController.php',
         'manual' => 'app/controllers/ManualController.php',
+        '403' => 'app/views/error/403.php',
+        '404' => 'app/views/error/404.php',
     ])
 
 ?>
