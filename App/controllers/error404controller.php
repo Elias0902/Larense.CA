@@ -6,7 +6,7 @@ $action = $_REQUEST['action'] ?? 'index';
 switch ($action) {
     case 'index':
         
-        include 'app/views/error/error404.php';
+        include 'app/views/errors/404.php';
         break;
 
     default:

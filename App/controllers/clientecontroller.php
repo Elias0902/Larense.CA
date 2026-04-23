@@ -142,13 +142,7 @@
             }
         }
     
-    //muestra un modal de info que dice acceso no permitido
-    setError("Error acceso no permitido");
-
-    //redirect
-    require_once 'app/views/productosView.php';
-                
-    // termina el script
+    require_once 'App/views/errors/403.php';
     exit();
     
 }

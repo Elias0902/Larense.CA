@@ -58,7 +58,7 @@
                 }
 
                 //en caso contrario de que no este la url carga una pagina de error
-                require_once 'app/views/404.php';
+                require_once 'app/views/errors/404.php';
                 
                 //terina el scrpit
                 exit();
