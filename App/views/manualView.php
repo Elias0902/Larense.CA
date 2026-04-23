@@ -283,8 +283,8 @@
             <div class="card shadow border-0" style="border-radius: 12px; overflow: hidden;">
                 <div class="card-body p-0">
                     <div class="pdf-container">
-                        <?php if (file_exists('uploads/manuales/manual_usuario.pdf')): ?>
-                            <iframe src="uploads/manuales/manual_usuario.pdf" class="pdf-viewer" title="Manual de Usuario PDF"></iframe>
+                        <?php if (file_exists('storage/manuales/manual_usuario.pdf')): ?>
+                            <iframe src="storage/manuales/manual_usuario.pdf" class="pdf-viewer" title="Manual de Usuario PDF"></iframe>
                         <?php else: ?>
                             <div class="no-pdf-message">
                                 <i class="fa fa-file-pdf"></i>
