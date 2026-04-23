@@ -739,7 +739,8 @@
             
             updateLastUpdate();
             
-            setInterval(updateDynamicData, 5000);
+            // Actualizaciones dinámicas desactivadas temporalmente
+            // setInterval(updateDynamicData, 5000);
             
             // Notificaciones automáticas desactivadas
             // setInterval(() => {
