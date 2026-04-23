@@ -840,3 +840,61 @@ body[data-background-color="dark"] .btn-configure:hover {
     background-color: #3a4051 !important;
     color: #ffffff !important;
 }
+
+/* Estilos para títulos de seguridad en modo oscuro */
+body.dark-mode .security-title {
+    color: #ffffff !important;
+}
+
+body.dark-mode .security-card-title h3 {
+    color: #ffffff !important;
+}
+
+body.dark-mode .security-card-title p {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .security-alert-content h4 {
+    color: #ffffff !important;
+}
+
+body.dark-mode .security-alert-content p {
+    color: #9ca3af !important;
+}
+
+body.dark-mode .method-option-content h4 {
+    color: #ffffff !important;
+}
+
+body.dark-mode .method-option-content p {
+    color: #9ca3af !important;
+}
+
+/* Estilos para títulos de seguridad con data-background-color */
+body[data-background-color="dark"] .security-title {
+    color: #ffffff !important;
+}
+
+body[data-background-color="dark"] .security-card-title h3 {
+    color: #ffffff !important;
+}
+
+body[data-background-color="dark"] .security-card-title p {
+    color: #9ca3af !important;
+}
+
+body[data-background-color="dark"] .security-alert-content h4 {
+    color: #ffffff !important;
+}
+
+body[data-background-color="dark"] .security-alert-content p {
+    color: #9ca3af !important;
+}
+
+body[data-background-color="dark"] .method-option-content h4 {
+    color: #ffffff !important;
+}
+
+body[data-background-color="dark"] .method-option-content p {
+    color: #9ca3af !important;
+}
