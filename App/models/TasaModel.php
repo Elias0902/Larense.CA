@@ -1,0 +1,548 @@
+<?php
+// llama al modelo conexion
+require_once "ConexionModel.php";
+
+// se difine la clase
+class Tasa extends Conexion {
+
+    // Atributos
+    private $id_tasa;
+    private $monto_tasa;
+    private $fecha_tasa;
+
+    // construcor
+    public function __construct() {
+        parent::__construct();
+    }
+
+    // SETTERS
+    // setters para categoria
+    private function setTasaData($tasa_json) {
+
+        // valida si el json es string y lo descompone
+        if (is_string($tasa_json)) {
+
+            // se almacena el contenido del json en la variable usuario
+            $tasa = json_decode($tasa_json, true);
+            
+            // valida que el json cumpla con el formato requerido
+            if ($tasa === null) {
+
+                // retorna un arry con el mensaje y el status
+                return ['status' => false, 'msj' => 'JSON invalido.'];
+            }
+        }
+
+        // expreciones regulares y validaciones
+        $expre_nombre = '/^[a-zA-Z\s]+$/'; //para el nombre
+        $expre_id = '/^(0|[1-9][0-9]*)$/'; // para el id
+
+        // almacena el id en la variable para despues validar
+        $id = trim($tasa['id'] ?? '');
+        // valida el username si cumple con los requisitos
+        if ($id === '' || !preg_match($expre_id, $id) > 10 || ($id) < 0) {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'EL id de la tasa es invalido'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->id_tasa = $id;
+
+        // almacena el nombre en la variable para despues validar
+        $monto = trim($tasa['monto'] ?? '');
+        // valida el username si cumple con los requisitos
+        if ($monto === '' ) {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'EL monto de la tasa es invalido debe tener minimo 5 y maximo 20 caracteres y no debe tener caracteres especiales _  ej:Bebida.'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->monto_tasa = $monto;
+
+        // retorna true si todo fue validado y asignado correctamente
+        return['status' => true, 'msj' => 'Datos validados y asignados correctamente.']; 
+    }
+
+    // setters para el nombre de la categoria
+    private function setTasa($tasa_json) {
+
+        // valida si el json es string y lo descompone
+        if (is_string($tasa_json)) {
+
+            // se almacena el contenido del json en la variable usuario
+            $tasa = json_decode($tasa_json, true);
+            
+            // valida que el json cumpla con el formato requerido
+            if ($tasa === null) {
+
+                // retorna un arry con el mensaje y el status
+                return ['status' => false, 'msj' => 'JSON invalido.'];
+            }
+        }
+
+        // expreciones regulares y validaciones
+        $expre_nombre = '/^[a-zA-Z\s]+$/'; //para el nombre
+
+        // almacena el nombre en la variable para despues validar
+        $monto = trim($tasa['monto'] ?? '');
+        // valida el username si cumple con los requisitos
+        if ($monto === '') {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'EL monto de la tasa es invalido debe tener minimo 5 y maximo 20 caracteres y no debe tener caracteres especiales _  ej:1234.'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->monto_tasa = $monto;
+
+        $fecha = trim($tasa['fecha'] ?? '');
+        // valida el username si cumple con los requisitos
+        if ($fecha === '') {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'La fecha de la tasa es invalido.'];
+        }
+        
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->fecha_tasa = $fecha;
+
+        // retorna true si todo fue validado y asignado correctamente
+        return['status' => true, 'msj' => 'Datos validados y asignados correctamente.'];
+    }
+
+    // setters para el id de la categoria
+    private function setTasaID($tasa_json) {
+
+        // valida si el json es string y lo descompone
+        if (is_string($tasa_json)) {
+
+            // se almacena el contenido del json en la variable usuario
+            $tasa = json_decode($tasa_json, true);
+            
+            // valida que el json cumpla con el formato requerido
+            if ($tasa === null) {
+
+                // retorna un arry con el mensaje y el status
+                return ['status' => false, 'msj' => 'JSON invalido.'];
+            }
+        }
+
+        // expreciones regulares y validaciones
+        $expre_id = '/^(0|[1-9][0-9]*)$/'; // para el id
+
+        // almacena el id en la variable para despues validar
+        $id = trim($tasa['id'] ?? '');
+        // valida el username si cumple con los requisitos
+        if ($id === '' ) {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'EL id de la tasa es invalido'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->id_tasa = $id;
+
+        // retorna true si todo fue validado y asignado correctamente
+        return['status' => true, 'msj' => 'Datos validados y asignados correctamente.']; 
+    }
+
+    // GETTERS
+    //getters para el id
+    private function getTasaID() {
+        
+        // retorna el id a utilizar
+        return $this->id_tasa;
+    }
+
+    // getters para el nombre
+    private function getTasaMonto() {
+
+        // retorna el nombre a utilizar
+        return $this->monto_tasa;
+    }
+
+    private function getTasaFecha() {
+
+        // retorna el nombre a utilizar
+        return $this->fecha_tasa;
+    }
+
+    // Esta se encarga de procesar los action indiferentemente cual sea llama la funcion de 
+    // validacio y luego al metodo correspondiente al action
+    // donde primero recibe el action como primer parametro que son los de agregar etc.. 
+    // y el objeto json como segundo parametro para las validaciones y asiganciones al objeto 
+    public function manejarAccion($action, $tasa_json ){
+
+        // maneja el action y carga la funcion correspondiente a la action
+        switch($action){
+
+            case 'agregar':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setTasa($tasa_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Guardar_Tasa();
+
+            // termina el script    
+            break;
+
+            case 'obtener':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setTasaID($tasa_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Obtener_Tasa();
+
+            // termina el script    
+            break;
+
+            case 'modificar':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setTasaData($tasa_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Actualizar_Tasa();
+
+            // termina el script    
+            break;
+
+            case 'eliminar':
+
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setTasaID($tasa_json);
+                
+                // valida si el status es true o false
+                if (!$validacion['status']) {
+                
+                    // retorna el status con el mensaje
+                    return $validacion;
+                }
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Eliminar_Tasa();
+
+            // termina el script    
+            break;
+
+            case 'consultar':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_Tasa();
+
+            // termina el script
+            break;
+
+            default:
+
+                // retorna un mensaje de error en caso de no existir la accion
+                return['status' => false, 'msj' => 'Accion Invalida.'];
+
+            // termina el script
+            break;
+        }
+    }
+
+    // funcion para consultar categorias
+    private function Mostrar_Tasa() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta las categorias
+            $query = "SELECT *
+                        FROM tasa_dia
+                        WHERE status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Tasa encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Tasa no encontradas o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para registrar categoria
+    private function Guardar_Tasa() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // inserta una categoria
+            $query = "INSERT INTO tasa_dia (monto_tasa, fecha_tasa)
+                                            VALUES (:monto, :fecha)";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // vincula los parametros
+            $stmt->bindValue(':monto', $this->getTasaMonto());
+            $stmt->bindValue(':fecha', $this->getTasaFecha());
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+                
+                // Obtener el ID del registro creado
+                $id_creado = $conn->lastInsertId();
+
+                //retorna el status con el mensaje y los datos de usuario
+                return['status' => true, 'msj' => 'Tasa Registrada con exito.'];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Error al registar tasa.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para obtener un registro
+    private function Obtener_Tasa() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // actualiza el status la categoria
+            $query = "SELECT *
+                        FROM tasa_dia
+                        WHERE id_tasa = :id AND status = 1";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query); 
+
+            // vincula los parametros
+            $stmt->bindValue(":id", $this->getTasaID());
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+
+                // obtiene los datos de la consulta
+                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Tasa encontrada con exito.', 'data' => $data, 'data_bitacora' => $data];
+            }
+            else {
+
+                // retiorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Tasa no encontrada error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para modificar categoria
+    private function Actualizar_Tasa() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de actualizar (para bitacora)
+            $query_select = "SELECT * FROM tasa_dia 
+                                    WHERE id_tasa = :id 
+                                    AND status = 1";
+
+            // prepara la consulta
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getTasaID());
+            
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // el arry assoc se almacena en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
+            // modificar una categoria
+            $query = "UPDATE tasa_dia 
+                        SET monto_tasa = :monto,
+                            fecha_tasa = :fecha 
+                        WHERE id_tasa = :id ";
+
+            // prepara la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // vincula los parametros
+            $stmt->bindValue(':id', $this->getTasaID());
+            $stmt->bindValue(':monto', $this->getTasaMonto());
+            $stmt->bindValue(':fecha', $this->getTasaFecha());
+             
+            // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+
+                //retorna el status con el mensaje y los datos de usuario
+                return['status' => true, 'msj' => 'Tasa Actualizada con exito.', 'data_bitacora' => $datos_anteriores];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Error al actualizar tasa.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para elimanar un registro
+    private function Eliminar_Tasa() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de eliminar (para bitacora)
+            $query_select = "SELECT * FROM tasa_dia 
+                                    WHERE id_tasa = :id 
+                                    AND status = 1";
+
+            // oeroara la sentencia
+            $stmt_select = $conn->prepare($query_select);
+
+            // vincula los parametros
+            $stmt_select->bindValue(':id', $this->getTasaID());
+
+            // ejecuta la sentencia
+            $stmt_select->execute();
+
+            // se almacena arry asocc en la var
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
+            // actualiza el status la categoria
+            $query = "UPDATE tasa_dia
+                        SET status = 0
+                        WHERE id_Tasa = :id";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query); 
+
+            // vincula los parametros
+            $stmt->bindValue(":id", $this->getTasaID());
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Tasa Eliminada con exito.', 'data_bitacora' => $datos_anteriores];
+            }
+            else {
+
+                // retiorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Tasa no eliminada error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+}
+
+?>

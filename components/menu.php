@@ -70,6 +70,12 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
             <p>Notificaciones</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="index.php?url=tasa">
+            <i class="fas fa-dollar"></i>
+            <p>Tasa Cambiaria</p>
+          </a>
+        </li>
         <?php endif; ?>
         <?php if (tieneAcceso('Clientes', $modulos_accesibles) || tieneAcceso('Tipos Clientes', $modulos_accesibles)): ?>
         <li class="nav-section">
