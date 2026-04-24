@@ -19,6 +19,9 @@
     //llama a composer
     require_once 'vendor/autoload.php';
 
+    // Carga configuración de timeout de inactividad
+    require_once 'config/timeout.php';
+
     //Llama el FrontController
     use app\controllers\FrontController;
 

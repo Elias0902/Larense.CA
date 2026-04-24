@@ -279,26 +279,45 @@
         // se almacena la fecha en la var
         $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
+        // verifica si es por inactividad
+        $motivo = $_GET['motivo'] ?? '';
+        $es_inactividad = ($motivo === 'inactividad');
+
         // inicializa la session
         session_start();
+
+     // guarda el id y nombre antes de destruir la session
+        $id_usuario = $_SESSION['s_usuario']['id_usuario'] ?? null;
+        $nombre_usuario = $_SESSION['s_usuario']['nombre_usuario'] ?? 'Desconocido';
 
         // destruye la session
         session_destroy();
 
         // se arma el json de bitacora
-        $bitacora_json = json_encode([
-            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
-            'modulo' => 'Autenticator',
-            'accion' => 'Cerrar Session',
-            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha Cerrado session en el sistema.',
-            'fecha' => $fecha
-        ]);
+        if ($es_inactividad) {
+            $bitacora_json = json_encode([
+                'id_usuario' => $id_usuario,
+                'modulo' => 'Autenticator',
+                'accion' => 'Cerrar Session por Inactividad',
+                'descripcion' => 'El usuario:' . ' ' . $nombre_usuario . ' ' . 'ha sido deslogueado por inactividad en el sistema.',
+                'fecha' => $fecha
+            ]);
+            setError('Su sesión ha sido cerrada por inactividad.');
+        } else {
+            $bitacora_json = json_encode([
+                'id_usuario' => $id_usuario,
+                'modulo' => 'Autenticator',
+                'accion' => 'Cerrar Session',
+                'descripcion' => 'El usuario:' . ' ' . $nombre_usuario . ' ' . 'ha Cerrado session en el sistema.',
+                'fecha' => $fecha
+            ]);
+        }
 
         //realiza la insercion de la bitacora
         $bitacora->manejarAccion('agregar', $bitacora_json);
 
-        // redirect
-        header('location:index.php');
+        // redirect - ir directamente al login para evitar landing
+        header('location:index.php?url=autenticator');
         
         // termina el script
         exit();
