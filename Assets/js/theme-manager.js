@@ -1,6 +1,5 @@
 // Theme Manager Global - Sistema unificado de modo oscuro/claro
-// VERSIÓN MEJORADA - Sin flash de modo claro al cargar la página
-(function() {
+    (function() {
     // Clave para localStorage
     const THEME_KEY = 'natys_theme_mode';
     

@@ -56,17 +56,44 @@
                 <button class="btn-ver-ofertas mt-3">Ver Ofertas</button>
             </div>
 
-            <!-- Filtros de Categoría -->
+            <!-- Filtros de Disponibilidad -->
             <div class="categoria-filters">
-                <a href="index.php?url=ecommerce" class="categoria-btn <?php echo !isset($_GET['categoria']) || $_GET['categoria'] == 'todas' ? 'active' : ''; ?>">Todas</a>
-                <?php if(isset($categorias) && is_array($categorias)): ?>
-                    <?php foreach($categorias as $cat): ?>
-                        <a href="index.php?url=ecommerce&action=filtrar&categoria=<?php echo $cat['id_categoria']; ?>" 
-                           class="categoria-btn <?php echo isset($_GET['categoria']) && $_GET['categoria'] == $cat['id_categoria'] ? 'active' : ''; ?>">
-                            <?php echo $cat['nombre_categoria']; ?>
-                        </a>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=todos&orden=<?php echo isset($_GET['orden']) ? $_GET['orden'] : 'todos'; ?>" 
+                   class="categoria-btn <?php echo !isset($_GET['disponibilidad']) || $_GET['disponibilidad'] == 'todos' ? 'active' : ''; ?>">
+                    Todos
+                </a>
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=disponibles&orden=<?php echo isset($_GET['orden']) ? $_GET['orden'] : 'todos'; ?>" 
+                   class="categoria-btn <?php echo isset($_GET['disponibilidad']) && $_GET['disponibilidad'] == 'disponibles' ? 'active' : ''; ?>">
+                    Disponibles
+                </a>
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=encargo&orden=<?php echo isset($_GET['orden']) ? $_GET['orden'] : 'todos'; ?>" 
+                   class="categoria-btn <?php echo isset($_GET['disponibilidad']) && $_GET['disponibilidad'] == 'encargo' ? 'active' : ''; ?>">
+                    Por Encargo
+                </a>
+            </div>
+
+            <!-- Subfiltro de Ordenamiento -->
+            <div class="categoria-filters" style="margin-top: 15px;">
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=<?php echo isset($_GET['disponibilidad']) ? $_GET['disponibilidad'] : 'todos'; ?>&orden=todos" 
+                   class="categoria-btn <?php echo !isset($_GET['orden']) || $_GET['orden'] == 'todos' ? 'active' : ''; ?>">
+                    Todos
+                </a>
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=<?php echo isset($_GET['disponibilidad']) ? $_GET['disponibilidad'] : 'todos'; ?>&orden=recientes" 
+                   class="categoria-btn <?php echo isset($_GET['orden']) && $_GET['orden'] == 'recientes' ? 'active' : ''; ?>">
+                    Más Recientes
+                </a>
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=<?php echo isset($_GET['disponibilidad']) ? $_GET['disponibilidad'] : 'todos'; ?>&orden=mejores" 
+                   class="categoria-btn <?php echo isset($_GET['orden']) && $_GET['orden'] == 'mejores' ? 'active' : ''; ?>">
+                    Mejores
+                </a>
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=<?php echo isset($_GET['disponibilidad']) ? $_GET['disponibilidad'] : 'todos'; ?>&orden=mas_vendidos" 
+                   class="categoria-btn <?php echo isset($_GET['orden']) && $_GET['orden'] == 'mas_vendidos' ? 'active' : ''; ?>">
+                    Más Vendidos
+                </a>
+                <a href="index.php?url=ecommerce&action=filtrar&disponibilidad=<?php echo isset($_GET['disponibilidad']) ? $_GET['disponibilidad'] : 'todos'; ?>&orden=menos_vendidos" 
+                   class="categoria-btn <?php echo isset($_GET['orden']) && $_GET['orden'] == 'menos_vendidos' ? 'active' : ''; ?>">
+                    Menos Vendidos
+                </a>
             </div>
 
             <!-- Grid de Productos -->
