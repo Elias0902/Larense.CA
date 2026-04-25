@@ -1,155 +1,160 @@
 <?php
 /**
  * Configuración de Timeout de Inactividad
- * Este archivo maneja la lógica del temporizador de inactividad para usuarios logueados
+ * Maneja el temporizador de inactividad para usuarios logueados.
+ * Tiempo por defecto: 5 minutos (300 segundos).
  */
 
-// Función para obtener el JavaScript del temporizador
-function getInactivityTimerScript() {
+/**
+ * Obtiene el código JavaScript del temporizador de inactividad.
+ *
+ * @param int $inactivitySeconds Tiempo total en segundos antes del logout (por defecto 300).
+ * @param int $warningSeconds    Tiempo en segundos antes de mostrar advertencia (por defecto 285).
+ * @return string Código HTML con el script.
+ */
+function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 295) {
+    // Validar tiempos
+    $inactivityMs = $inactivitySeconds * 1000;
+    $warningMs   = $warningSeconds * 1000;
+    $logoutUrl   = htmlspecialchars('index.php?url=autenticator&action=cerrar&motivo=inactividad');
+
     ob_start();
     ?>
-    <!-- Temporizador de Inactividad - 5 minutos -->
     <script>
-    console.log('=== SCRIPT DE INACTIVIDAD CARGADO ===');
+    (function() {
+        // Configuración desde PHP
+        const INACTIVITY_MS = <?php echo (int)$inactivityMs; ?>;
+        const WARNING_MS   = <?php echo (int)$warningMs; ?>;
+        const LOGOUT_URL   = '<?php echo $logoutUrl; ?>';
 
-    let inactivityTimer;
-    let warningTimer;
-    const INACTIVITY_LIMIT = 300000; // 5 minutos en milisegundos
-    const WARNING_TIME = 285000; // Mostrar advertencia a los 4 minutos y 45 segundos
-    let isWarningShown = false;
-    let timerStarted = false;
+        console.log('🔐 Inicializando temporizador de inactividad:', (INACTIVITY_MS/1000) + ' segundos');
 
-    // Reiniciar el temporizador cuando hay actividad
-    function resetInactivityTimer() {
-        console.log('Reiniciando temporizador de inactividad');
-        clearTimeout(inactivityTimer);
-        clearTimeout(warningTimer);
-        isWarningShown = false;
-        
-        // Iniciar temporizador de advertencia
-        warningTimer = setTimeout(() => {
+        let inactivityTimer = null;
+        let warningTimer = null;
+        let isWarningShown = false;
+
+        // Cerrar sesión por inactividad
+        function logoutDueToInactivity() {
+            console.log('🔴 Cerrando sesión por inactividad');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Sesión cerrada',
+                    text: 'Ha sido deslogueado por inactividad.',
+                    icon: 'info',
+                    confirmButtonText: 'Aceptar',
+                    allowOutsideClick: false
+                }).then(() => {
+                    window.location.href = LOGOUT_URL;
+                });
+            } else {
+                alert('Sesión cerrada por inactividad. Será redirigido.');
+                window.location.href = LOGOUT_URL;
+            }
+        }
+
+        // Mostrar advertencia de inactividad
+        function showInactivityWarning() {
+            if (isWarningShown) return;
+            isWarningShown = true;
+
+            // Cancelar el temporizador principal para evitar doble logout
+            if (inactivityTimer) clearTimeout(inactivityTimer);
+
             console.log('⚠️ Mostrando advertencia de inactividad');
-            showInactivityWarning();
-        }, WARNING_TIME);
-        
-        // Iniciar temporizador de deslogueo
-        inactivityTimer = setTimeout(() => {
-            console.log('🚪 Ejecutando logout por inactividad');
-            logoutDueToInactivity();
-        }, INACTIVITY_LIMIT);
-        
-        console.log('✅ Temporizador reiniciado - Logout en', INACTIVITY_LIMIT/1000, 'segundos');
-    }
 
-    // Mostrar advertencia de inactividad
-    function showInactivityWarning() {
-        if (isWarningShown) return;
-        isWarningShown = true;
-        
-        console.log('📢 Mostrando alerta de advertencia');
-        
-        if (typeof Swal === 'undefined') {
-            console.error('Swal no está definido, usando fallback');
-            const warningConfirmed = confirm('⚠️ ¡Inactividad detectada!\n\nSe cerrará la sesión en 5 segundos por inactividad.\n\nHaga clic en Aceptar para mantener la sesión activa o espere para ser deslogueado.');
-            
-            if (warningConfirmed) {
-                console.log('✅ Usuario interactuó, reiniciando temporizador');
-                isWarningShown = false;
-                resetInactivityTimer();
-            } else {
-                console.log('⏰ Usuario no interactuó, procediendo al logout');
-                logoutDueToInactivity();
+            if (typeof Swal === 'undefined') {
+                // Fallback con confirm + timeout automático
+                console.warn('SweetAlert2 no disponible, usando confirm()');
+                const msg = '⚠️ ¡Inactividad detectada!\n\nSe cerrará la sesión en 5 segundos.\nPresione Aceptar para continuar o espere para salir.';
+                const warningConfirmed = confirm(msg);
+                if (warningConfirmed) {
+                    console.log('✅ Usuario activo, reiniciando temporizador');
+                    isWarningShown = false;
+                    resetInactivityTimer();
+                } else {
+                    logoutDueToInactivity();
+                }
+                return;
             }
-            return;
+
+            // Usar SweetAlert2 con botón de acción
+            Swal.fire({
+                title: '¡Inactividad detectada!',
+                text: 'Se cerrará la sesión en 5 segundos. ¿Desea continuar?',
+                icon: 'warning',
+                timer: 5000,
+                timerProgressBar: true,
+                showConfirmButton: true,
+                confirmButtonText: 'Sí, continuar',
+                showCancelButton: false,
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    // No interactuó en 5 segundos
+                    console.log('⏰ Tiempo agotado, cerrando sesión');
+                    logoutDueToInactivity();
+                } else if (result.isConfirmed) {
+                    // Hizo clic en "Continuar"
+                    console.log('✅ Usuario confirmó, reiniciando temporizador');
+                    isWarningShown = false;
+                    resetInactivityTimer();
+                }
+            });
         }
-        
-        Swal.fire({
-            title: '¡Inactividad detectada!',
-            text: 'Se cerrará la sesión en 5 segundos por inactividad. Realice alguna acción para mantener la sesión activa.',
-            icon: 'warning',
-            timer: 5000,
-            timerProgressBar: true,
-            showConfirmButton: false,
-            allowOutsideClick: true,
-            allowEscapeKey: true
-        }).then((result) => {
-            if (result.dismiss === Swal.DismissReason.timer) {
-                console.log('⏰ Timer terminó, procediendo al logout');
-                logoutDueToInactivity();
-            } else {
-                console.log('✅ Usuario interactuó, reiniciando temporizador');
-                isWarningShown = false;
-                resetInactivityTimer();
-            }
-        });
-    }
 
-    // Desloguear por inactividad
-    function logoutDueToInactivity() {
-        console.log('🔴 INICIANDO LOGOUT POR INACTIVIDAD');
-        
-        if (typeof Swal === 'undefined') {
-            console.error('Swal no está definido, redirigiendo directamente');
-            window.location.href = 'index.php?url=autenticator&action=cerrar&motivo=inactividad';
-            return;
-        }
-        
-        Swal.fire({
-            title: 'Sesión cerrada',
-            text: 'Ha sido deslogueado por inactividad.',
-            icon: 'info',
-            confirmButtonText: 'Aceptar',
-            allowOutsideClick: false,
-            allowEscapeKey: false
-        }).then(() => {
-            console.log('🔄 Redirigiendo a:', 'index.php?url=autenticator&action=cerrar&motivo=inactividad');
-            window.location.href = 'index.php?url=autenticator&action=cerrar&motivo=inactividad';
-        });
-    }
-
-    // Eventos que reinician el temporizador
-    const activityEvents = [
-        'mousedown', 'mousemove', 'keypress', 
-        'scroll', 'touchstart', 'click'
-    ];
-
-    console.log('📡 Registrando eventos de actividad:', activityEvents.join(', '));
-
-    activityEvents.forEach(event => {
-        document.addEventListener(event, () => {
-            resetInactivityTimer();
-            // Si hay una advertencia mostrada y el usuario interactúa, cerrarla
+        // Reiniciar ambos temporizadores
+        function resetInactivityTimer() {
+            console.log('🔄 Reiniciando temporizadores');
+            if (inactivityTimer) clearTimeout(inactivityTimer);
+            if (warningTimer) clearTimeout(warningTimer);
             if (isWarningShown && typeof Swal !== 'undefined') {
-                Swal.close();
+                Swal.close(); // Cerrar cualquier alerta abierta
                 isWarningShown = false;
             }
+
+            // Temporizador de advertencia
+            warningTimer = setTimeout(() => {
+                showInactivityWarning();
+            }, WARNING_MS);
+
+            // Temporizador de logout (respaldo, se cancelará si se muestra advertencia)
+            inactivityTimer = setTimeout(() => {
+                logoutDueToInactivity();
+            }, INACTIVITY_MS);
+        }
+
+        // Eventos que indican actividad del usuario
+        const activityEvents = ['click', 'keydown', 'scroll', 'touchstart', 'mousedown'];
+        console.log('📡 Eventos monitoreados:', activityEvents.join(', '));
+
+        activityEvents.forEach(event => {
+            document.addEventListener(event, resetInactivityTimer);
         });
-    });
 
-    // Iniciar el temporizador cuando se carga la página
-    function startTimer() {
-        console.log('🚀 Iniciando temporizador de inactividad');
-        resetInactivityTimer();
-        timerStarted = true;
-    }
+        // Iniciar el temporizador cuando la página esté lista
+        function startTimer() {
+            console.log('🚀 Iniciando temporizador de inactividad');
+            resetInactivityTimer();
+        }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startTimer);
-    } else {
-        console.log('📄 Documento ya cargado, iniciando temporizador inmediatamente');
-        startTimer();
-    }
-
-    console.log('=== SCRIPT DE INACTIVIDAD CONFIGURADO ===');
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startTimer);
+        } else {
+            startTimer();
+        }
+    })();
     </script>
     <?php
     return ob_get_clean();
 }
 
-// Función para imprimir el script si el usuario está logueado
-function printInactivityTimerScript() {
+/**
+ * Imprime el script de temporizador solo si el usuario está logueado.
+ * Opcionalmente puede recibir tiempos personalizados.
+ */
+function printInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 295) {
     if (isset($_SESSION['s_usuario'])) {
-        echo getInactivityTimerScript();
+        echo getInactivityTimerScript($inactivitySeconds, $warningSeconds);
     }
 }
 ?>
