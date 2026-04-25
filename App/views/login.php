@@ -102,12 +102,20 @@
             color: var(--text-gray);
         }
 
-        .theme-toggle.dark i.fa-sun {
+        .theme-toggle.dark i:first-child {
+            display: none;
+        }
+
+        .theme-toggle.dark i:last-child {
             color: var(--primary-color);
         }
 
-        .theme-toggle:not(.dark) i.fa-moon {
+        .theme-toggle:not(.dark) i:first-child {
             color: var(--primary-color);
+        }
+
+        .theme-toggle:not(.dark) i:last-child {
+            display: none;
         }
 
         .container {
@@ -474,11 +482,11 @@
 
     <!-- Theme Toggle -->
     <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
-        <i class="fa fa-sun"></i>
+        <i class="fa fa-moon"></i>
         <div class="toggle-switch">
             <div class="toggle-slider"></div>
         </div>
-        <i class="fa fa-moon"></i>
+        <i class="fa fa-sun"></i>
     </div>
 
     <div class="container" id="main-container">
@@ -611,7 +619,7 @@
             </div>
             
             <div class="illustration-container">
-                <img src="assets/img/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
+                <img src="assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
             </div>
         </div>
 

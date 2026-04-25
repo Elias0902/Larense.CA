@@ -441,7 +441,7 @@
             </div>
             
             <div class="illustration-container">
-                <img src="assets/img/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
+                <img src="assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
             </div>
         </div>
 
