@@ -441,7 +441,23 @@
         body.dark-mode .form-control {
             background-color: #2a3041;
             border-color: #3a4055;
-            color: #e7e9f0;
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::-webkit-input-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::-moz-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control:-ms-input-placeholder {
+            color: #ffffff;
         }
 
         body.dark-mode .form-control:focus {
