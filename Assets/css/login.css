@@ -148,3 +148,7 @@ body.dark-mode .card-body {
 body.dark-mode .text-gray-900 {
     color: #e7e9f0 !important;
 }
+
+body.dark-mode .input-group i {
+    color: #e7e9f0;
+}

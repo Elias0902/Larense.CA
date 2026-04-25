@@ -460,6 +460,14 @@
             color: #ffffff;
         }
 
+        body.dark-mode .input-icon-left {
+            color: #e7e9f0;
+        }
+
+        body.dark-mode .input-icon-right {
+            color: #e7e9f0;
+        }
+
         body.dark-mode .form-control:focus {
             border-color: #cc1d1d;
             box-shadow: 0 0 0 3px rgba(204, 29, 29, 0.2);
@@ -592,15 +600,24 @@
                     <form action="index.php?url=autenticator&action=registrar" method="post">
                         <div class="form-group">
                             <label>Nombre Completo</label>
-                            <input type="text" class="form-control" name="username" placeholder="Juan Pérez" required>
+                            <div class="input-group">
+                                <i class="fa fa-user input-icon-left"></i>
+                                <input type="text" class="form-control" name="username" placeholder="Juan Pérez" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Correo Electrónico / Usuario</label>
-                            <input type="text" class="form-control" name="email" placeholder="usuario" required>
+                            <div class="input-group">
+                                <i class="fa fa-envelope input-icon-left"></i>
+                                <input type="text" class="form-control" name="email" placeholder="usuario" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Contraseña</label>
-                            <input type="password" class="form-control" name="password" placeholder="••••••••" required>
+                            <div class="input-group">
+                                <i class="fa fa-lock input-icon-left"></i>
+                                <input type="password" class="form-control" name="password" placeholder="••••••••" required>
+                            </div>
                         </div>
                         <button type="submit" class="submit-btn">Registrarse &rarr;</button>
                     </form>
@@ -619,7 +636,10 @@
                     <form action="index.php?url=autenticator&action=recuperar" method="post">
                         <div class="form-group">
                             <label>Correo Electrónico</label>
-                            <input type="email" class="form-control" name="email" placeholder="usuario@correo.com" required>
+                            <div class="input-group">
+                                <i class="fa fa-envelope input-icon-left"></i>
+                                <input type="email" class="form-control" name="email" placeholder="usuario@correo.com" required>
+                            </div>
                         </div>
                         <button type="submit" class="submit-btn">Enviar enlace de recuperación &rarr;</button>
                     </form>

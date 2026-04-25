@@ -364,6 +364,14 @@
             color: #ffffff;
         }
 
+        body.dark-mode .input-icon-left {
+            color: #e7e9f0;
+        }
+
+        body.dark-mode .input-icon-right {
+            color: #e7e9f0;
+        }
+
         body.dark-mode .form-control:focus {
             border-color: #cc1d1d;
             box-shadow: 0 0 0 3px rgba(204, 29, 29, 0.2);
