@@ -12,6 +12,18 @@
     
     // Función para aplicar el tema a TODO el documento
     function applyTheme(isDark) {
+        // Respetar bloqueo inicial para prevenir parpadeo
+        if (window.__THEME_LOCKED) {
+            console.log('🌓 Theme Manager: Bloqueo activo, ignorando cambio temporal');
+            return;
+        }
+        
+        // Remover estilos críticos si existen
+        const criticalStyles = document.getElementById('theme-critical-styles');
+        if (criticalStyles) {
+            criticalStyles.remove();
+        }
+        
         // Aplicar tema al elemento HTML (raíz)
         if (isDark) {
             document.documentElement.setAttribute('data-theme', 'dark');

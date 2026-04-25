@@ -7,10 +7,13 @@
       href="assets/img/natys/natys.png"
       type="image/x-icon"
     />
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-/>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Theme Critical Script - Previene parpadeo de modo claro -->
+    <script src="assets/js/theme-critical.js"></script>
 
     <!-- Fonts and icons -->
     <script src="assets/js/plugin/webfont/webfont.min.js"></script>

@@ -221,7 +221,7 @@
                     'email_usuario' => $usuario['email_usuario'],
                     'id_rol_usuario' => $usuario['id_rol_usuario'],
                     'rol_usuario' => $usuario['nombre_rol'],
-                    'imagen_perfil' => $usuario['img_usuario'] ?? null,
+                    'img_usuario' => $usuario['img_usuario'] ?? null,
                 ];
 
                 // mensaje de bienvenida

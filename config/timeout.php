@@ -8,14 +8,14 @@
 function getInactivityTimerScript() {
     ob_start();
     ?>
-    <!-- Temporizador de Inactividad - 10 segundos -->
+    <!-- Temporizador de Inactividad - 5 minutos -->
     <script>
     console.log('=== SCRIPT DE INACTIVIDAD CARGADO ===');
 
     let inactivityTimer;
     let warningTimer;
-    const INACTIVITY_LIMIT = 10000; // 10 segundos en milisegundos
-    const WARNING_TIME = 5000; // Mostrar advertencia a los 5 segundos
+    const INACTIVITY_LIMIT = 300000; // 5 minutos en milisegundos
+    const WARNING_TIME = 285000; // Mostrar advertencia a los 4 minutos y 45 segundos
     let isWarningShown = false;
     let timerStarted = false;
 

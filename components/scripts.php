@@ -12,6 +12,18 @@
     <!--   Core JS Files   -->
     <script src="assets/js/core/jquery-3.7.1.min.js"></script>
     <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    
+    <!-- Inicialización explícita de dropdowns -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar todos los dropdowns de Bootstrap
+        var dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+        dropdowns.forEach(function(dropdown) {
+            new bootstrap.Dropdown(dropdown);
+        });
+    });
+    </script>
 
     <!-- jQuery Scrollbar -->
     <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>

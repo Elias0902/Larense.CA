@@ -92,7 +92,7 @@ class PerfilSistema extends Conexion {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
             $sql = "INSERT INTO usuarios (nombre_usuario, email_usuario, password_usuario, id_rol_usuario, status, img_usuario)
-                    VALUES (:nombre_usuario, :email_usuario, :password, :id_rol, 1, 'Assets/img/default.PNG')";
+                    VALUES (:nombre_usuario, :email_usuario, :password, :id_rol, 1, 'Assets/img/perfiles/default.png')";
 
             $stmt = $this->connSeguridad->prepare($sql);
             $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
