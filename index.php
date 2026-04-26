@@ -12,7 +12,7 @@
 
     // Si no hay sesión iniciada y no se solicita una ruta específica, mostrar landing
     if (!isset($_SESSION['s_usuario']) && !isset($_GET['url'])) {
-        header('Location: App/views/landing.php');
+        require_once 'App/views/landing.php';
         exit();
     }
 
