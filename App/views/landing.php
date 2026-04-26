@@ -680,7 +680,7 @@ function getStockBadge($stock) {
                     <li class="nav-item"><a class="nav-link" href="#productos">Productos</a></li>
                     <li class="nav-item"><a class="nav-link" href="#aliado">Ser Aliado</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
-                    <li class="nav-item"><a class="btn-nav" href="../index.php?url=autenticator"><i class="fas fa-user me-2"></i>Login</a></li>
+                    <li class="nav-item"><a class="btn-nav" href="index.php?url=autenticator"><i class="fas fa-user me-2"></i>Login</a></li>
                 </ul>
             </div>
         </div>
