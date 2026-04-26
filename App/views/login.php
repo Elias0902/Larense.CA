@@ -723,13 +723,13 @@
             </div>
             
             <div class="illustration-container">
-                <img src="../assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
+                <img src="/larence/Assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
             </div>
         </div>
 
     </div>
 
-    <script src="../assets/js/validaciones/login_validaciones.js"></script>
+    <script src="../../Assets/js/validaciones/login_validaciones.js"></script>
     <?php require_once __DIR__ . '/../../components/scripts.php'; ?>
 
     <script>
