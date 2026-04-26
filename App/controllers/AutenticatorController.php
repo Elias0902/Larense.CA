@@ -98,6 +98,12 @@
             }
         break;
 
+        case 'login_prueba':
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                Login_Prueba();
+            }
+        break;
+
         default:
             Login_Views();
         break;
@@ -237,7 +243,7 @@
                 ];
 
                 // mensaje de bienvenida
-                setSuccess("Bienvenido!. Usuario autenticado correctamente.");
+                setSuccess("Bienvenido! " . $usuario['nombre_usuario'] . ". Usuario autenticado correctamente.");
 
                 // se arma el json de bitacora
                 $bitacora_json = json_encode([
@@ -251,8 +257,14 @@
                 //realiza la insercion de la bitacora
                 $bitacora->manejarAccion('agregar', $bitacora_json);
 
-                // redirect
-                header("Location: index.php?url=dashboard");
+                // redirect según el rol del usuario
+                if ($usuario['id_rol_usuario'] == 3) {
+                    // Rol de usuario normal -> redirigir al ecommerce
+                    header("Location: index.php?url=ecommerce");
+                } else {
+                    // Roles 1 y 2 (admin) -> redirigir al dashboard
+                    header("Location: index.php?url=dashboard");
+                }
                 
                 // termina el script una vez redereccionado el usuario
                 exit();
@@ -611,5 +623,87 @@
         header('Content-Type: application/json');
         echo json_encode(['status' => true, 'msj' => 'Vista restaurada a tu rol original']);
         exit();
+    }
+
+    // función para login de prueba (sin validación de contraseña)
+    function Login_Prueba() {
+        // crea el objeto
+        $modelo = new Autenticator();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
+        // obtiene el usuario seleccionado
+        $username = filter_var($_POST['username'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+
+        // valida si el campo no está vacío
+        if (empty($username)) {
+            setError("Usuario no especificado.");
+            header("Location: index.php?url=autenticator&action=");
+            exit();
+        }
+
+        // se arma el json del usuario
+        $usuario_json = json_encode([
+            'username' => $username,
+            'password' => 'Elias.09' // contraseña dummy, no se valida
+        ]);
+
+        // obtiene los datos del usuario del modelo
+        $resultado = $modelo->manejarAccion('ingresar', $usuario_json);
+
+        // valida si el resultado es true
+        if ($resultado['status']) {
+            // almacena los datos del usuario
+            $usuario = $resultado['data'];
+
+            // se asegura que la session este iniciada
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            // se inicializa la variables de session
+            $_SESSION['s_usuario'] = [
+                'id_usuario' => $usuario['id_usuario'],
+                'nombre_usuario' => $usuario['nombre_usuario'],
+                'email_usuario' => $usuario['email_usuario'],
+                'id_rol_usuario' => $usuario['id_rol_usuario'],
+                'rol_usuario' => $usuario['nombre_rol'],
+                'img_usuario' => $usuario['img_usuario'] ?? null,
+            ];
+
+            // mensaje de bienvenida
+            setSuccess("Bienvenido! " . $usuario['nombre_usuario'] . ". Login de prueba exitoso.");
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Autenticator',
+                'accion' => 'LOGIN PRUEBA',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha iniciado session en el sistema (MODO PRUEBA).',
+                'fecha' => $fecha
+            ]);
+
+            // realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
+
+            // redirect según el rol del usuario
+            if ($usuario['id_rol_usuario'] == 3) {
+                // Rol de usuario normal -> redirigir al ecommerce
+                header("Location: index.php?url=ecommerce");
+            } else {
+                // Roles 1 y 2 (admin) -> redirigir al dashboard
+                header("Location: index.php?url=dashboard");
+            }
+
+            // termina el script una vez redereccionado el usuario
+            exit();
+        } else {
+            // mensaje de error en consulta de usuario
+            setError("Usuario no encontrado para prueba.");
+            header("Location: index.php?url=autenticator&action=");
+            exit();
+        }
     }
 ?>

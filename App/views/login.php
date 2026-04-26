@@ -634,6 +634,27 @@
                         <button type="submit" class="submit-btn"><i class="fa fa-sign-in-alt mr-2"></i> INGRESAR &rarr;</button>
                     </form>
 
+                    <!-- Botones de prueba -->
+                    <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                        <p style="font-size: 12px; color: #856404; margin-bottom: 10px; font-weight: 600;">
+                            <i class="fa fa-flask"></i> ACCESO RÁPIDO PARA PRUEBAS
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <form action="index.php?url=autenticator&action=login_prueba" method="post" style="flex: 1; min-width: 140px;">
+                                <input type="hidden" name="username" value="@superusuario_24">
+                                <button type="submit" class="submit-btn" style="background: #28a745; font-size: 12px; padding: 10px;">
+                                    <i class="fa fa-user-shield"></i> Super Admin
+                                </button>
+                            </form>
+                            <form action="index.php?url=autenticator&action=login_prueba" method="post" style="flex: 1; min-width: 140px;">
+                                <input type="hidden" name="username" value="@elias_09">
+                                <button type="submit" class="submit-btn" style="background: #17a2b8; font-size: 12px; padding: 10px;">
+                                    <i class="fa fa-user-tie"></i> Elias
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="bottom-text">
                         ¿No tienes una cuenta? <a onclick="switchView('view-register')" class="switch-link">Regístrate aquí</a>
                     </div>
