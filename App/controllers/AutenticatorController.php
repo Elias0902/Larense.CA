@@ -8,11 +8,11 @@
 
 
     //llama a los modelos
-    require_once 'app/models/AutenticatorModel.php'; // al modelo de Autenticator
-    require_once 'app/models/BitacoraModel.php'; // llama al modelo bitacra 
+    require_once __DIR__ . '/../models/AutenticatorModel.php'; // al modelo de Autenticator
+    require_once __DIR__ . '/../models/BitacoraModel.php'; // llama al modelo bitacora
     
     // llama el archivo que contiene la carga de alerta
-    require_once 'components/utils.php';
+    require_once __DIR__ . '/../../components/utils.php';
 
     //zona horaria
     date_default_timezone_set('America/Caracas');
@@ -325,22 +325,22 @@
 
     // funcion que llama la vista de registrar usuario
     function Register_Views() {
-        require_once 'app/views/register.php';
+        require_once __DIR__ . '/../views/register.php';
     }
 
     // funcion que llama la vista de iniciar session usuario
     function Login_Views() {
-        require_once 'app/views/login.php';
+        require_once __DIR__ . '/../views/login.php';
     }
 
     // funcion que llama la vista de recuperar usuario
     function Recuperar_Views() {
-        require_once 'app/views/recuperar.php';
+        require_once __DIR__ . '/../views/recuperar.php';
     }
 
     //fucion que llama la vista de verificar token
     function Verificar_Views() {
-        require_once 'app/views/verificar.php';
+        require_once __DIR__ . '/../views/verificar.php';
     }
 
     //funcion para cambiar la password de un usuario

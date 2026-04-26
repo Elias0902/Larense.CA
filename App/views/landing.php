@@ -1,14 +1,11 @@
 <?php
-// Iniciar sesión primero (antes de chdir para evitar problemas con rutas de sesión)
+// Iniciar sesión primero
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Cambiar al directorio raíz para que las rutas relativas funcionen
-chdir('../../');
-
-// Cargar modelos
-require_once 'app/models/ProductoModel.php';
+// Cargar modelos usando ruta absoluta
+require_once __DIR__ . '/../models/ProductoModel.php';
 
 // Instanciar modelo
 $productoModel = new Producto();
@@ -27,11 +24,12 @@ $productos_destacados = array_slice($productos_con_stock, 0, 20);
 
 // Función helper para obtener la imagen
 function getProductImage($img) {
-    // file_exists busca desde raíz (por el chdir), pero URL debe ser relativa a App/views/
-    if (!empty($img) && file_exists($img)) {
-        return '../../' . $img;
+    // Usar ruta absoluta para verificar existencia
+    $basePath = dirname(__DIR__, 2);
+    if (!empty($img) && file_exists($basePath . '/' . $img)) {
+        return '../' . $img;
     }
-    return '../../Assets/img/natys/natys.png';
+    return '../Assets/img/natys/natys.png';
 }
 
 // Función helper para el badge de stock
@@ -53,7 +51,7 @@ function getStockBadge($stock) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naty's - Galletas 100% Venezolanas</title>
-    <link rel="icon" type="image/png" href="../../Assets/img/natys.png">
+    <link rel="icon" type="image/png" href="../Assets/img/natys.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -670,7 +668,7 @@ function getStockBadge($stock) {
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="../../Assets/img/natys/natys.png" alt="Naty's">
+                <img src="../Assets/img/natys/natys.png" alt="Naty's">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
@@ -682,7 +680,7 @@ function getStockBadge($stock) {
                     <li class="nav-item"><a class="nav-link" href="#productos">Productos</a></li>
                     <li class="nav-item"><a class="nav-link" href="#aliado">Ser Aliado</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
-                    <li class="nav-item"><a class="btn-nav" href="../../index.php?url=autenticator"><i class="fas fa-user me-2"></i>Login</a></li>
+                    <li class="nav-item"><a class="btn-nav" href="../index.php?url=autenticator"><i class="fas fa-user me-2"></i>Login</a></li>
                 </ul>
             </div>
         </div>
@@ -698,7 +696,7 @@ function getStockBadge($stock) {
                     <a href="#productos" class="btn-hero">Ver Productos <i class="fas fa-arrow-right ms-2"></i></a>
                 </div>
                 <div class="col-lg-6 text-center">
-                    <img src="../../Assets/img/natys/natys.png" alt="Naty's Logo" class="hero-logo">
+                    <img src="../Assets/img/natys/natys.png" alt="Naty's Logo" class="hero-logo">
                 </div>
             </div>
         </div>
@@ -729,7 +727,7 @@ function getStockBadge($stock) {
                                 <div class="product-image">
                                     <span class="stock-badge <?php echo $stock_info['class']; ?>"><?php echo $stock_info['text']; ?></span>
                                     <span class="category-badge"><?php echo htmlspecialchars($prod['nombre_categoria']); ?></span>
-                                    <?php if (!empty($prod['img']) && file_exists($prod['img'])): ?>
+                                    <?php if (!empty($prod['img']) && file_exists(dirname(__DIR__, 2) . '/' . $prod['img'])): ?>
                                         <img src="<?php echo $imagen; ?>" alt="<?php echo htmlspecialchars($prod['nombre_producto']); ?>">
                                     <?php else: ?>
                                         <i class="fas fa-cookie"></i>
@@ -741,7 +739,7 @@ function getStockBadge($stock) {
                                     <p class="description">Producto artesanal de alta calidad</p>
                                     <div class="product-price">$<?php echo number_format($prod['precio_venta'], 2); ?></div>
                                     <?php if ($prod['stock'] > 0): ?>
-                                        <button class="btn-add-cart" onclick="window.location.href='../../check_cart_login.php'">
+                                        <button class="btn-add-cart" onclick="window.location.href='../check_cart_login.php'">
                                             <i class="fas fa-shopping-cart"></i>Agregar
                                         </button>
                                     <?php else: ?>
@@ -906,7 +904,7 @@ function getStockBadge($stock) {
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <img src="../../Assets/img/natys/natys.png" alt="Naty's" class="footer-logo">
+                    <img src="../Assets/img/natys/natys.png" alt="Naty's" class="footer-logo">
                     <p style="color: rgba(255,255,255,0.8); line-height: 1.7;">
                         Marca 100% venezolana, comprometida con la calidad y el sabor que une a las familias.
                     </p>

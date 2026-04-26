@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Larense CA Natys- Sistema de Gestión</title>
     <?php
-    require_once 'components/links.php';
+    require_once __DIR__ . '/../../components/links.php';
     ?>
     <?php 
-    require_once "components/links.php";
-    require_once "components/alerts.php";
+    require_once __DIR__ . '/../../components/links.php';
+    require_once __DIR__ . '/../../components/alerts.php';
     ?>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -677,14 +677,14 @@
             </div>
             
             <div class="illustration-container">
-                <img src="assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
+                <img src="../assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
             </div>
         </div>
 
     </div>
 
-    <script src="assets/js/validaciones/login_validaciones.js"></script>
-    <?php require_once "components/scripts.php"; ?>
+    <script src="../assets/js/validaciones/login_validaciones.js"></script>
+    <?php require_once __DIR__ . '/../../components/scripts.php'; ?>
 
     <script>
         function switchView(viewId) {
