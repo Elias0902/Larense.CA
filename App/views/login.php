@@ -68,6 +68,37 @@
             box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         }
 
+        /* Landing button */
+        .landing-btn {
+            position: fixed;
+            top: 20px;
+            right: 130px;
+            z-index: 1000;
+            background: white;
+            border-radius: 50px;
+            padding: 8px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .landing-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            color: var(--primary-color);
+        }
+
+        .landing-btn i {
+            font-size: 16px;
+        }
+
         .theme-toggle .toggle-switch {
             width: 50px;
             height: 26px;
@@ -503,6 +534,15 @@
             background: #3a4055;
         }
 
+        body.dark-mode .landing-btn {
+            background: #2a3041;
+            color: #e7e9f0;
+        }
+
+        body.dark-mode .landing-btn:hover {
+            color: var(--primary-color);
+        }
+
         body.dark-mode .system-info {
             background: #131725;
         }
@@ -525,6 +565,12 @@
     </style>
 </head>
 <body>
+
+    <!-- Landing Button -->
+    <a href="index.php" class="landing-btn">
+        <i class="fa fa-home"></i>
+        Landing
+    </a>
 
     <!-- Theme Toggle -->
     <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">

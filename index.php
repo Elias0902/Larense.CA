@@ -1,4 +1,11 @@
 <?php
+    // Redirigir a index.php si no está en la URL
+    $currentUri = $_SERVER['REQUEST_URI'];
+    if (strpos($currentUri, 'index.php') === false && strpos($currentUri, '?') === false) {
+        header('Location: index.php');
+        exit();
+    }
+
     // Configuración de sesión persistente
     ini_set('session.cookie_lifetime', 86400); // 24 horas
     ini_set('session.gc_maxlifetime', 86400);    // 24 horas
