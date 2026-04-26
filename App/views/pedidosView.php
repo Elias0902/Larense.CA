@@ -138,7 +138,7 @@
                             $estado_icono = '<i class="fa fa-question"></i>';
                     }
                     
-                    $cliente_nombre = $pedido['nombre_cliente'] . ' ' . $pedido['apellido_cliente'];
+                    $cliente_nombre = $pedido['nombre_cliente'];
                     $promocion_info = $pedido['codigo_promocion'] ? '<span class="badge badge-info">' . $pedido['codigo_promocion'] . '</span>' : '<span class="text-muted">-</span>';
             ?>
                           <tr style="transition: all 0.2s;" data-id="<?php echo $pedido['id_pedido']; ?>" data-estado="<?php echo $pedido['estado']; ?>">

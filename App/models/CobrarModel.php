@@ -212,10 +212,10 @@ class CuentaCobrar extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT cc.*, c.nombre_cliente, c.apellido_cliente 
+            $query = "SELECT cc.*, c.nombre_cliente
                       FROM cuentas_cobrar cc
                       LEFT JOIN clientes c ON cc.cliente_id = c.id_cliente
-                      WHERE cc.status = 1 
+                      WHERE cc.status = 1
                       ORDER BY cc.fecha_vencimiento ASC";
             $stmt = $conn->prepare($query);
             $stmt->execute();
@@ -267,7 +267,7 @@ class CuentaCobrar extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT cc.*, c.nombre_cliente, c.apellido_cliente 
+            $query = "SELECT cc.*, c.nombre_cliente
                       FROM cuentas_cobrar cc
                       LEFT JOIN clientes c ON cc.cliente_id = c.id_cliente
                       WHERE cc.id_cuenta_cobrar = :id AND cc.status = 1";

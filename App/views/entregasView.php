@@ -115,13 +115,15 @@
                             $estado_icono = '<i class="fa fa-question"></i>';
                     }
                     
-                    $cliente_nombre = $entrega['nombre_cliente'] . ' ' . $entrega['apellido_cliente'];
+                    $cliente_nombre = isset($entrega['nombre_cliente']) 
+                        ? $entrega['nombre_cliente'] 
+                        : 'Cliente ID: ' . $entrega['cliente_id'];
                     $pedido_numero = $entrega['pedido_id'] ? '#' . $entrega['pedido_id'] : '<span class="text-muted">Sin pedido</span>';
             ?>
                           <tr style="transition: all 0.2s;">
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
                               <span class="badge" style="background: #721c24; color: white; padding: 6px 10px; border-radius: 6px;">
-                                ENT-00<?php echo $entrega['id_entrega']; ?>
+                                ENT-00<?php echo isset($entrega['id_entrega']) ? $entrega['id_entrega'] : (isset($entrega['id_entregas']) ? $entrega['id_entregas'] : 'N/A'); ?>
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">

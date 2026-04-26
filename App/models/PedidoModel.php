@@ -227,7 +227,7 @@ class Pedido extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente, c.apellido_cliente, pr.codigo_promocion, pr.nombre_promocion 
+            $query = "SELECT p.*, c.nombre_cliente, pr.codigo_promocion, pr.nombre_promocion 
                       FROM pedidos p
                       LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
                       LEFT JOIN promociones pr ON p.promocion_id = pr.id_promocion
@@ -284,7 +284,7 @@ class Pedido extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente, c.apellido_cliente, pr.codigo_promocion, pr.nombre_promocion 
+            $query = "SELECT p.*, c.nombre_cliente, pr.codigo_promocion, pr.nombre_promocion 
                       FROM pedidos p
                       LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
                       LEFT JOIN promociones pr ON p.promocion_id = pr.id_promocion

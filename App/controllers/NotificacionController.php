@@ -35,6 +35,18 @@
             }
         break;
 
+        case 'obtener_header':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerHeader();
+            }
+        break;
+
+        case 'marcar_vista':
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                MarcarVista();
+            }
+        break;
+
         case 'eliminar':
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 Eliminar();
@@ -404,6 +416,43 @@
             echo json_encode($notificacion);
 
             exit();
+    }
+
+    // function para obtener notificaciones del header
+    function ObtenerHeader() {
+        // instancia el modelo
+        $modelo = new Notificacion();
+
+        // muestra todas las notificaciones (sin filtrar por usuario, como en la gestión)
+        $resultado = $modelo->manejarAccion('consultar', null);
+
+        echo json_encode($resultado);
+        exit();
+    }
+
+    // function para marcar notificacion como vista
+    function MarcarVista() {
+        // instancia el modelo
+        $modelo = new Notificacion();
+
+        // verifica si hay sesión activa
+        if (!isset($_SESSION['s_usuario']) || !isset($_SESSION['s_usuario']['usuario_id'])) {
+            echo json_encode(['status' => false, 'msj' => 'No hay sesión activa']);
+            exit();
+        }
+
+        $id = $_POST['id'] ?? '';
+
+        if (empty($id)) {
+            echo json_encode(['status' => false, 'msj' => 'ID vacío']);
+            exit();
+        }
+
+        $notificacion_json = json_encode(['id' => $id]);
+        $resultado = $modelo->manejarAccion('marcar_vista', $notificacion_json);
+
+        echo json_encode($resultado);
+        exit();
     }
 
     // funcion para eliminar un dato

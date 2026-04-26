@@ -636,8 +636,11 @@ function mostrarNotificaciones(notificaciones) {
     const list = document.getElementById('notificationList');
     const noNotif = document.getElementById('noNotifications');
     
-    if (badge) badge.textContent = notificaciones.length;
-    if (count) count.textContent = notificaciones.length;
+    // Contar solo las no vistas
+    const noVistas = notificaciones.filter(n => n.vista == 0);
+    
+    if (badge) badge.textContent = noVistas.length;
+    if (count) count.textContent = notificaciones.length + ' total (' + noVistas.length + ' nuevas)';
     if (!list) return;
     
     list.innerHTML = '';
@@ -657,6 +660,20 @@ function mostrarNotificaciones(notificaciones) {
         notifElement.href = notif.enlace || '#';
         notifElement.className = 'notif-link';
         
+        // Resaltar las no vistas
+        if (notif.vista == 0) {
+            notifElement.style.background = 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)';
+            notifElement.style.borderLeft = '4px solid #ff9800';
+        }
+        
+        // Marcar como vista al hacer clic
+        notifElement.onclick = function(e) {
+            if (notif.vista == 0) {
+                e.preventDefault();
+                marcarComoVista(notif.id_notificaciones, notif.enlace);
+            }
+        };
+        
         const fecha = new Date(notif.fecha_notificacion);
         const ahora = new Date();
         const diffMs = ahora - fecha;
@@ -673,6 +690,7 @@ function mostrarNotificaciones(notificaciones) {
         notifElement.innerHTML = `
             <div class="notif-icon notif-primary">
                 <i class="fa fa-bell"></i>
+                ${notif.vista == 0 ? '<span class="badge badge-warning" style="position:absolute;top:-5px;right:-5px;">Nueva</span>' : ''}
             </div>
             <div class="notif-content">
                 <span class="block">${notif.descripcion_notificacion}</span>
@@ -680,6 +698,28 @@ function mostrarNotificaciones(notificaciones) {
             </div>
         `;
         list.appendChild(notifElement);
+    });
+}
+
+function marcarComoVista(id, enlace) {
+    fetch('index.php?url=notificaciones&action=marcar_vista', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'id=' + id
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status) {
+            cargarNotificaciones();
+            if (enlace) {
+                window.location.href = enlace;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error al marcar como vista:', error);
     });
 }
 
