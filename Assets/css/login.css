@@ -152,3 +152,25 @@ body.dark-mode .text-gray-900 {
 body.dark-mode .input-group i {
     color: #e7e9f0;
 }
+
+/* Override browser autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #2a3041 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill::first-line {
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+body:not(.dark-mode) input:-webkit-autofill,
+body:not(.dark-mode) input:-webkit-autofill:hover,
+body:not(.dark-mode) input:-webkit-autofill:focus,
+body:not(.dark-mode) input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+    -webkit-text-fill-color: #1a1b2b !important;
+}
