@@ -437,69 +437,7 @@ function validar_formulario_modificado() {
 }
 
 // Funciones de gestión de promociones
-function ObtenerPromocion(idPromocion) {
-    // Cargar datos de la promoción para edición
-    console.log('Obteniendo promoción para edición:', idPromocion);
-    
-    fetch(`index.php?url=promociones&action=obtener&id=${idPromocion}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                cargarDatosPromocionEnModal(data.promocion);
-            } else {
-                mostrarMensaje('Error al cargar los datos de la promoción', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarMensaje('Error al cargar los datos de la promoción', 'error');
-        });
-}
-
-function cargarDatosPromocionEnModal(promocion) {
-    // Cargar los datos en el modal de modificación
-    document.getElementById('id').value = promocion.id_promocion;
-    document.getElementById('codigoPromocionEdit').value = promocion.codigo_promocion;
-    document.getElementById('tipoPromocionEdit').value = promocion.tipo_descuento;
-    document.getElementById('nombrePromocionEdit').value = promocion.nombre_promocion;
-    document.getElementById('valorPromocionEdit').value = promocion.valor_descuento;
-    document.getElementById('descripcionPromocionEdit').value = promocion.descripcion_promocion;
-    document.getElementById('fechaInicioEdit').value = promocion.fecha_inicio;
-    document.getElementById('fechaFinEdit').value = promocion.fecha_fin;
-    document.getElementById('estadoPromocionEdit').checked = promocion.status == 1;
-    
-    // Actualizar placeholder según el tipo
-    actualizarPlaceholderEdit();
-}
-
-function EliminarPromocion(event, idPromocion) {
-    event.preventDefault();
-    
-    if (!confirm('¿Está seguro de eliminar esta promoción? Esta acción no se puede deshacer.')) {
-        return false;
-    }
-    
-    console.log('Eliminando promoción:', idPromocion);
-    
-    fetch(`index.php?url=promociones&action=eliminar&id=${idPromocion}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            mostrarMensaje('Promoción eliminada exitosamente', 'success');
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            mostrarMensaje('Error al eliminar la promoción', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarMensaje('Error al eliminar la promoción', 'error');
-    });
-    
-    return false;
-}
+// Estas funciones están definidas en promociones_ajax.js
 
 // Funciones de utilidad
 function actualizarPlaceholder() {
