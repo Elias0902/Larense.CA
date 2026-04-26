@@ -878,3 +878,47 @@ body.dark-mode .btn-close {
 body.dark-mode .cart-item-img-modal {
     background: #2a3041;
 }
+
+/* Estilos del modal Ver como */
+#verComoModal .list-group-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 15px;
+    transition: all 0.2s ease;
+}
+
+#verComoModal .list-group-item:hover {
+    background: #fef2f2;
+    transform: translateX(5px);
+    border-color: #cc1d1d;
+}
+
+#verComoModal .list-group-item h6 {
+    color: #1f2937;
+    margin-bottom: 2px;
+}
+
+#verComoModal .list-group-item small {
+    color: #6b7280;
+}
+
+/* Estilos del modal Ver como en modo oscuro */
+body.dark-mode #verComoModal .list-group-item {
+    background: #1a1f2e;
+    border-color: #2a3041;
+    color: #e7e9f0;
+}
+
+body.dark-mode #verComoModal .list-group-item:hover {
+    background: #2a3041;
+    border-color: #cc1d1d;
+}
+
+body.dark-mode #verComoModal .list-group-item h6 {
+    color: #e7e9f0;
+}
+
+body.dark-mode #verComoModal .list-group-item small {
+    color: #9ca3af;
+}

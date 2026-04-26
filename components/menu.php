@@ -49,12 +49,14 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
   <div class="sidebar-wrapper scrollbar scrollbar-inner">
     <div class="sidebar-content">
       <ul class="nav nav-secondary">
+        <?php if (tieneAcceso('Dashboard', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=dashboard">
             <i class="fas fa-home"></i>
             <p>Dashboard</p>
           </a>
         </li>
+        <?php endif; ?>
         <?php if (tieneAcceso('Ecommerce', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=ecommerce">

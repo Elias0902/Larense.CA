@@ -154,6 +154,16 @@ function getIconoRol($nombre_rol) {
                             <i class="fas fa-moon"></i>
                         </button>
                     </li>
+
+                    <!-- Indicador de Simulación de Rol -->
+                    <?php if (isset($_SESSION['simulando_rol']) && $_SESSION['simulando_rol'] === true): ?>
+                    <li class="nav-item topbar-icon dropdown hidden-caret">
+                        <button type="button" class="btn btn-toggle" style="background: #ff9800 !important; border: 1px solid #f57c00 !important; color: white !important;" onclick="restaurarRolOriginal()" title="Volver a tu rol original">
+                            <i class="fas fa-undo me-2"></i>
+                            <span style="font-size: 12px; font-weight: 600;">Volver a <?php echo htmlspecialchars($_SESSION['rol_original']['rol_usuario'] ?? 'Admin'); ?></span>
+                        </button>
+                    </li>
+                    <?php endif; ?>
                     
                     <!-- Perfil Usuario -->
                     <li class="nav-item topbar-user dropdown hidden-caret">
@@ -177,29 +187,11 @@ function getIconoRol($nombre_rol) {
                                 <li>
                                     <a class="dropdown-item" href="index.php?url=perfil&action=ver"><i class="fas fa-user-circle me-2"></i>Mi Perfil</a>
 
-                                    <!-- Submenu Ver como -->
+                                    <!-- Botón Ver como - Modal -->
                                     <?php if (isset($_SESSION['s_usuario']['id_rol_usuario']) && in_array($_SESSION['s_usuario']['id_rol_usuario'], [1, 2])): ?>
-                                    <div class="menu-item-with-submenu" id="simularMenu">
-                                        <a class="dropdown-item has-submenu" href="#" onclick="toggleSubmenu(event, 'simularSubmenu'); return false;">
-                                            <i class="fas fa-eye me-2"></i>
-                                            <span>Ver como</span>
-                                            <i class="fas fa-chevron-right submenu-arrow"></i>
-                                        </a>
-                                        <div class="submenu-panel" id="simularSubmenu">
-                                            <div class="submenu-header">
-                                                <a class="dropdown-item submenu-back" href="#" onclick="toggleSubmenu(event, 'simularSubmenu'); return false;">
-                                                    <i class="fas fa-arrow-left me-2"></i> Volver
-                                                </a>
-                                            </div>
-                                            <div class="submenu-content">
-                                                <?php foreach ($roles_disponibles as $rol): ?>
-                                                <a class="dropdown-item" href="#" onclick="simularVista(<?php echo $rol['id_rol']; ?>, '<?php echo htmlspecialchars($rol['nombre_rol']); ?>'); return false;">
-                                                    <i class="fas <?php echo getIconoRol($rol['nombre_rol']); ?> me-2"></i><?php echo htmlspecialchars($rol['nombre_rol']); ?>
-                                                </a>
-                                                <?php endforeach; ?>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <a class="dropdown-item" href="#" onclick="abrirModalVerComo(); return false;">
+                                        <i class="fas fa-eye me-2"></i>Ver como
+                                    </a>
                                     <?php endif; ?>
 
                                     <div class="dropdown-divider"></div>
@@ -233,6 +225,36 @@ function getIconoRol($nombre_rol) {
             </div>
             <div class="modal-footer" id="cartModalFooter" style="display: none;">
                 <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ver como -->
+<div class="modal fade" id="verComoModal" tabindex="-1" aria-labelledby="verComoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #cc1d1d 0%, #8b1515 100%); color: white;">
+                <h5 class="modal-title" id="verComoModalLabel">
+                    <i class="fas fa-eye me-2"></i>Ver como
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Selecciona un rol para simular la vista del sistema:</p>
+                <div class="list-group" id="rolesList">
+                    <?php foreach ($roles_disponibles as $rol): ?>
+                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center" onclick="simularVista(<?php echo $rol['id_rol']; ?>, '<?php echo htmlspecialchars($rol['nombre_rol']); ?>'); return false;">
+                        <div class="me-3">
+                            <i class="fas <?php echo getIconoRol($rol['nombre_rol']); ?> fa-2x text-danger"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-bold"><?php echo htmlspecialchars($rol['nombre_rol']); ?></h6>
+                            <small class="text-muted">Simular vista como <?php echo htmlspecialchars($rol['nombre_rol']); ?></small>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
     </div>

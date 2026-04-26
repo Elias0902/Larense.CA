@@ -738,14 +738,133 @@ function toggleLanguage() {
 }
 
 function simularVista(id_rol, nombre_rol) {
-    Swal.fire({
-        icon: 'info',
-        title: 'Ver como ' + nombre_rol,
-        text: 'Simulando vista de ' + nombre_rol + '... (Funcion en desarrollo)',
-        timer: 2000,
-        showConfirmButton: false
+    console.log('=== DIAGNÓSTICO JAVASCRIPT ===');
+    console.log('Intentando simular rol - ID:', id_rol, 'Nombre:', nombre_rol);
+
+    // Cerrar el modal si está abierto
+    const modal = document.getElementById('verComoModal');
+    if (modal) {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
+        }
+    }
+
+    const formData = 'id_rol=' + id_rol + '&nombre_rol=' + encodeURIComponent(nombre_rol);
+    console.log('Datos a enviar:', formData);
+
+    // Llamar al endpoint PHP para simular el rol
+    fetch('index.php?url=autenticator&action=simular_rol', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData
+    })
+    .then(response => {
+        console.log('Respuesta del servidor - Status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Datos recibidos:', data);
+        if (data.status) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Vista simulada',
+                text: data.msj,
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                // Siempre redirigir a ecommerce si el rol no tiene permiso de dashboard
+                // Si tiene permiso, recargar la página actual
+                if (data.tiene_permiso_dashboard) {
+                    location.reload();
+                } else {
+                    window.location.href = 'index.php?url=ecommerce';
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.msj
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error al simular rol:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al simular la vista: ' + error.message
+        });
     });
-    console.log('Simulando rol ID:', id_rol, 'Nombre:', nombre_rol);
+}
+
+function abrirModalVerComo() {
+    const modal = document.getElementById('verComoModal');
+    if (modal) {
+        if (typeof bootstrap !== 'undefined') {
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        } else {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            document.body.classList.add('modal-open');
+        }
+    }
+}
+
+function restaurarRolOriginal() {
+    Swal.fire({
+        title: '¿Volver a tu rol original?',
+        text: 'Esto restaurará tu vista al rol original',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#cc1d1d',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, volver',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Llamar al endpoint PHP para restaurar el rol
+            fetch('index.php?url=autenticator&action=restaurar_rol', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Rol restaurado',
+                        text: data.msj,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Recargar la página para aplicar los permisos originales
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.msj
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error al restaurar rol:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al restaurar el rol original'
+                });
+            });
+        }
+    });
 }
 
 function toggleSubmenu(event, submenuId) {

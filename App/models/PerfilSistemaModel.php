@@ -295,6 +295,16 @@ class PerfilSistema extends Conexion {
                 $stmt->bindParam(':id_modulo', $modulo['id_modulo'], PDO::PARAM_INT);
                 $stmt->execute();
             }
+
+            // Para roles de clientes y otros roles no administrativos, remover acceso al Dashboard
+            // Solo roles 1 (Super Admin) y 2 (Gerente) tienen acceso por defecto
+            if (!in_array($id_rol, [1, 2])) {
+                $sqlDelete = "DELETE FROM accesos WHERE id_rol = :id_rol AND id_modulo = 20";
+                $stmtDelete = $this->connSeguridad->prepare($sqlDelete);
+                $stmtDelete->bindParam(':id_rol', $id_rol, PDO::PARAM_INT);
+                $stmtDelete->execute();
+            }
+
             return true;
         } catch (PDOException $e) {
             return false;
