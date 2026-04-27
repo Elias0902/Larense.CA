@@ -2,6 +2,11 @@ function ObtenerPromocion(id) {
   fetch('index.php?url=promociones&action=obtener&ID=' + id)
     .then(response => response.json())
     .then(data => {
+      console.log('Datos recibidos:', data);
+      if (data.error) {
+        console.error('Error del servidor:', data.error);
+        return;
+      }
       document.getElementById('id').value = data.id_promocion;
       document.getElementById('codigoPromocionEdit').value = data.codigo_promocion;
       document.getElementById('nombrePromocionEdit').value = data.nombre_promocion;
@@ -14,6 +19,10 @@ function ObtenerPromocion(id) {
 
       // Actualizar el placeholder del valor según el tipo
       actualizarPlaceholderEdit();
+
+      // Abrir el modal después de cargar los datos
+      var modal = new bootstrap.Modal(document.getElementById('promocionModalModificar'));
+      modal.show();
     })
     .catch(error => {
       console.error('Error:', error);

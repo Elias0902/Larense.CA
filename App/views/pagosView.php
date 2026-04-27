@@ -99,7 +99,7 @@
                 foreach ($pagos as $pago):
                     $estado_class = $pago['status'] == 1 ? 'badge-success' : 'badge-warning';
                     $estado_texto = $pago['status'] == 1 ? 'Completado' : 'Pendiente';
-                    $cliente_nombre = $pago['nombre_cliente'] . ' ' . $pago['apellido_cliente'];
+                    $cliente_nombre = $pago['nombre_cliente'];
 
                     // Icono según método de pago
                     $icono_metodo = '';
@@ -229,7 +229,7 @@ require_once 'components/scripts.php';
                   <?php
                   if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
                       foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
+                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . '</option>';
                       }
                   }
                   ?>
@@ -344,7 +344,7 @@ require_once 'components/scripts.php';
                   <?php
                   if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
                       foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
+                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . '</option>';
                       }
                   }
                   ?>

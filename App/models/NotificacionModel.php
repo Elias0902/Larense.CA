@@ -182,6 +182,41 @@ class Notificacion extends Conexion {
         return['status' => true, 'msj' => 'Datos validados y asignados correctamente.']; 
     }
 
+    // setters para el id de usuario (para consultar por usuario)
+    private function setNotificacionIDUsuario($notificacion_json) {
+
+        // valida si el json es string y lo descompone
+        if (is_string($notificacion_json)) {
+
+            // se almacena el contenido del json en la variable notificacion
+            $notificacion = json_decode($notificacion_json, true);
+            
+            // valida que el json cumpla con el formato requerido
+            if ($notificacion === null) {
+
+                // retorna un arry con el mensaje y el status
+                return ['status' => false, 'msj' => 'JSON invalido.'];
+            }
+        }
+
+        // expreciones regulares y validaciones
+        $expre_id = '/^(0|[1-9][0-9]*)$/'; // para el id
+
+        // almacena el usuario_id en la variable para despues validar
+        $usuario_id = trim($notificacion['usuario_id'] ?? '');
+        // valida el usuario_id si cumple con los requisitos
+        if ($usuario_id === '' || !preg_match($expre_id, $usuario_id) || strlen($usuario_id) > 10 || $usuario_id < 0) {
+            // retorna un arry de status con el mensaje en caso de error
+            return ['status' => false, 'msj' => 'El id del usuario es invalido'];
+        }
+
+        // asigna el valor al atributo del objeto si todo salio bien
+        $this->notificacion_id_usuario = $usuario_id;
+
+        // retorna true si todo fue validado y asignado correctamente
+        return['status' => true, 'msj' => 'Datos validados y asignados correctamente.']; 
+    }
+
     // GETTERS
     //getters para el id
     private function getNotificacionID() {
@@ -300,6 +335,34 @@ class Notificacion extends Conexion {
             // termina el script
             break;
 
+            case 'consultar_por_usuario':
+
+                // valida y asigna el usuario_id
+                $validacion = $this->setNotificacionIDUsuario($notificacion_json);
+                if (!$validacion['status']) {
+                    return $validacion;
+                }
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_NotificacionPorUsuario();
+
+            // termina el script
+            break;
+
+            case 'marcar_vista':
+
+                // valida y asigna el id
+                $validacion = $this->setNotificacionID($notificacion_json);
+                if (!$validacion['status']) {
+                    return $validacion;
+                }
+
+                // llama la funcion y retorna los datos
+                return $this->MarcarComoVista();
+
+            // termina el script
+            break;
+
             default:
 
                 // retorna un mensaje de error en caso de no existir la accion
@@ -323,7 +386,7 @@ class Notificacion extends Conexion {
             $conn = $this->getConnectionSeguridad();
 
             // consulta las notificaciones con join a usuarios
-            $query = "SELECT n.*, u.usuario_nombre as nombre_usuario 
+            $query = "SELECT n.*, u.nombre_usuario 
                         FROM notificaciones n
                         INNER JOIN usuarios u ON n.id_usuario = u.id_usuario
                         WHERE n.status = 1"; //valida el estado si esta activo
@@ -347,6 +410,109 @@ class Notificacion extends Conexion {
 
                 // reti=rona un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Notificaciones no encontradas o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para consultar notificaciones por usuario (para el header)
+    private function Mostrar_NotificacionPorUsuario() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+
+            // consulta las notificaciones del usuario actual (incluyendo vistas y no vistas)
+            $query = "SELECT n.*, u.nombre_usuario 
+                        FROM notificaciones n
+                        INNER JOIN usuarios u ON n.id_usuario = u.id_usuario
+                        WHERE n.id_usuario = :usuario_id AND n.status = 1
+                        ORDER BY n.fecha_notificacion DESC
+                        LIMIT 10"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // vincula los parametros
+            $stmt->bindValue(':usuario_id', $this->getNotificacionIdUsuario());
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Notificaciones encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Notificaciones no encontradas o inactivas', 'data' => []];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage(), 'data' => []];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion para marcar notificacion como vista
+    private function MarcarComoVista() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+
+            // actualiza la notificacion como vista
+            $query = "UPDATE notificaciones
+                        SET vista = 1
+                        WHERE id_notificaciones = :id";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query); 
+
+            // vincula los parametros
+            $stmt->bindValue(":id", $this->getNotificacionID());
+
+            // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Notificacion marcada como vista con exito.'];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Notificacion no marcada como vista error.'];
             }
 
         } catch (PDOException $e) {
@@ -422,7 +588,7 @@ class Notificacion extends Conexion {
             $conn = $this->getConnectionSeguridad();
 
             // consulta la notificacion
-            $query = "SELECT n.*, u.usuario_nombre as nombre_usuario 
+            $query = "SELECT n.*, u.nombre_usuario 
                         FROM notificaciones n
                         INNER JOIN usuarios u ON n.id_usuario = u.id_usuario
                         WHERE n.id_notificaciones = :id AND n.status = 1";

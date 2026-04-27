@@ -121,7 +121,7 @@
                         $estado_texto = 'Vencida';
                     }
                     
-                    $cliente_nombre = $cuenta['nombre_cliente'] . ' ' . $cuenta['apellido_cliente'];
+                    $cliente_nombre = $cuenta['nombre_cliente'];
                     $saldo_class = $cuenta['saldo'] > 0 ? 'text-danger' : 'text-success';
             ?>
                           <tr style="transition: all 0.2s;">
@@ -249,7 +249,7 @@ require_once 'components/scripts.php';
                   <?php
                   if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
                       foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
+                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . '</option>';
                       }
                   }
                   ?>
@@ -358,7 +358,7 @@ require_once 'components/scripts.php';
                   <?php
                   if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
                       foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
+                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . '</option>';
                       }
                   }
                   ?>

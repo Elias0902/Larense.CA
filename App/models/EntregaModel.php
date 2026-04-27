@@ -240,7 +240,15 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT e.*, c.nombre_cliente, c.apellido_cliente 
+            
+            // Primero, verificar si hay entregas sin el JOIN
+            $query_simple = "SELECT * FROM entregas WHERE status = 1";
+            $stmt_simple = $conn->prepare($query_simple);
+            $stmt_simple->execute();
+            $total_entregas = $stmt_simple->rowCount();
+            
+            // Ahora hacer la consulta con JOIN
+            $query = "SELECT e.*, c.nombre_cliente 
                       FROM entregas e
                       LEFT JOIN clientes c ON e.cliente_id = c.id_cliente
                       WHERE e.status = 1 
@@ -250,11 +258,20 @@ class Entrega extends Conexion {
 
             if ($stmt->rowCount() > 0) {
                 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                error_log('Entregas encontradas: ' . count($data));
                 return ['status' => true, 'msj' => 'Entregas encontradas con exito.', 'data' => $data];
             } else {
+                error_log('No hay entregas con JOIN. Total entregas en BD: ' . $total_entregas);
+                // Si no hay resultados con JOIN pero sí hay entregas, devolverlas sin JOIN
+                if ($total_entregas > 0) {
+                    $data = $stmt_simple->fetchAll(PDO::FETCH_ASSOC);
+                    error_log('Devolviendo entregas sin JOIN: ' . count($data));
+                    return ['status' => true, 'msj' => 'Entregas encontradas (sin datos de cliente).', 'data' => $data];
+                }
                 return ['status' => false, 'msj' => 'No hay entregas registradas.'];
             }
         } catch (PDOException $e) {
+            error_log('Error en consulta entregas: ' . $e->getMessage());
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
@@ -296,7 +313,7 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT e.*, c.nombre_cliente, c.apellido_cliente 
+            $query = "SELECT e.*, c.nombre_cliente 
                       FROM entregas e
                       LEFT JOIN clientes c ON e.cliente_id = c.id_cliente
                       WHERE e.id_entrega = :id AND e.status = 1";
@@ -322,6 +339,14 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de actualizar para la bitácora
+            $query_select = "SELECT * FROM entregas WHERE id_entrega = :id";
+            $stmt_select = $conn->prepare($query_select);
+            $stmt_select->bindValue(':id', $this->getEntregaID());
+            $stmt_select->execute();
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+            
             $query = "UPDATE entregas 
                       SET pedido_id = :pedido_id,
                           cliente_id = :cliente_id,
@@ -346,7 +371,7 @@ class Entrega extends Conexion {
             $stmt->bindValue(':repartidor', $this->getEntregaRepartidor());
 
             if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Entrega actualizada con éxito.'];
+                return ['status' => true, 'msj' => 'Entrega actualizada con éxito.', 'data_bitacora' => $datos_anteriores];
             } else {
                 return ['status' => false, 'msj' => 'Error al actualizar la entrega.'];
             }
@@ -362,12 +387,20 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
+            
+            // Obtener datos actuales antes de eliminar para la bitácora
+            $query_select = "SELECT * FROM entregas WHERE id_entrega = :id AND status = 1";
+            $stmt_select = $conn->prepare($query_select);
+            $stmt_select->bindValue(':id', $this->getEntregaID());
+            $stmt_select->execute();
+            $datos_anteriores = $stmt_select->fetch(PDO::FETCH_ASSOC);
+            
             $query = "UPDATE entregas SET status = 0 WHERE id_entrega = :id";
             $stmt = $conn->prepare($query);
             $stmt->bindValue(':id', $this->getEntregaID());
 
             if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Entrega eliminada con éxito.'];
+                return ['status' => true, 'msj' => 'Entrega eliminada con éxito.', 'data_bitacora' => $datos_anteriores];
             } else {
                 return ['status' => false, 'msj' => 'Error al eliminar la entrega.'];
             }

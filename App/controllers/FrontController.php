@@ -24,20 +24,20 @@
             if(!isset($_SESSION['s_usuario']) && $controller != 'autenticator') {
                 
                 //si la session no esta iniciada redirige al login
-                require_once 'app/controllers/AutenticatorController.php';
+                require_once __DIR__ . '/AutenticatorController.php';
                 
                 //aqui termina el script
                 exit();
             }
 
             //Llama al achivo que contiene la rutas url
-            require_once "config/route.php";
+            require_once __DIR__ . '/../../config/route.php';
             
             //valida si el controller tiene una url
             if($controller == ''){
             
-                // si el controller esta vacio carga por defecto el login
-                require_once 'app/controllers/AutenticatorController.php';
+                // si el controller esta vacio carga por defecto la landing page
+                require_once __DIR__ . '/../views/landing.php';
                 
                 //termina el script
                 exit();
@@ -51,14 +51,14 @@
 
                     //construlle la url dinamicamente desde el arry de url del
                     // achivo route.php
-                    require_once $rutas[$controller];
+                    require_once __DIR__ . '/../../' . $rutas[$controller];
                     
                     //termina el script
                     exit();
                 }
 
                 //en caso contrario de que no este la url carga una pagina de error
-                require_once 'app/views/error/404.php';
+                require_once __DIR__ . '/../views/error/404.php';
                 
                 //terina el scrpit
                 exit();

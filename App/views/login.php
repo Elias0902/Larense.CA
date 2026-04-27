@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Larense CA Natys- Sistema de Gestión</title>
     <?php
-    require_once 'components/links.php';
+    require_once __DIR__ . '/../../components/links.php';
     ?>
     <?php 
-    require_once "components/links.php";
-    require_once "components/alerts.php";
+    require_once __DIR__ . '/../../components/links.php';
+    require_once __DIR__ . '/../../components/alerts.php';
     ?>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -68,6 +68,37 @@
             box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         }
 
+        /* Landing button */
+        .landing-btn {
+            position: fixed;
+            top: 20px;
+            right: 130px;
+            z-index: 1000;
+            background: white;
+            border-radius: 50px;
+            padding: 8px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .landing-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            color: var(--primary-color);
+        }
+
+        .landing-btn i {
+            font-size: 16px;
+        }
+
         .theme-toggle .toggle-switch {
             width: 50px;
             height: 26px;
@@ -102,12 +133,20 @@
             color: var(--text-gray);
         }
 
-        .theme-toggle.dark i.fa-sun {
+        .theme-toggle.dark i:first-child {
+            display: none;
+        }
+
+        .theme-toggle.dark i:last-child {
             color: var(--primary-color);
         }
 
-        .theme-toggle:not(.dark) i.fa-moon {
+        .theme-toggle:not(.dark) i:first-child {
             color: var(--primary-color);
+        }
+
+        .theme-toggle:not(.dark) i:last-child {
+            display: none;
         }
 
         .container {
@@ -433,7 +472,53 @@
         body.dark-mode .form-control {
             background-color: #2a3041;
             border-color: #3a4055;
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::-webkit-input-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::-moz-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control:-ms-input-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .input-icon-left {
             color: #e7e9f0;
+        }
+
+        body.dark-mode .input-icon-right {
+            color: #e7e9f0;
+        }
+
+        /* Override browser autofill styles */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #2a3041 inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        input:-webkit-autofill::first-line {
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        body:not(.dark-mode) input:-webkit-autofill,
+        body:not(.dark-mode) input:-webkit-autofill:hover,
+        body:not(.dark-mode) input:-webkit-autofill:focus,
+        body:not(.dark-mode) input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+            -webkit-text-fill-color: #1a1b2b !important;
         }
 
         body.dark-mode .form-control:focus {
@@ -447,6 +532,15 @@
 
         body.dark-mode .theme-toggle .toggle-switch {
             background: #3a4055;
+        }
+
+        body.dark-mode .landing-btn {
+            background: #2a3041;
+            color: #e7e9f0;
+        }
+
+        body.dark-mode .landing-btn:hover {
+            color: var(--primary-color);
         }
 
         body.dark-mode .system-info {
@@ -472,13 +566,19 @@
 </head>
 <body>
 
+    <!-- Landing Button -->
+    <a href="index.php" class="landing-btn">
+        <i class="fa fa-home"></i>
+        Landing
+    </a>
+
     <!-- Theme Toggle -->
     <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
-        <i class="fa fa-sun"></i>
+        <i class="fa fa-moon"></i>
         <div class="toggle-switch">
             <div class="toggle-slider"></div>
         </div>
-        <i class="fa fa-moon"></i>
+        <i class="fa fa-sun"></i>
     </div>
 
     <div class="container" id="main-container">
@@ -534,6 +634,27 @@
                         <button type="submit" class="submit-btn"><i class="fa fa-sign-in-alt mr-2"></i> INGRESAR &rarr;</button>
                     </form>
 
+                    <!-- Botones de prueba -->
+                    <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                        <p style="font-size: 12px; color: #856404; margin-bottom: 10px; font-weight: 600;">
+                            <i class="fa fa-flask"></i> ACCESO RÁPIDO PARA PRUEBAS
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <form action="index.php?url=autenticator&action=login_prueba" method="post" style="flex: 1; min-width: 140px;">
+                                <input type="hidden" name="username" value="@superusuario_24">
+                                <button type="submit" class="submit-btn" style="background: #28a745; font-size: 12px; padding: 10px;">
+                                    <i class="fa fa-user-shield"></i> Super Admin
+                                </button>
+                            </form>
+                            <form action="index.php?url=autenticator&action=login_prueba" method="post" style="flex: 1; min-width: 140px;">
+                                <input type="hidden" name="username" value="@elias_09">
+                                <button type="submit" class="submit-btn" style="background: #17a2b8; font-size: 12px; padding: 10px;">
+                                    <i class="fa fa-user-tie"></i> Elias
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="bottom-text">
                         ¿No tienes una cuenta? <a onclick="switchView('view-register')" class="switch-link">Regístrate aquí</a>
                     </div>
@@ -568,15 +689,24 @@
                     <form action="index.php?url=autenticator&action=registrar" method="post">
                         <div class="form-group">
                             <label>Nombre Completo</label>
-                            <input type="text" class="form-control" name="username" placeholder="Juan Pérez" required>
+                            <div class="input-group">
+                                <i class="fa fa-user input-icon-left"></i>
+                                <input type="text" class="form-control" name="username" placeholder="Juan Pérez" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Correo Electrónico / Usuario</label>
-                            <input type="text" class="form-control" name="email" placeholder="usuario" required>
+                            <div class="input-group">
+                                <i class="fa fa-envelope input-icon-left"></i>
+                                <input type="text" class="form-control" name="email" placeholder="usuario" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Contraseña</label>
-                            <input type="password" class="form-control" name="password" placeholder="••••••••" required>
+                            <div class="input-group">
+                                <i class="fa fa-lock input-icon-left"></i>
+                                <input type="password" class="form-control" name="password" placeholder="••••••••" required>
+                            </div>
                         </div>
                         <button type="submit" class="submit-btn">Registrarse &rarr;</button>
                     </form>
@@ -595,7 +725,10 @@
                     <form action="index.php?url=autenticator&action=recuperar" method="post">
                         <div class="form-group">
                             <label>Correo Electrónico</label>
-                            <input type="email" class="form-control" name="email" placeholder="usuario@correo.com" required>
+                            <div class="input-group">
+                                <i class="fa fa-envelope input-icon-left"></i>
+                                <input type="email" class="form-control" name="email" placeholder="usuario@correo.com" required>
+                            </div>
                         </div>
                         <button type="submit" class="submit-btn">Enviar enlace de recuperación &rarr;</button>
                     </form>
@@ -611,14 +744,14 @@
             </div>
             
             <div class="illustration-container">
-                <img src="assets/img/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
+                <img src="/larence/Assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
             </div>
         </div>
 
     </div>
 
-    <script src="assets/js/validaciones/login_validaciones.js"></script>
-    <?php require_once "components/scripts.php"; ?>
+    <script src="../../Assets/js/validaciones/login_validaciones.js"></script>
+    <?php require_once __DIR__ . '/../../components/scripts.php'; ?>
 
     <script>
         function switchView(viewId) {

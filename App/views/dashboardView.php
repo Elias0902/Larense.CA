@@ -528,6 +528,10 @@
     <script src="assets/js/plugin/jsvectormap/jsvectormap.min.js"></script>
     <script src="assets/js/plugin/jsvectormap/world.js"></script>
     <script src="assets/js/sweetalert2.min.js"></script>
+    
+    <!-- Inactivity Timer Config -->
+    <?php printInactivityTimerScript(); ?>
+    
     <script src="assets/js/Kaiadmin.min.js"></script>
     <script src="assets/js/setting-demo.js"></script>
     <script src="assets/js/demo.js"></script>

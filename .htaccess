@@ -1,5 +1,10 @@
 RewriteEngine On
-RewriteBase /
+RewriteBase /larence/
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [QSA,L]
+
+# Redirigir URLs sin /larence/ a la carpeta correcta
+RewriteCond %{HTTP_HOST} ^localhost$
+RewriteCond %{REQUEST_URI} !^/larence/
+RewriteRule ^(.*)$ /larence/$1 [L,R=301]

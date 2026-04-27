@@ -187,7 +187,15 @@
         $resultado = $modelo->manejarAccion('obtener', $promocion_json);
 
         if (isset($resultado['data'])) {
-            echo json_encode($resultado['data']);
+            // Asegurar que las fechas estén en formato YYYY-MM-DD para el input date
+            $data = $resultado['data'];
+            if (isset($data['fecha_inicio'])) {
+                $data['fecha_inicio'] = date('Y-m-d', strtotime($data['fecha_inicio']));
+            }
+            if (isset($data['fecha_fin'])) {
+                $data['fecha_fin'] = date('Y-m-d', strtotime($data['fecha_fin']));
+            }
+            echo json_encode($data);
         } else {
             echo json_encode(['error' => 'No se encontró la promoción']);
         }

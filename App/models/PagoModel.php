@@ -243,7 +243,7 @@ class Pago extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente, c.apellido_cliente 
+            $query = "SELECT p.*, c.nombre_cliente 
                       FROM pagos p
                       LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
                       WHERE p.status = 1 
@@ -269,7 +269,7 @@ class Pago extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente, c.apellido_cliente 
+            $query = "SELECT p.*, c.nombre_cliente 
                       FROM pagos p
                       LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
                       WHERE p.cliente_id = :cliente_id AND p.status = 1 
@@ -329,7 +329,7 @@ class Pago extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente, c.apellido_cliente 
+            $query = "SELECT p.*, c.nombre_cliente 
                       FROM pagos p
                       LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
                       WHERE p.id_pago = :id AND p.status = 1";

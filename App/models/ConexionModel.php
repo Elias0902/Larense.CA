@@ -1,6 +1,6 @@
 <?php
     // llama el archivo que contiene la config
-    require_once 'config/config.php';
+    require_once __DIR__ . '/../../config/config.php';
 
     // Define la clase Conexion
     class Conexion {

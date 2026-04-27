@@ -212,7 +212,7 @@ class CuentaPagar extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT cp.*, p.nombre_proveedor, p.telefono_proveedor 
+            $query = "SELECT cp.*, p.nombre_proveedor, p.tlf_proveedor 
                       FROM cuentas_pagar cp
                       LEFT JOIN proveedores p ON cp.proveedor_id = p.id_proveedor
                       WHERE cp.status = 1 
@@ -267,7 +267,7 @@ class CuentaPagar extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT cp.*, p.nombre_proveedor, p.telefono_proveedor 
+            $query = "SELECT cp.*, p.nombre_proveedor, p.tlf_proveedor 
                       FROM cuentas_pagar cp
                       LEFT JOIN proveedores p ON cp.proveedor_id = p.id_proveedor
                       WHERE cp.id_cuenta_pagar = :id AND cp.status = 1";

@@ -345,7 +345,53 @@
         body.dark-mode .form-control {
             background-color: #2a3041;
             border-color: #3a4055;
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::-webkit-input-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control::-moz-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .form-control:-ms-input-placeholder {
+            color: #ffffff;
+        }
+
+        body.dark-mode .input-icon-left {
             color: #e7e9f0;
+        }
+
+        body.dark-mode .input-icon-right {
+            color: #e7e9f0;
+        }
+
+        /* Override browser autofill styles */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #2a3041 inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        input:-webkit-autofill::first-line {
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        body:not(.dark-mode) input:-webkit-autofill,
+        body:not(.dark-mode) input:-webkit-autofill:hover,
+        body:not(.dark-mode) input:-webkit-autofill:focus,
+        body:not(.dark-mode) input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+            -webkit-text-fill-color: #1a1b2b !important;
         }
 
         body.dark-mode .form-control:focus {
@@ -441,7 +487,7 @@
             </div>
             
             <div class="illustration-container">
-                <img src="assets/img/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
+                <img src="assets/img/natys/natys.png" alt="Ilustración Sistema" style="max-width: 100%; opacity: 0.9;">
             </div>
         </div>
 

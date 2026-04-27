@@ -1,3 +1,26 @@
+<?php
+// Iniciar sesión si no está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Determinar redirección según el rol del usuario
+$redireccion = 'index.php?url=dashboard'; // Por defecto para empresa
+
+if (isset($_SESSION['s_usuario']['id_rol_usuario'])) {
+    // Si es cliente o rol sin acceso a dashboard, redirigir a ecommerce
+    require_once 'app/models/PerfilSistemaModel.php';
+    $perfilModel = new PerfilSistema();
+    $tiene_permiso_dashboard = $perfilModel->VerificarPermiso($_SESSION['s_usuario']['id_rol_usuario'], 20, 2);
+
+    if (!$tiene_permiso_dashboard) {
+        $redireccion = 'index.php?url=ecommerce';
+    }
+} else {
+    // Si no está logueado, redirigir a login
+    $redireccion = 'index.php?url=autenticator';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +39,7 @@
     <p class="text_404">404</p>
     <p class="text_lost">No me estan pagando por eso no hice esta pagina</p>
     <div class="space-tag">No existe la pagina, pero puedes jugar con el astronauta baila</div>
-    <a href="?url=dashboard" class="btn-return">Volver al Dashboard</a>
+    <a href="<?php echo $redireccion; ?>" class="btn-return">Volver</a>
   </div>
   <div class="window_group">
     <div class="window_404" id="spaceWindow">
@@ -24,7 +47,7 @@
       <div class="stars" id="starsContainer"></div>
       <!-- Planeta decorativo -->
       <div class="distant-planet"></div>
-      
+
       <!-- ASTRONAUTA GIGANTE QUE PERSIGUE EL CURSOR -->
       <div class="giant-astronaut" id="astroChaser">
         <svg class="astro-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,7 +80,7 @@
           <circle cx="50" cy="4" r="2" fill="#FFAAAA" />
         </svg>
       </div>
-      
+
       <!-- capas reflectantes -->
       <div class="window-reflection"></div>
       <div class="inner-ring"></div>

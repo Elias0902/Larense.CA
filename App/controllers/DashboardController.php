@@ -1,5 +1,41 @@
 <?php
 
+// Iniciar sesión si no está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Verificar si el usuario está logueado
+if (!isset($_SESSION['s_usuario'])) {
+    header('Location: index.php?url=autenticator');
+    exit();
+}
+
+// Cargar modelo de permisos
+require_once 'app/models/PerfilSistemaModel.php';
+$perfilModel = new PerfilSistema();
+
+// Verificar permiso para acceder al dashboard (módulo 20, permiso 2 = Consultar)
+$id_rol = $_SESSION['s_usuario']['id_rol_usuario'];
+$tiene_permiso_dashboard = $perfilModel->VerificarPermiso($id_rol, 20, 2);
+
+// Si no tiene permiso
+if (!$tiene_permiso_dashboard) {
+    // Si está en modo de simulación, redirigir a ecommerce
+    if (isset($_SESSION['simulando_rol']) && $_SESSION['simulando_rol'] === true) {
+        // Evitar bucle de redirección verificando si ya estamos intentando ir a ecommerce
+        $current_url = $_SERVER['REQUEST_URI'] ?? '';
+        if (strpos($current_url, 'ecommerce') === false) {
+            header('Location: index.php?url=ecommerce');
+            exit();
+        }
+    } else {
+        // Si no está en modo simulación, mostrar 403
+        header('Location: index.php?url=error&action=403');
+        exit();
+    }
+}
+
 // Cargar modelos necesarios
 require_once 'app/models/TipoClienteModel.php';
 require_once 'app/models/ProductoModel.php';
