@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="color-scheme" content="light dark">
     <title> Productos</title>
     <?php
     require_once 'components/links.php';
