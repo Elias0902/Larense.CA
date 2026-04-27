@@ -8,11 +8,11 @@
 
 
     //llama a los modelos
-    require_once __DIR__ . '/../models/AutenticatorModel.php'; // al modelo de Autenticator
-    require_once __DIR__ . '/../models/BitacoraModel.php'; // llama al modelo bitacora
+    require_once 'app/models/AutenticatorModel.php'; // al modelo de Autenticator
+    require_once 'app/models/BitacoraModel.php'; // llama al modelo bitacora
     
     // llama el archivo que contiene la carga de alerta
-    require_once __DIR__ . '/../../components/utils.php';
+    require_once 'components/utils.php';
 
     //zona horaria
     date_default_timezone_set('America/Caracas');

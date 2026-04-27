@@ -367,7 +367,7 @@ require_once 'components/scripts.php';
 
 <script src="assets/js/validaciones/tipoClientes_validaciones.js"></script>
 <script src="assets/js/ajax/tipoClientes_ajax.js"></script>
-<script src="assets/js/animacionesJs/dashboard_tipoClientes.js"></script>
+<script src="asset/js/animacionesJs/dashboard_tipoClientes.js"></script>
 
   </body>
 </html>

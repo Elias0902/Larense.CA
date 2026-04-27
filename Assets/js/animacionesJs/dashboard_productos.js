@@ -457,7 +457,7 @@ function ObtenerProducto(idProducto) {
     // Cargar datos del producto para edición
     console.log('Obteniendo producto para edición:', idProducto);
     
-    fetch(`index.php?url=productos&action=obtener&id=${idProducto}`)
+    fetch(`index.php?url=productos&action=obtener&ID=${idProducto}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {

@@ -19,25 +19,31 @@
             //se almacena la peticion de la url
             $controller = isset($_GET['url']) ? $_GET['url'] : '';
 
+            // Si no hay sesión iniciada y no se solicita una ruta específica, mostrar landing
+            if (!isset($_SESSION['s_usuario']) && !isset($_GET['url'])) {
+                header('Location: index.php?url=landing');
+                exit();
+            }
+
             //valida la session y si la peticion controlador es igual o 
             //diferente a la predeterminada
-            if(!isset($_SESSION['s_usuario']) && $controller != 'autenticator') {
+            if(!isset($_SESSION['s_usuario']) && $controller != 'autenticator' && $controller != 'landing') {
                 
                 //si la session no esta iniciada redirige al login
-                require_once __DIR__ . '/AutenticatorController.php';
+                header('Location: index.php?url=autenticator');
                 
                 //aqui termina el script
                 exit();
             }
 
             //Llama al achivo que contiene la rutas url
-            require_once __DIR__ . '/../../config/route.php';
+            require_once 'config/route.php';
             
             //valida si el controller tiene una url
             if($controller == ''){
             
-                // si el controller esta vacio carga por defecto la landing page
-                require_once __DIR__ . '/../views/landing.php';
+                // si el controller esta vacio carga por defecto login page
+                header('Location: index.php?url=autenticator');
                 
                 //termina el script
                 exit();
@@ -51,14 +57,14 @@
 
                     //construlle la url dinamicamente desde el arry de url del
                     // achivo route.php
-                    require_once __DIR__ . '/../../' . $rutas[$controller];
+                    require_once $rutas[$controller];
                     
                     //termina el script
                     exit();
                 }
 
                 //en caso contrario de que no este la url carga una pagina de error
-                require_once __DIR__ . '/../views/error/404.php';
+                header('Location: index.php?url=404');
                 
                 //terina el scrpit
                 exit();

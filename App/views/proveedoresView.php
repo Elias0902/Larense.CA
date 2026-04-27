@@ -303,7 +303,7 @@ require_once 'components/scripts.php';
 
 <script src="assets/js/validaciones/proveedores_validaciones.js"></script>
 <script src="assets/js/ajax/proveedores_ajax.js"></script>
-<script src="assets/js/animacionesJs/dashboard_proveedores.js"></script>
+<script src="asset/js/animacionesJs/dashboard_proveedores.js"></script>
 
   </body>
 </html>

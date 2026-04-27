@@ -426,7 +426,7 @@ require_once 'components/scripts.php';
                 <div class="col-md-6 mb-3">
                   <label for="rifClienteEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-id-card me-2" style="color: #dc3545;"></i>RIF del Cliente</label>
                   <div class='d-flex align-items-center gap-2'>
-                    <input type="text" class="form-control" id="tipo_idEditDisplay" style="max-width: 50px; border-radius: 8px; background: #e9ecef;" readonly>
+                    <input type="text" class="form-control" id="tipo_idEdit" style="max-width: 50px; border-radius: 8px; background: #e9ecef;" readonly>
                     <input type="hidden" name="tipo_idEdit" id="tipo_idEdit">
                     <input type="text" class="form-control" id="rifClienteEdit" name="rifClienteEdit" placeholder="Número de RIF" style="border-radius: 8px; background: #e9ecef;" readonly>
                   </div>
@@ -441,7 +441,7 @@ require_once 'components/scripts.php';
               </div>
 
               <div class="row">
-                <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
+                <?php if(($_SESSION['s_usuario']['rol_usuario'] ?? '') === 'Superusuario'): ?>
                 <div class="col-md-6 mb-3">
                   <label for="tipoClienteEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tags me-2" style="color: #dc3545;"></i>Tipo de Cliente *</label>
                   <select class="form-select" id="tipoClienteEdit" name="tipoClienteEdit" style="border-radius: 8px;" oninput="validar_tipo_cliente_modificado()" required>
@@ -474,7 +474,7 @@ require_once 'components/scripts.php';
                 </div>
               </div>
 
-              <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
+              <?php if(($_SESSION['s_usuario']['rol_usuario'] ?? '') === 'Superusuario'): ?>
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="estadoClienteEdit" class='form-label' style="color: #333; font-weight: 500;"><i class="fa fa-check-circle me-2" style="color: #dc3545;"></i>Estado del Cliente *</label>
@@ -522,10 +522,6 @@ require_once 'components/scripts.php';
     </div>
   </div>
 </div>
-
-<script src="assets/js/validaciones/clientes_validaciones.js"></script>
-<script src="assets/js/validaciones/clientes_validaciones_status.js"></script>
-<script src="assets/js/ajax/clientes_ajax.js"></script>
 
 <!-- Modal Ver Detalle Cliente -->
 <div class="modal fade" id="clienteDetalleModal" tabindex="-1" aria-labelledby="clienteDetalleModalLabel" aria-hidden="true">
@@ -667,7 +663,17 @@ require_once 'components/scripts.php';
   </div>
 </div>
 
+<script src="assets/js/validaciones/clientes_validaciones.js"></script>
+<script src="assets/js/validaciones/clientes_validaciones_status.js"></script>
+<script src="assets/js/ajax/clientes_ajax.js"></script>
 <script>
+  
+// Inicializar TODO
+document.addEventListener('DOMContentLoaded', function() {
+    addStatusStyles();  // ✅ CSS primero
+    initClienteStatus(); // ✅ Luego badges
+});
+
 // Función para ver detalle del cliente
 function VerDetalleCliente(id) {
     // Aquí puedes hacer una petición AJAX para obtener los detalles del cliente
@@ -812,6 +818,5 @@ document.getElementById('clienteModalModificar').addEventListener('show.bs.modal
     }
 });
 </script>
-
   </body>
 </html>

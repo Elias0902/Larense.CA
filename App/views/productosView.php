@@ -472,7 +472,7 @@ function VerDetalleProducto(id) {
 <script src="assets/js/validaciones/productos_validaciones_status_stock.js"></script>
 <script src="assets/js/ajax/productos_ajax.js"></script>
 <script src="assets/js/ajax/conversion_ajax.js"></script>
-<script src="assets/js/animacionesJs/dashboard_productos.js"></script>
+<script src="asset/js/animacionesJs/dashboard_productos.js"></script>
 
   </body>
 </html>

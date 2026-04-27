@@ -91,9 +91,3 @@ function addStatusStyles() {
     `;
     document.head.appendChild(style);
 }
-
-// Inicializar TODO
-document.addEventListener('DOMContentLoaded', function() {
-    addStatusStyles();  // ✅ CSS primero
-    initClienteStatus(); // ✅ Luego badges
-});
