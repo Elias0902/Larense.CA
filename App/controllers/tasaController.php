@@ -33,6 +33,12 @@
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 Obtener();
             }
+
+        case 'obtenerUltima':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerUltima();
+            }
+
         break;
 
         case 'eliminar':
@@ -437,7 +443,45 @@
                 'modulo' => 'Tasa',
                 'accion' => 'Obtener',
                 'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
-                    'ha obtenido los datos de la siguiente categoria' . ' ' . 'TS-00' . 
+                    'ha obtenido los datos de la siguiente tasa' . ' ' . 'TS-00' . 
+                    $data_bitacora['id_tasa'] . ' ' . $data_bitacora['monto_tasa'] . 
+                    ' ' . 'en el sistema.',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
+
+            echo json_encode($tasa);
+
+            exit();
+    }
+
+        // function para obtener un dato
+    function ObtenerUltima() {
+
+        // instacia el modelo
+        $modelo = new Tasa();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
+            $resultado = $modelo->manejarAccion('obtenerUltima', null);
+
+            // se almacena para la vista
+            $tasa = $resultado['data'];
+
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Tasa',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos de la siguiente tasa' . ' ' . 'TS-00' . 
                     $data_bitacora['id_tasa'] . ' ' . $data_bitacora['monto_tasa'] . 
                     ' ' . 'en el sistema.',
                 'fecha' => $fecha

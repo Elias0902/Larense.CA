@@ -209,6 +209,14 @@ class Tasa extends Conexion {
             // termina el script    
             break;
 
+            case 'obtenerUltima':
+                
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Obtener_Ultima_Tasa();
+
+            // termina el script    
+            break;
+
             case 'modificar':
 
                 // almacena el status de la respuesta de la funcion de validacion
@@ -413,6 +421,55 @@ class Tasa extends Conexion {
         }
     }
 
+        // funcion para obtener un registro
+    private function Obtener_Ultima_Tasa() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // actualiza el status la categoria
+            $query = "SELECT * 
+                        FROM tasa_dia 
+                        WHERE status = 1 
+                        ORDER BY id_tasa 
+                        DESC LIMIT 1";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->execute()) {
+
+                // obtiene los datos de la consulta
+                $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Tasa encontrada con exito.', 'data' => $data, 'data_bitacora' => $data];
+            }
+            else {
+
+                // retiorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Tasa no encontrada error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
     // funcion para modificar categoria
     private function Actualizar_Tasa() {
 
@@ -444,8 +501,7 @@ class Tasa extends Conexion {
 
             // modificar una categoria
             $query = "UPDATE tasa_dia 
-                        SET monto_tasa = :monto,
-                            fecha_tasa = :fecha 
+                        SET monto_tasa = :monto
                         WHERE id_tasa = :id ";
 
             // prepara la sentencia 
