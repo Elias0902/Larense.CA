@@ -15,7 +15,7 @@ switch($action) {
 
     case 'filtrar':
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            FiltrarPorCategoria();
+            FiltrarProductos();
         }
         break;
 
@@ -100,39 +100,29 @@ function ConsultarMarketplace() {
     }
 }
 
-// funcion para filtrar productos por categoria (admin)
-function FiltrarPorCategoria() {
+// funcion para filtrar productos por disponibilidad y orden
+function FiltrarProductos() {
    
     // instacia el modelo
     $modelo = new Producto();
     $categoria = new Categoria();
 
-    // obtiene el id de categoria
-    $categoria_id = isset($_GET['categoria']) ? $_GET['categoria'] : '';
+    // obtiene los filtros
+    $disponibilidad = isset($_GET['disponibilidad']) ? $_GET['disponibilidad'] : 'todos';
+    $orden = isset($_GET['orden']) ? $_GET['orden'] : 'todos';
 
     // para manejo de errores
     try {
-
-        // llama la funcion que maneja las acciones en el modelo
-        $resultado = $modelo->manejarAccion('consultar', null);
-
         // extrae los datos de las categorias
         $categorias = $categoria->manejarAccion('consultar', null)['data'];
 
+        // llama la funcion que maneja los filtros en el modelo
+        $resultado = $modelo->obtenerProductosPorFiltro($disponibilidad, $orden);
+
         // valida si existe el status del resultado y si es true 
         if (isset($resultado['status']) && $resultado['status'] === true) {
-
             // extrae los datos de los productos
-            $todos_productos = $resultado['data'];
-
-            // filtra productos por categoria si se especifico
-            if ($categoria_id !== '' && $categoria_id !== 'todas') {
-                $productos = array_filter($todos_productos, function($prod) use ($categoria_id) {
-                    return $prod['id_categoria'] == $categoria_id;
-                });
-            } else {
-                $productos = $todos_productos;
-            }
+            $productos = $resultado['data'];
 
             // carga la vista del marketplace
             require_once 'app/views/ecommerceView.php';
@@ -153,7 +143,6 @@ function FiltrarPorCategoria() {
         }
     }
     catch (Exception $e) {
-
         //mensaje del exception de pdo
         error_log('Error al filtrar marketplace...' . $e->getMessage());
         

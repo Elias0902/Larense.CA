@@ -92,12 +92,12 @@ function Actualizar_Imagen() {
     $id_usuario = $_SESSION['s_usuario']['id_usuario'];
 
     // verifica si se subio un archivo
-    if (!isset($_FILES['imagen_perfil'])) {
+    if (!isset($_FILES['img_usuario'])) {
         echo json_encode(['status' => false, 'msj' => 'No se recibio ninguna imagen']);
         return;
     }
 
-    $imagen = $_FILES['imagen_perfil'];
+    $imagen = $_FILES['img_usuario'];
 
     // Verificar errores de subida
     if ($imagen['error'] !== 0) {

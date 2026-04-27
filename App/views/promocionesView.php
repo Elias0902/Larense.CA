@@ -119,9 +119,7 @@
                             <td style="padding: 15px; vertical-align: middle; text-align: center;">
                               <div class="btn-group" role="group">
                                 <a
-                                onclick="ObtenerPromocion(<?php echo $promocion['id_promocion']; ?>)"
-                                data-bs-toggle="modal"
-                                data-bs-target="#promocionModalModificar"
+                                onclick="ObtenerPromocion(<?php echo $promocion['id_promocion']; ?>); return false;"
                                 type="button"
                                 class="btn btn-sm"
                                 title='Modificar'

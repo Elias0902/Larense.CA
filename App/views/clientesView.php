@@ -7,7 +7,6 @@
     require_once 'components/links.php';
     ?>
     <link rel="stylesheet" href="assets/css/validaciones.css" />
-    <link rel="stylesheet" href="assets/css/select.css" />
   </head>
   <body>
     <?php
@@ -269,6 +268,20 @@
               </div>
             </div>
           </div>
+
+          <!-- Paginación -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center">
+                <span style="color: #666;">Mostrando 1 a 2 de 2 registros</span>
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary btn-sm" disabled>Anterior</button>
+                  <button class="btn btn-danger btn-sm">1</button>
+                  <button class="btn btn-outline-secondary btn-sm" disabled>Siguiente</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="text-center mt-4 mb-4">
@@ -297,17 +310,17 @@ require_once 'components/scripts.php';
         <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-id-card me-2" style="color: #dc3545;"></i>RIF del Cliente *</label>
-                  <div>
-                    <select name="tipo_id" id="tipo_id" class="form-select mb-2" oninput='validar_tipo_rif()' required>
-                      <option value="">Seleccione el tipo</option>
-                      <option value="V">V - Venezolano</option>
-                      <option value="E">E - Extranjero</option>
-                      <option value="J">J - Jurídico</option>
-                      <option value="G">G - Gobierno</option>
-                      <option value="C">C - Comunal</option>
+                  <label for="rifCliente" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-id-card me-2" style="color: #dc3545;"></i>RIF del Cliente *</label>
+                  <div class='d-flex align-items-center gap-2'>
+                    <select name="tipo_id" id="tipo_id" class="form-select" style="max-width: 80px; border-radius: 8px;" oninput='validar_tipo_rif()' required>
+                      <option value="">Tipo</option>
+                      <option value="V">V</option>
+                      <option value="E">E</option>
+                      <option value="J">J</option>
+                      <option value="G">G</option>
+                      <option value="C">C</option>
                     </select>
-                    <input type="text" class="form-control" id="rifCliente" name="rifCliente" placeholder="Número de RIF" oninput="validar_rif()" required>
+                    <input type="text" class="form-control" id="rifCliente" name="rifCliente" placeholder="Número de RIF" style="border-radius: 8px;" oninput="validar_rif()" required>
                   </div>
                   <span id="errorRif" class="error-messege text-danger small"></span>
                 </div>
@@ -320,7 +333,7 @@ require_once 'components/scripts.php';
               </div>
 
               <div class="row">
-                <?php if($_SESSION['s_usuario']['rol_usuario'] === 'Superusuario'): ?>
+                <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
                 <div class="col-md-6 mb-3">
                   <label for="tipoCliente" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tags me-2" style="color: #dc3545;"></i>Tipo de Cliente *</label>
                   <select class="form-select" id="tipoCliente" name="tipoCliente" style="border-radius: 8px;" oninput='validar_tipo_cliente()' required>
@@ -354,7 +367,7 @@ require_once 'components/scripts.php';
                 </div>
               </div>
 
-              <?php if($_SESSION['s_usuario']['rol_usuario'] === 'Superusuario'): ?>
+              <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="estadoCliente" class='form-label' style="color: #333; font-weight: 500;"><i class="fa fa-check-circle me-2" style="color: #dc3545;"></i>Estado del Cliente *</label>
@@ -370,15 +383,9 @@ require_once 'components/scripts.php';
               <?php endif; ?>
 
               <div class="mb-3">
-                <label class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-image me-2" style="color: #dc3545;"></i>Imagen del Cliente *</label>
-                <div class="image-upload-container">
-                  <input type="file" id="imgCliente" name="imgCliente" accept="image/*" oninput='validar_img()' required>
-                  <label for="imgCliente" class="image-upload-label">
-                    <i class="fa fa-cloud-upload-alt"></i>
-                    <span>Haz clic para seleccionar una imagen</span>
-                  </label>
-                </div>
-                <div class="form-text text-muted mt-2">Seleccione una imagen de perfil para el cliente (JPG, PNG, GIF)</div>
+                <label for="imgCliente" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-image me-2" style="color: #dc3545;"></i>Imagen del Cliente *</label>
+                <input type="file" class="form-control" id="imgCliente" name="imgCliente" accept="image/*" style="border-radius: 8px;" oninput='validar_img()' required>
+                <div class="form-text text-muted">Seleccione una imagen de perfil para el cliente</div>
                 <span id="errorImagen" class="error-messege text-danger small"></span>
               </div>
 
@@ -417,11 +424,11 @@ require_once 'components/scripts.php';
         <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-id-card me-2" style="color: #dc3545;"></i>RIF del Cliente</label>
-                  <div>
-                    <input type="text" class="form-control mb-2" id="tipo_idEditDisplay" style="background: #e9ecef;" readonly>
+                  <label for="rifClienteEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-id-card me-2" style="color: #dc3545;"></i>RIF del Cliente</label>
+                  <div class='d-flex align-items-center gap-2'>
+                    <input type="text" class="form-control" id="tipo_idEditDisplay" style="max-width: 50px; border-radius: 8px; background: #e9ecef;" readonly>
                     <input type="hidden" name="tipo_idEdit" id="tipo_idEdit">
-                    <input type="text" class="form-control" id="rifClienteEdit" name="rifClienteEdit" placeholder="Número de RIF" style="background: #e9ecef;" readonly>
+                    <input type="text" class="form-control" id="rifClienteEdit" name="rifClienteEdit" placeholder="Número de RIF" style="border-radius: 8px; background: #e9ecef;" readonly>
                   </div>
                   <small class="text-muted">El RIF no puede modificarse</small>
                 </div>
@@ -434,7 +441,7 @@ require_once 'components/scripts.php';
               </div>
 
               <div class="row">
-                <?php if($_SESSION['s_usuario']['rol_usuario'] === 'Superusuario'): ?>
+                <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
                 <div class="col-md-6 mb-3">
                   <label for="tipoClienteEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tags me-2" style="color: #dc3545;"></i>Tipo de Cliente *</label>
                   <select class="form-select" id="tipoClienteEdit" name="tipoClienteEdit" style="border-radius: 8px;" oninput="validar_tipo_cliente_modificado()" required>
@@ -467,7 +474,7 @@ require_once 'components/scripts.php';
                 </div>
               </div>
 
-              <?php if($_SESSION['s_usuario']['rol_usuario'] === 'Superusuario'): ?>
+              <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="estadoClienteEdit" class='form-label' style="color: #333; font-weight: 500;"><i class="fa fa-check-circle me-2" style="color: #dc3545;"></i>Estado del Cliente *</label>
@@ -489,14 +496,8 @@ require_once 'components/scripts.php';
                   <div class="d-flex align-items-center gap-3">
                     <img id="imgPreviewEdit" src="" alt="Imagen actual" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #dc3545; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                     <div class="flex-grow-1">
-                      <div class="image-upload-container" style="padding: 15px;">
-                        <input type="file" id="imgClienteEdit" name="imgClienteEdit" accept="image/*" onchange="previewImageEdit(this)">
-                        <label for="imgClienteEdit" class="image-upload-label">
-                          <i class="fa fa-cloud-upload-alt"></i>
-                          <span>Haz clic para cambiar la imagen (opcional)</span>
-                        </label>
-                      </div>
-                      <div class="form-text text-muted mt-2">Seleccione una nueva imagen solo si desea cambiarla. Deje vacío para mantener la actual.</div>
+                      <input type="file" class="form-control" id="imgClienteEdit" name="imgClienteEdit" accept="image/*" style="border-radius: 8px;" onchange="previewImageEdit(this)">
+                      <div class="form-text text-muted">Seleccione una nueva imagen solo si desea cambiarla. Deje vacío para mantener la actual.</div>
                     </div>
                   </div>
                 </div>

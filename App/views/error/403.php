@@ -1,3 +1,26 @@
+<?php
+// Iniciar sesión si no está iniciada
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Determinar redirección según el rol del usuario
+$redireccion = 'index.php?url=dashboard'; // Por defecto para empresa
+
+if (isset($_SESSION['s_usuario']['id_rol_usuario'])) {
+    // Si es cliente o rol sin acceso a dashboard, redirigir a ecommerce con acción específica
+    require_once 'app/models/PerfilSistemaModel.php';
+    $perfilModel = new PerfilSistema();
+    $tiene_permiso_dashboard = $perfilModel->VerificarPermiso($_SESSION['s_usuario']['id_rol_usuario'], 20, 2);
+
+    if (!$tiene_permiso_dashboard) {
+        $redireccion = 'index.php?url=ecommerce&action=usuarioIndex';
+    }
+} else {
+    // Si no está logueado, redirigir a login
+    $redireccion = 'index.php?url=autenticator';
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,12 +37,12 @@
     <p class="text_403">403</p>
     <p class="text_restricted">¡Alto ahí, viajero!</p>
     <div class="space-tag">Esta zona está reservada para personal autorizado. Tus credenciales no tienen permiso para orbitar aquí.</div>
-    <a href="?url=dashboard" class="btn-return">Regresar a Base (Dashboard)</a>
+    <a href="<?php echo $redireccion; ?>" class="btn-return">Regresar</a>
   </div>
   <div class="window_group">
     <div class="window_403" id="spaceWindow">
       <div class="stars" id="starsContainer"></div>
-      
+
       <div class="giant-astronaut" id="astroChaser">
         <svg class="astro-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="50" cy="40" r="23" fill="#EAF4FF" stroke="#7BA0C5" stroke-width="2.5" />

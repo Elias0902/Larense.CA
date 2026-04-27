@@ -1,8 +1,8 @@
 <?php
     // llama el archivo del modelo
-    require_once 'app/models/NotificacionModel.php';
+    require_once 'app/models/TasaModel.php';
     require_once 'app/models/PermisoModel.php';
-    //require_once 'app/models/BitacoraModel.php';
+    require_once 'app/models/BitacoraModel.php';
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -33,18 +33,12 @@
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 Obtener();
             }
-        break;
 
-        case 'obtener_header':
+        case 'obtenerUltima':
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-                ObtenerHeader();
+                ObtenerUltima();
             }
-        break;
 
-        case 'marcar_vista':
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                MarcarVista();
-            }
         break;
 
         case 'eliminar':
@@ -62,25 +56,29 @@
     function Consultar() {
        
         // instacia el modelo
-        $modelo = new Notificacion();
-        //$permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        $modelo = new Tasa();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+        
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+        
 
         // se arma el json
-        //$permiso_json = json_encode([
-        //    'modulo' => 'Notificaciones',
-        //    'permiso' => 'Consultar',
-         //   'rol' => $_SESSION['s_usuario']['id_rol_usuario']
-        //]);
+        $permiso_json = json_encode([
+            'modulo' => 'Tasa',
+            'permiso' => 'Consultar',
+           'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
 
 
         // captura el resultado de la consulta
-        //$status = $permiso->manejarAccion("verificar", $permiso_json);
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
 
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        //if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida
 
@@ -98,10 +96,23 @@
                     //setSuccess($resultado['msj']);
 
                     // extrae los datos
-                    $notificaciones = $resultado['data'];
+                    $tasas = $resultado['data'];
+
+                    // se arma el json de bitacora
+                    $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Tasa',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en dashboard de tasa cambiaria' . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
 
                     //carga la vista
-                    require_once 'app/views/notificacionesView.php';
+                    require_once 'app/views/tasaView.php';
 
                     // termina el script
                     exit();
@@ -112,7 +123,7 @@
                     //setError($resultado['msj']);
 
                     //carga la vista
-                    require_once 'app/views/notificacionesView.php';
+                    require_once 'app/views/tasaView.php';
 
                     // termina el script
                     exit();
@@ -131,27 +142,30 @@
             }
         }
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error acceso no permitido");
+    setError("Error acceso no permitido");
 
     //redirect
-    //require_once 'app/views/notificacionesView.php';
+    header('Location: index.php?url=403');
                 
     // termina el script
-    //exit();
+    exit();
     
-//}
+}
 
     //funcion para guardar datos
     function Agregar() {
 
         // instacia el modelo
-        $modelo = new Notificacion();
+        $modelo = new Tasa();
+        $bitacora = new Bitacora();
         $permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-        /*// se arma el json
+        // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Notificaciones',
+            'modulo' => 'Tasa',
             'permiso' => 'Agregar',
             'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
@@ -162,33 +176,31 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] === true) {*/
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida
 
             // obtiene y sinatiza los valores
-            $id_usuario = filter_var($_POST['idUsuario'] ?? '', FILTER_VALIDATE_INT);
-            $descripcion = filter_var($_POST['descripcionNotificacion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
-            $enlace = filter_var($_POST['enlaceNotificacion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $monto_tasa = filter_var($_POST['monto_tasa'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $fecha_tasa = $fecha;
 
             // valida si los campos no estan vacios
-            if (empty($id_usuario) || empty($descripcion)) {
+            if (empty($monto_tasa) || empty($fecha_tasa)) {
 
                 // manda mensaje de error
                 setError('Todos los campos son requeridos no se puede enviar vacios.');
 
                 //redirec
-                header('Location: index.php?url=notificaciones');
+                header('Location: index.php?url=tasa');
 
                 //termina el script
                 exit();
             }
 
             // se arma el josn
-            $notificacion_json = json_encode([
-                'id_usuario' => $id_usuario,
-                'descripcion' => $descripcion,
-                'enlace' => $enlace
+            $tasa_json = json_encode([
+                'monto' => $monto_tasa,
+                'fecha' => $fecha_tasa
             ]);
 
                 // para manejo de errores
@@ -196,7 +208,7 @@
 
                     // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
                     // primer para metro la accion y luego el objeto usuario_json
-                    $resultado = $modelo->manejarAccion('agregar', $notificacion_json);
+                    $resultado = $modelo->manejarAccion('agregar', $tasa_json);
 
                     // valida si exixtes el staus del resultado y si es true 
                     if (isset($resultado['status']) && $resultado['status'] === true) {
@@ -204,19 +216,17 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Notificaciones',
-                            'titulos' => 'Registro de Notificaciones',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro de la siguiente notificacion: ' . $descripcion . ', en 
-                                                el modulo de notificaciones.',
-                            'fecha' => date('Y-m-d H:i:s')
-                        ]);
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Tasa',
+                        'accion' => 'Agregar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha ragistras la siguiente tasa' . ' ' . $monto_tasa . ' ' . $fecha_tasa . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
                     }
                     else {
                                     
@@ -224,7 +234,7 @@
                         setError($resultado['msj']);
 
                         //redirect
-                        header('Location: index.php?url=notificaciones');
+                        header('Location: index.php?url=tasa');
 
                     }
                 }
@@ -238,36 +248,40 @@
                 }
 
             //redirect
-            header('Location: index.php?url=notificaciones');
+            header('Location: index.php?url=tasa');
             
             // termina el script
             exit();
         }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=notificaciones');
+    header('Location: index.php?url=403');
+
             
     // termina el script
-    //exit();
+    exit();
         
-    //}
+    }
 
     //funcion para modificar datos
     function Actualizar() {
 
          // instacia el modelo
-        $modelo = new Notificacion();
-        /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        $modelo = new Tasa();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Notificaciones',
+            'modulo' => 'Tasa',
             'permiso' => 'Modificar',
-            'rol' => $_SESSION['s_usuario']['usuario_rol_id']
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
 
         // captura el resultado de la consulta
@@ -276,35 +290,31 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida*/
 
             // obtiene y sinatiza los valores
             $id = $_POST['id'];
-            $id_usuario = filter_var($_POST['idUsuario'] ?? '', FILTER_VALIDATE_INT);
-            $descripcion = filter_var($_POST['descripcionNotificacion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
-            $enlace = filter_var($_POST['enlaceNotificacion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $monto_tasa = filter_var($_POST['montoTasaEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
 
             // valida si los campos no estan vacios
-            if (empty($id) || empty($id_usuario) || empty($descripcion)) {
+            if (empty($monto_tasa || empty($id) )) {
 
                 // manda mensaje de error
                 setError('Todos los campos son requeridos no se puede enviar vacios.');
 
                 //redirec
-                header('Location: index.php?url=notificaciones');
+                header('Location: index.php?url=tasa');
 
                 //termina el script
                 exit();
             }
 
             // se arma el josn
-            $notificacion_json = json_encode([
+            $tasa_json = json_encode([
                 'id' => $id,
-                'id_usuario' => $id_usuario,
-                'descripcion' => $descripcion,
-                'enlace' => $enlace
+                'monto' => $monto_tasa
             ]);
 
                 // para manejo de errores
@@ -312,7 +322,7 @@
 
                     // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
                     // primer para metro la accion y luego el objeto usuario_json
-                    $resultado = $modelo->manejarAccion('modificar', $notificacion_json);
+                    $resultado = $modelo->manejarAccion('modificar', $tasa_json);
 
                     // valida si exixtes el staus del resultado y si es true 
                     if (isset($resultado['status']) && $resultado['status'] === true) {
@@ -320,22 +330,27 @@
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
 
-                        // se arma json de bitacora
-                        /*$bitacora_json = json_encode([
-                            'usuario_id' => $_SESSION['s_usuario']['usuario_id'],
-                            'modulo' => 'Notificaciones',
-                            'titulos' => 'Registro de Notificaciones',
-                            'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['usuario_nombre'] . ', realizo 
-                                                un registro de la siguiente notificacion: ' . $descripcion . ', en 
-                                                el modulo de notificaciones.',
-                            'fecha' => date('Y-m-d H:i:s')
+                        //datos para la bitacora
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                            'modulo' => 'Tasa',
+                            'accion' => 'Modificar',
+                            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                                                'ha modificado los datos de la siguiente tasa' . ' ' . 'TS-00' . 
+                                                $data_bitacora['id_tasa'] . ' ' . $data_bitacora['monto_tasa'] . 
+                                                ' ' . 'por los siguientes datos' . ' ' . 'CT-00' . $id . ' ' . $monto_tasa . 
+                                                ' ' . 'en el sistema.',
+                            'fecha' => $fecha
                         ]);
 
-                        // realiza la insercion de la bitacora
-                        $bitacora->manejarAccion('agregar', $bitacora_json);*/
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
 
                         //redirect
-                        header('Location: index.php?url=notificaciones');
+                        header('Location: index.php?url=tasa');
                         
                         // termina el script
                         exit();
@@ -346,7 +361,7 @@
                         setError($resultado['msj']);
 
                         //redirect
-                        header('Location: index.php?url=notificaciones');
+                        header('Location: index.php?url=tasa');
 
                         // termina el script
                         exit();
@@ -366,28 +381,33 @@
                 }
 
             //redirect
-            header('Location: index.php?url=notificaciones');
+            header('Location: index.php?url=tasa');
             
             // termina el script
             exit();
         }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=notificaciones');
+    header('Location: index.php?url=403');
+
             
     // termina el script
-    //exit();
+    exit();
 
-    //}
+    }
 
     // function para obtener un dato
     function Obtener() {
 
         // instacia el modelo
-        $modelo = new Notificacion();
+        $modelo = new Tasa();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         $id = $_GET['ID'];
 
@@ -398,76 +418,100 @@
             setError('Todos los campos son requeridos no se puede enviar vacios.');
 
             //redirec
-            header('Location: index.php?url=notificaciones');
+            header('Location: index.php?url=tasa');
 
             //termina el script
             exit();
         }
 
             // se arma el josn
-            $notificacion_json = json_encode([
+            $tasa_json = json_encode([
                 'id' => $id
             ]);
 
-            $resultado = $modelo->manejarAccion('obtener', $notificacion_json);
+            $resultado = $modelo->manejarAccion('obtener', $tasa_json);
 
-            $notificacion = $resultado['data'];
+            // se almacena para la vista
+            $tasa = $resultado['data'];
 
-            echo json_encode($notificacion);
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Tasa',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos de la siguiente tasa' . ' ' . 'TS-00' . 
+                    $data_bitacora['id_tasa'] . ' ' . $data_bitacora['monto_tasa'] . 
+                    ' ' . 'en el sistema.',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
+
+            echo json_encode($tasa);
 
             exit();
     }
 
-    // function para obtener notificaciones del header
-    function ObtenerHeader() {
-        // instancia el modelo
-        $modelo = new Notificacion();
+        // function para obtener un dato
+    function ObtenerUltima() {
 
-        // muestra todas las notificaciones (sin filtrar por usuario, como en la gestión)
-        $resultado = $modelo->manejarAccion('consultar', null);
+        // instacia el modelo
+        $modelo = new Tasa();
+        $bitacora = new Bitacora();
 
-        echo json_encode($resultado);
-        exit();
-    }
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
-    // function para marcar notificacion como vista
-    function MarcarVista() {
-        // instancia el modelo
-        $modelo = new Notificacion();
+            $resultado = $modelo->manejarAccion('obtenerUltima', null);
 
-        // verifica si hay sesión activa
-        if (!isset($_SESSION['s_usuario']) || !isset($_SESSION['s_usuario']['usuario_id'])) {
-            echo json_encode(['status' => false, 'msj' => 'No hay sesión activa']);
+            // se almacena para la vista
+            $tasa = $resultado['data'];
+
+            // se almacena para la bitacora
+            $data_bitacora = $resultado['data_bitacora'];
+
+            // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Tasa',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos de la siguiente tasa' . ' ' . 'TS-00' . 
+                    $data_bitacora['id_tasa'] . ' ' . $data_bitacora['monto_tasa'] . 
+                    ' ' . 'en el sistema.',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
+
+            echo json_encode($tasa);
+
             exit();
-        }
-
-        $id = $_POST['id'] ?? '';
-
-        if (empty($id)) {
-            echo json_encode(['status' => false, 'msj' => 'ID vacío']);
-            exit();
-        }
-
-        $notificacion_json = json_encode(['id' => $id]);
-        $resultado = $modelo->manejarAccion('marcar_vista', $notificacion_json);
-
-        echo json_encode($resultado);
-        exit();
     }
 
     // funcion para eliminar un dato
     function Eliminar() {
 
          // instacia el modelo
-        $modelo = new Notificacion();
-        /*$permiso = new Permiso();
-        //$bitacora = new Bitacora();
+        $modelo = new Tasa();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+
 
         // se arma el json
         $permiso_json = json_encode([
-            'modulo' => 'Notificaciones',
+            'modulo' => 'Tasa',
             'permiso' => 'Eliminar',
-            'rol' => $_SESSION['s_usuario']['usuario_rol_id']
+            'rol' => $_SESSION['s_usuario']['id_rol_usuario']
         ]);
 
         // captura el resultado de la consulta
@@ -476,29 +520,29 @@
         //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
         //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
         //action y el rol de usuario
-        if (isset($status['status']) && $status['status'] == 1) {
+        if (isset($status['status']) && $status['status'] === true) {
             
             // Ejecutar acción permitida*/
 
             // obtiene y sinatiza los valores
-            $id_notificacion = $_GET['ID'];
+            $id = $_GET['ID'];
 
             // valida si los campos no estan vacios
-            if (empty($id_notificacion)) {
+            if (empty($id)) {
 
                 // manda mensaje de error
                 setError('ID vacio.');
 
                 //redirec
-                header('Location: index.php?url=notificaciones');
+                header('Location: index.php?url=tasa');
 
                 //termina el script
                 exit();
             }
 
             // se arma el josn
-            $notificacion_json = json_encode([
-                'id' => $id_notificacion
+            $tasa_json = json_encode([
+                'id' => $id
             ]);
 
                 // para manejo de errores
@@ -506,16 +550,31 @@
 
                     // lla ma la funcion que maneja las acciones en el modelo donde pasa como 
                     // primer para metro la accion y luego el objeto usuario_json
-                    $resultado = $modelo->manejarAccion('eliminar', $notificacion_json);
+                    $resultado = $modelo->manejarAccion('eliminar', $tasa_json);
 
                     // valida si exixtes el staus del resultado y si es true 
                     if (isset($resultado['status']) && $resultado['status'] === true) {
 
                         // usa mensaje dinamico del modelo
                         setSuccess($resultado['msj']);
+
+                        //datos para bitacoras
+                        $data_bitacora = $resultado['data_bitacora'];
+
+                        // se arma el json de bitacora
+                        $bitacora_json = json_encode([
+                            'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                            'modulo' => 'Tasa',
+                            'accion' => 'Eliminar',
+                            'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 'ha eliminado una tasa de codigo' . ' ' . 'TS-00' . $data_bitacora['id_tasa'] . ' ' . $data_bitacora['monto_tasa'] . ' ' . 'en el sistema.',
+                            'fecha' => $fecha
+                        ]);
+
+                        //realiza la insercion de la bitacora
+                        $bitacora->manejarAccion('agregar', $bitacora_json);
                         
                         //redirect
-                        header('Location: index.php?url=notificaciones');
+                        header('Location: index.php?url=tasa');
                         
                         // termina el script
                         exit();
@@ -526,7 +585,7 @@
                         setError($resultado['msj']);
 
                         //redirect
-                        header('Location: index.php?url=notificaciones');
+                        header('Location: index.php?url=tasa');
 
                         // termina el script
                         exit();
@@ -543,7 +602,7 @@
                 }
 
         //redirect
-        header('Location: index.php?url=notificaciones');
+        header('Location: index.php?url=tasa');
 
         // termina el script
         exit();
@@ -551,13 +610,13 @@
     }
 
     //muestra un modal de info que dice acceso no permitido
-    //setError("Error accion no permitida");
+    setError("Error accion no permitida");
 
     //redirect
-    //header('Location: index.php?url=notificaciones');
+    header('Location: index.php?url=403');
             
     // termina el script
-    //exit();    
+    exit();    
     
-//}
+}
 ?>

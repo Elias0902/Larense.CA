@@ -911,6 +911,62 @@ class Producto extends Conexion {
             $this->closeConnection();
         }
     }
+
+    // funcion para obtener productos por disponibilidad y orden
+    public function obtenerProductosPorFiltro($disponibilidad = 'todos', $orden = 'todos') {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            
+            // Filtro de disponibilidad
+            $whereDisponibilidad = "";
+            if ($disponibilidad == 'disponibles') {
+                $whereDisponibilidad = " AND p.stock > 0";
+            } elseif ($disponibilidad == 'encargo') {
+                $whereDisponibilidad = " AND p.stock = 0";
+            }
+            
+            // Orden
+            $orderBy = " ORDER BY p.nombre_producto ASC";
+            if ($orden == 'recientes') {
+                $orderBy = " ORDER BY p.fecha_registro DESC, p.nombre_producto ASC";
+            } elseif ($orden == 'mejores') {
+                $orderBy = " ORDER BY p.precio_venta ASC, p.nombre_producto ASC";
+            } elseif ($orden == 'mas_vendidos') {
+                $orderBy = " ORDER BY total_vendido DESC, p.nombre_producto ASC";
+            } elseif ($orden == 'menos_vendidos') {
+                $orderBy = " ORDER BY total_vendido ASC, p.nombre_producto ASC";
+            }
+            
+            $query = "SELECT 
+                        p.*,
+                        c.nombre_categoria,
+                        COALESCE(SUM(dp.cantidad), 0) as total_vendido
+                      FROM productos p
+                      INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                      LEFT JOIN detalle_pedidos dp ON p.id_producto = dp.id_producto
+                      LEFT JOIN pedidos ped ON dp.id_pedido = ped.id_pedido AND ped.status = 1
+                      WHERE p.status = 1
+                      $whereDisponibilidad
+                      GROUP BY p.id_producto, p.nombre_producto, p.precio_venta, p.stock, 
+                               p.fecha_registro, p.fecha_vencimiento, p.id_categoria, p.img, p.status, c.nombre_categoria
+                      $orderBy";
+            
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() > 0) {
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return ['status' => true, 'msj' => 'Productos encontrados', 'data' => $data];
+            } else {
+                return ['status' => false, 'msj' => 'No hay productos con estos filtros'];
+            }
+        } catch (PDOException $e) {
+            return ['status' => false, 'msj' => 'Error: ' . $e->getMessage()];
+        } finally {
+            $this->closeConnection();
+        }
+    }
 }
 
 ?>

@@ -61,6 +61,14 @@
                   <h4 class="card-title mb-0" style="color: white; font-weight: 600;">
                     <i class="fa fa-list me-2"></i>Catálogo de Productos
                   </h4>
+                  <button
+                    onclick="toggleConversion()"
+                    class="btn btn-danger btn-round shadow-sm"
+                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; padding: 10px 20px;"
+                    >
+                    <i class=""></i>
+                    $ -> BS
+                </button>
                 </div>
               </div>
               <div class="card-body p-0">
@@ -109,7 +117,7 @@
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
-                              <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
+                              <span class="badge conversion" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
                                 $<?php echo number_format($producto['precio_venta'], 2); ?>
                               </span>
                             </td>
@@ -463,6 +471,7 @@ function VerDetalleProducto(id) {
 <script src="assets/js/validaciones/productos_validaciones.js"></script>
 <script src="assets/js/validaciones/productos_validaciones_status_stock.js"></script>
 <script src="assets/js/ajax/productos_ajax.js"></script>
+<script src="assets/js/ajax/conversion_ajax.js"></script>
 <script src="assets/js/animacionesJs/dashboard_productos.js"></script>
 
   </body>

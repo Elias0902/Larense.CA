@@ -23,6 +23,7 @@
         'usuarios' => 'app/controllers/UsuarioController.php',
         'perfiles' => 'app/controllers/PerfilesController.php',
         'roles' => 'app/controllers/RolController.php',
+        'tasa' => 'app/controllers/TasaController.php',
         'permisos' => 'app/controllers/PermisoController.php',
         'seguridad' => 'app/controllers/PerfilesController.php',
         'bitacora' => 'app/controllers/BitacoraController.php',

@@ -92,7 +92,7 @@ class PerfilSistema extends Conexion {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
             $sql = "INSERT INTO usuarios (nombre_usuario, email_usuario, password_usuario, id_rol_usuario, status, img_usuario)
-                    VALUES (:nombre_usuario, :email_usuario, :password, :id_rol, 1, 'Assets/img/default.PNG')";
+                    VALUES (:nombre_usuario, :email_usuario, :password, :id_rol, 1, 'Assets/img/perfiles/default.png')";
 
             $stmt = $this->connSeguridad->prepare($sql);
             $stmt->bindParam(':nombre_usuario', $nombre_usuario, PDO::PARAM_STR);
@@ -295,6 +295,16 @@ class PerfilSistema extends Conexion {
                 $stmt->bindParam(':id_modulo', $modulo['id_modulo'], PDO::PARAM_INT);
                 $stmt->execute();
             }
+
+            // Para roles de clientes y otros roles no administrativos, remover acceso al Dashboard
+            // Solo roles 1 (Super Admin) y 2 (Gerente) tienen acceso por defecto
+            if (!in_array($id_rol, [1, 2])) {
+                $sqlDelete = "DELETE FROM accesos WHERE id_rol = :id_rol AND id_modulo = 20";
+                $stmtDelete = $this->connSeguridad->prepare($sqlDelete);
+                $stmtDelete->bindParam(':id_rol', $id_rol, PDO::PARAM_INT);
+                $stmtDelete->execute();
+            }
+
             return true;
         } catch (PDOException $e) {
             return false;

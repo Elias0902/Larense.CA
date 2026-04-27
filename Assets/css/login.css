@@ -105,3 +105,72 @@
         font-size: 1.1rem;
     }
 }
+
+/* Modo oscuro */
+body.dark-mode .input_username,
+body.dark-mode .input_pw {
+    background-color: #2a3041;
+    border-color: #3a4055;
+    color: #ffffff;
+}
+
+body.dark-mode .input_username::placeholder,
+body.dark-mode .input_pw::placeholder {
+    color: #ffffff;
+}
+
+body.dark-mode .input_username::-webkit-input-placeholder,
+body.dark-mode .input_pw::-webkit-input-placeholder {
+    color: #ffffff;
+}
+
+body.dark-mode .input_username::-moz-placeholder,
+body.dark-mode .input_pw::-moz-placeholder {
+    color: #ffffff;
+}
+
+body.dark-mode .input_username:-ms-input-placeholder,
+body.dark-mode .input_pw:-ms-input-placeholder {
+    color: #ffffff;
+}
+
+body.dark-mode .input_username:focus,
+body.dark-mode .input_pw:focus {
+    background-color: #2a3041;
+    border-color: #cc1d1d;
+    box-shadow: 0 0 0 0.2rem rgba(204, 29, 29, 0.2);
+}
+
+body.dark-mode .card-body {
+    background-color: #1a1b2b;
+}
+
+body.dark-mode .text-gray-900 {
+    color: #e7e9f0 !important;
+}
+
+body.dark-mode .input-group i {
+    color: #e7e9f0;
+}
+
+/* Override browser autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #2a3041 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+input:-webkit-autofill::first-line {
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+body:not(.dark-mode) input:-webkit-autofill,
+body:not(.dark-mode) input:-webkit-autofill:hover,
+body:not(.dark-mode) input:-webkit-autofill:focus,
+body:not(.dark-mode) input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+    -webkit-text-fill-color: #1a1b2b !important;
+}
