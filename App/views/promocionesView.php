@@ -243,6 +243,23 @@ require_once 'components/scripts.php';
               <label class="form-check-label" for="estadoPromocion" style="color: #333; font-weight: 500;"><i class="fa fa-power-off me-2" style="color: #dc3545;"></i>Promoción Activa</label>
             </div>
           </div>
+          <div class="form-group mb-3">
+            <label for="productos" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Productos Asociados</label>
+            <select class="form-select" id="productos" name="productos[]" multiple style="border-radius: 8px; height: 120px;">
+              <?php
+              if(isset($productos) && is_array($productos) && !empty($productos)){
+                  foreach ($productos as $producto):
+              ?>
+                  <option value="<?php echo $producto['id_producto']; ?>">
+                      <?php echo $producto['nombre_producto'] . ' - $' . $producto['precio_venta']; ?>
+                  </option>
+              <?php
+                  endforeach;
+              }
+              ?>
+            </select>
+            <small class="form-text text-muted">Selecciona los productos que aplican a esta promoción (Ctrl+Click para selección múltiple)</small>
+          </div>
 
           <!-- Nota informativa -->
           <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #f8d7da; border: none;">
@@ -340,6 +357,23 @@ require_once 'components/scripts.php';
               <input class="form-check-input" type="checkbox" id="estadoPromocionEdit" name="estadoPromocion" style="cursor: pointer;">
               <label class="form-check-label" for="estadoPromocionEdit" style="color: #333; font-weight: 500;"><i class="fa fa-power-off me-2" style="color: #dc3545;"></i>Promoción Activa</label>
             </div>
+          </div>
+          <div class="form-group mb-3">
+            <label for="productosEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Productos Asociados</label>
+            <select class="form-select" id="productosEdit" name="productos[]" multiple style="border-radius: 8px; height: 120px;">
+              <?php
+              if(isset($productos) && is_array($productos) && !empty($productos)){
+                  foreach ($productos as $producto):
+              ?>
+                  <option value="<?php echo $producto['id_producto']; ?>">
+                      <?php echo $producto['nombre_producto'] . ' - $' . $producto['precio_venta']; ?>
+                  </option>
+              <?php
+                  endforeach;
+              }
+              ?>
+            </select>
+            <small class="form-text text-muted">Selecciona los productos que aplican a esta promoción (Ctrl+Click para selección múltiple)</small>
           </div>
 
           <!-- Nota informativa -->

@@ -338,6 +338,23 @@ require_once 'components/scripts.php';
             <textarea class="form-control" id="observacionesPedido" name="observacionesPedido" rows="2" placeholder="Notas adicionales sobre el pedido..." maxlength="500" oninput="validar_observaciones()"></textarea>
             <span id="errorObservaciones" class="error-messege"></span>
           </div>
+          <div class="form-group mb-3">
+            <label for="productos" class="form-label"><b>Productos del Pedido</b></label>
+            <select class="form-select" id="productos" name="productos[]" multiple style="height: 120px;">
+              <?php
+              if(isset($productos) && is_array($productos) && !empty($productos)){
+                  foreach ($productos as $producto):
+              ?>
+                  <option value="<?php echo $producto['id_producto']; ?>">
+                      <?php echo $producto['nombre_producto'] . ' - $' . $producto['precio_venta']; ?>
+                  </option>
+              <?php
+                  endforeach;
+              }
+              ?>
+            </select>
+            <small class="form-text text-muted">Selecciona los productos del pedido (Ctrl+Click para selección múltiple)</small>
+          </div>
           <!-- Nota informativa -->
           <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #d1ecf1; border: none;">
             <i class="fa fa-info-circle me-2" style="color: #0c5460;"></i>
@@ -452,6 +469,23 @@ require_once 'components/scripts.php';
             <label for="observacionesPedidoEdit" class="form-label"><b>Observaciones</b></label>
             <textarea class="form-control" id="observacionesPedidoEdit" name="observacionesPedido" rows="2" placeholder="Notas adicionales sobre el pedido..." maxlength="500" oninput="validar_observaciones_modificado()"></textarea>
             <span id="errorObservacionesEdit" class="error-messege"></span>
+          </div>
+          <div class="form-group mb-3">
+            <label for="productosEdit" class="form-label"><b>Productos del Pedido</b></label>
+            <select class="form-select" id="productosEdit" name="productos[]" multiple style="height: 120px;">
+              <?php
+              if(isset($productos) && is_array($productos) && !empty($productos)){
+                  foreach ($productos as $producto):
+              ?>
+                  <option value="<?php echo $producto['id_producto']; ?>">
+                      <?php echo $producto['nombre_producto'] . ' - $' . $producto['precio_venta']; ?>
+                  </option>
+              <?php
+                  endforeach;
+              }
+              ?>
+            </select>
+            <small class="form-text text-muted">Selecciona los productos del pedido (Ctrl+Click para selección múltiple)</small>
           </div>
           <!-- Nota informativa -->
           <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #d1ecf1; border: none;">

@@ -176,7 +176,11 @@ class Pedido extends Conexion {
                 if (!$validacion['status']) {
                     return $validacion;
                 }
-                return $this->Guardar_Pedido();
+                $resultado = $this->Guardar_Pedido();
+                if ($resultado['status'] && isset($pedido_json['productos'])) {
+                    $this->Guardar_Productos_Pedido($pedido_json['productos']);
+                }
+                return $resultado;
             break;
 
             case 'obtener':
@@ -187,12 +191,24 @@ class Pedido extends Conexion {
                 return $this->Obtener_Pedido();
             break;
 
+            case 'obtener_productos':
+                $validacion = $this->setPedidoID($pedido_json);
+                if (!$validacion['status']) {
+                    return $validacion;
+                }
+                return $this->Obtener_Productos_Pedido();
+            break;
+
             case 'modificar':
                 $validacion = $this->setPedidoData($pedido_json);
                 if (!$validacion['status']) {
                     return $validacion;
                 }
-                return $this->Actualizar_Pedido();
+                $resultado = $this->Actualizar_Pedido();
+                if ($resultado['status'] && isset($pedido_json['productos'])) {
+                    $this->Guardar_Productos_Pedido($pedido_json['productos']);
+                }
+                return $resultado;
             break;
 
             case 'eliminar':
@@ -200,11 +216,12 @@ class Pedido extends Conexion {
                 if (!$validacion['status']) {
                     return $validacion;
                 }
+                $this->Eliminar_Productos_Pedido();
                 return $this->Eliminar_Pedido();
             break;
 
             case 'consultar':
-                return $this->Mostrar_Pedido();
+                return $this->Mostrar_Pedidos_Con_Productos();
             break;
 
             case 'cambiar_estado':
@@ -267,8 +284,12 @@ class Pedido extends Conexion {
             $stmt->bindValue(':promocion_id', $this->getPedidoPromocionID());
 
             if ($stmt->execute()) {
-                $this->registrarAuditoria('Pedidos', Auditoria::OP_INSERT, 'pedidos', null, 'Pedido creado');
-                return ['status' => true, 'msj' => 'Pedido registrado con éxito.', 'id' => $conn->lastInsertId()];
+                // Obtener el ID del pedido recién insertado
+                $ultimo_id = $conn->lastInsertId();
+                $this->pedido_id = $ultimo_id;
+                
+                $this->registrarAuditoria('Pedidos', Auditoria::OP_INSERT, 'pedidos', $ultimo_id, 'Pedido creado');
+                return ['status' => true, 'msj' => 'Pedido registrado con éxito.', 'id' => $ultimo_id];
             } else {
                 return ['status' => false, 'msj' => 'Error al registrar el pedido.'];
             }
@@ -381,6 +402,115 @@ class Pedido extends Conexion {
                 return ['status' => true, 'msj' => 'Estado del pedido actualizado a: ' . $nuevo_estado];
             } else {
                 return ['status' => false, 'msj' => 'Error al cambiar el estado del pedido.'];
+            }
+        } catch (PDOException $e) {
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+            $this->closeConnection();
+        }
+    }
+
+    // Función para guardar productos asociados a un pedido
+    private function Guardar_Productos_Pedido($productos) {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            $id_pedido = $this->getPedidoID();
+
+            // Primero eliminar los productos existentes para este pedido
+            $query_delete = "DELETE FROM detalle_pedidos WHERE id_pedido = :id_pedido";
+            $stmt_delete = $conn->prepare($query_delete);
+            $stmt_delete->bindValue(':id_pedido', $id_pedido);
+            $stmt_delete->execute();
+
+            // Insertar los nuevos productos
+            if (!empty($productos) && is_array($productos)) {
+                $query_insert = "INSERT INTO detalle_pedidos (id_pedido, id_producto, cantidad, precio_unitario) 
+                                 VALUES (:id_pedido, :id_producto, :cantidad, :precio_unitario)";
+                $stmt_insert = $conn->prepare($query_insert);
+
+                foreach ($productos as $producto) {
+                    $stmt_insert->bindValue(':id_pedido', $id_pedido);
+                    $stmt_insert->bindValue(':id_producto', $producto['id_producto']);
+                    $stmt_insert->bindValue(':cantidad', $producto['cantidad']);
+                    $stmt_insert->bindValue(':precio_unitario', $producto['precio_unitario']);
+                    $stmt_insert->execute();
+                }
+            }
+
+            return ['status' => true, 'msj' => 'Productos asociados correctamente.'];
+        } catch (PDOException $e) {
+            return ['status' => false, 'msj' => 'Error al asociar productos: ' . $e->getMessage()];
+        } finally {
+            $this->closeConnection();
+        }
+    }
+
+    // Función para obtener productos de un pedido
+    private function Obtener_Productos_Pedido() {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            $query = "SELECT dp.id_detalle_pedido, dp.id_producto, dp.cantidad, dp.precio_unitario, 
+                             p.nombre_producto, p.precio_venta
+                      FROM detalle_pedidos dp
+                      INNER JOIN productos p ON dp.id_producto = p.id_producto
+                      WHERE dp.id_pedido = :id_pedido AND p.status = 1";
+            $stmt = $conn->prepare($query);
+            $stmt->bindValue(':id_pedido', $this->getPedidoID());
+            $stmt->execute();
+
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return ['status' => true, 'msj' => 'Productos encontrados.', 'data' => $data];
+        } catch (PDOException $e) {
+            return ['status' => false, 'msj' => 'Error al obtener productos: ' . $e->getMessage()];
+        } finally {
+            $this->closeConnection();
+        }
+    }
+
+    // Función para eliminar productos de un pedido
+    private function Eliminar_Productos_Pedido() {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            $query = "DELETE FROM detalle_pedidos WHERE id_pedido = :id_pedido";
+            $stmt = $conn->prepare($query);
+            $stmt->bindValue(':id_pedido', $this->getPedidoID());
+
+            if ($stmt->execute()) {
+                return ['status' => true, 'msj' => 'Productos eliminados correctamente.'];
+            } else {
+                return ['status' => false, 'msj' => 'Error al eliminar productos.'];
+            }
+        } catch (PDOException $e) {
+            return ['status' => false, 'msj' => 'Error al eliminar productos: ' . $e->getMessage()];
+        } finally {
+            $this->closeConnection();
+        }
+    }
+
+    // Función para obtener todos los pedidos con sus productos
+    private function Mostrar_Pedidos_Con_Productos() {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            $query = "SELECT p.*,
+                             (SELECT GROUP_CONCAT(pr.nombre_producto SEPARATOR ', ')
+                              FROM detalle_pedidos dp
+                              INNER JOIN productos pr ON dp.id_producto = pr.id_producto
+                              WHERE dp.id_pedido = p.id_pedido AND pr.status = 1) as productos
+                      FROM pedidos p
+                      WHERE p.status = 1
+                      ORDER BY p.id_pedido DESC";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return ['status' => true, 'msj' => 'Pedidos encontrados con éxito.', 'data' => $data];
+            } else {
+                return ['status' => false, 'msj' => 'No hay pedidos registrados.'];
             }
         } catch (PDOException $e) {
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
