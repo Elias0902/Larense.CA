@@ -3,7 +3,7 @@ function ObtenerCliente(id) {
         .then(response => response.json())
         .then(data => {
 
-            //console.log(data);
+            console.log(data);
 
             // llena los campos del formulario con los datos obtenidos
             document.getElementById('tipo_idEdit').value = data.tipo_id || '';
@@ -14,7 +14,7 @@ function ObtenerCliente(id) {
             document.getElementById('tlfClienteEdit').value = data.tlf_cliente || '';
             document.getElementById('emailClienteEdit').value = data.email_cliente || '';            
             document.getElementById('estadoClienteEdit').value = data.estado_cliente || '';
-            document.getElementById('imgClienteEdit').value = data.img_cliente || '';
+            document.getElementById('imgPreviewEdit').src = data.img_cliente || '';
         })
         .catch(error => {
             console.error('Error:', error);
