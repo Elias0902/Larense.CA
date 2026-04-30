@@ -73,26 +73,31 @@
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">ID</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Producto</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Cantidad Producida</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Materia Prima</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Cantidad Utilizada</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Fecha</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Motivo</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Observacion</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545; text-align: center;">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                           <?php 
                 if(isset($producciones) && is_array($producciones) && !empty($producciones)){
-                foreach ($producciones as $prod): 
+                foreach ($producciones as $produccion): 
             ?>
                           <tr style="transition: all 0.2s;">
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
                               <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
-                                PROD-00<?php echo $prod['id_produccion']; ?>
+                                PROD-00<?php echo $produccion['id_produccion']; ?>
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
-                              <i class="fa fa-box me-1" style="color: #dc3545;"></i><?php echo $prod['nombre_producto']; ?>
+                              <i class="fa fa-box me-1" style="color: #dc3545;"></i><?php echo $produccion['nombre_producto']; ?>
                             </td>
-                            <td style="padding: 15px; vertical-align: middle;">
-                              <?php
-                                $cantidad = $prod['cantidad_producida'];
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                            <?php
+                                $cantidad = $produccion['cantidad_producida'];
                                 if ($cantidad < 10) {
                                     $bgColor = '#dc3545';
                                     $textColor = '#ffffff';
@@ -107,14 +112,46 @@
                                     $estado = 'Stock Alto';
                                 }
                               ?>
-                              <span class="badge" style="background: <?php echo $bgColor; ?>; color: <?php echo $textColor; ?>; padding: 6px 12px; border-radius: 20px; font-weight: 500;" title="<?php echo $estado; ?>">
+                            <span class="badge" style="background: <?php echo $bgColor; ?>; color: <?php echo $textColor; ?>; padding: 6px 12px; border-radius: 20px; font-weight: 500;" title="<?php echo $estado; ?>">
                                 <i class="fa fa-cubes me-1"></i><?php echo $cantidad; ?> unidades
                               </span>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <i class="fa fa-box me-1" style="color: #dc3545;"></i><?php echo $produccion['nombre_materia_prima'];?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <?php
+                                $cantidad2 = $produccion['cantidad_utilizada'];
+                                if ($cantidad2 < 10) {
+                                    $bgColor = '#dc3545';
+                                    $textColor = '#ffffff';
+                                    $estado = 'Stock Bajo';
+                                } elseif ($cantidad2 <= 20) {
+                                    $bgColor = '#ffc107';
+                                    $textColor = '#000000';
+                                    $estado = 'Stock Medio';
+                                } else {
+                                    $bgColor = '#28a745';
+                                    $textColor = '#ffffff';
+                                    $estado = 'Stock Alto';
+                                }
+                              ?>
+                              <span class="badge" style="background: <?php echo $bgColor; ?>; color: <?php echo $textColor; ?>; padding: 6px 12px; border-radius: 20px; font-weight: 500;" title="<?php echo $estado; ?>">
+                                <i class="fa fa-cubes me-1"></i><br><?php echo $cantidad2; ?><br> unidades
+                              </span>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <i class="fa fa-box me-1" style="color: #dc3545;"></i><?php echo $produccion['fecha_produccion']; ?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <i class="fa fa-box me-1" style="color: #dc3545;"></i><?php echo $produccion['motivo_produccion']; ?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                              <i class="fa fa-box me-1" style="color: #dc3545;"></i><?php echo $produccion['observacion']; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; text-align: center;">
                               <div class="btn-group" role="group">
                                 <a
-                                onclick="ObtenerProduccion(<?php echo $prod['id_produccion']; ?>)"
+                                onclick="ObtenerProduccion(<?php echo $produccion['id_produccion']; ?>)"
                                 data-bs-toggle="modal"
                                 data-bs-target="#produccionModalModificar"      
                                 type="button"
@@ -125,7 +162,7 @@
                                   <i class="fa fa-edit"></i>
                                 </a>
                                 <a href="#"
-                                  onclick="return EliminarProduccion(event, <?php echo $prod['id_produccion']; ?>);"
+                                  onclick="return EliminarProduccion(event, <?php echo $produccion['id_produccion']; ?>);"
                                   type="button"
                                   data-bs-toggle="tooltip"
                                   class="btn btn-sm"
@@ -140,7 +177,7 @@
                                       <?php
             endforeach; 
         } else {
-            echo "<tr><td colspan='4' class='text-center py-4'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No hay producciones registradas.</div></td></tr>";
+            echo "<tr><td colspan='8' class='text-center py-4'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No hay producciones registradas.</div></td></tr>";
         } ?>
                         </tbody>
                       </table>
@@ -168,15 +205,22 @@ require_once 'components/scripts.php';
 <div class="modal fade" id="produccionModal" tabindex="-1" aria-labelledby="produccionModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
-      <form id="formProduccion" enctype="multipart/form-data" onsubmit="return validar_formulario()" method="post" action="index.php?url=producciones&action=agregar">
+      <form id="formProduccion" onsubmit="return validar_formulario()" method="post" action="index.php?url=producciones&action=agregar">
         <div class="modal-header" style="background: #dc3545; border: none; padding: 20px 25px;">
           <h5 class="modal-title" id="produccionModalLabel" style="color: white; font-weight: 600;">
             <i class="fa fa-plus-circle me-2"></i>Nueva Producción
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
+
         <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
           <div class="row">
+            <div class="col-md-6 mb-3">
+             <label for="motivoProduccion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-comment me-2" style="color: #dc3545;"></i>Motivo de Producción *</label>
+              <input type="text" class="form-control" id="motivoProduccion" name="motivoProduccion" placeholder="Ingrese el motivo" style="border-radius: 8px;" oninput="validar_motivo()" required>
+              <span id="errorMotivo" class="error-messege text-dredr small"></span>
+            </div>
+
             <div class="col-md-6 mb-3">
               <label for="productoProduccion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Producto *</label>
               <select name="productoProduccion" id="productoProduccion" class="form-select" style="border-radius: 8px;" oninput="validar_producto()" required>
@@ -189,10 +233,51 @@ require_once 'components/scripts.php';
             </div>
 
             <div class="col-md-6 mb-3">
-              <label for="cantidadProduccion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad Producida *</label>
-              <input type="number" class="form-control" id="cantidadProduccion" name="cantidadProduccion" placeholder="Ingrese la cantidad" style="border-radius: 8px;" oninput="validar_cantidad()" required>
+             <label for="cantidadProducto" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad Producto *</label>
+              <input type="number" class="form-control" id="cantidadProducto" name="cantidadProducto" placeholder="Ingrese la cantidad" style="border-radius: 8px;" oninput="validar_cantidad_producto()" required>
+              <span id="errorCantidadProducto" class="error-messege text-dredr small"></span>
+            </div>
+          </div>
+
+          <div id="contenedorMateriaPrima">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="materiaPrimaProduccion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Materia Prima *</label>
+              <select name="materiaPrima[]" id="materiaPrimaProduccion" class="form-select" style="border-radius: 8px;" oninput="validar_materia()">
+                <option value="">Seleccione una materia prima</option>
+                <?php foreach ($materiaPrimas as $materia): ?>
+                <option value="<?php echo $materia['id_materia_prima'] ?>"><?php echo $materia['nombre_materia_prima']; ?></option>
+                <?php endforeach; ?>
+              </select>
+              <span id="errorMateria" class="error-messege text-dredr small"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="cantidadProduccion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad Utilizada *</label>
+              <input type="number" class="form-control" id="cantidadProduccion" name="cantidad[]" placeholder="Ingrese la cantidad" style="border-radius: 8px;" oninput="validar_cantidad()">
               <span id="errorCantidad" class="error-messege text-dredr small"></span>
             </div>
+          </div>
+          </div>
+
+          <div>
+            <button type="button" class="btn btn-outline-success" style="margin-bottom: 1rem; width: 100%; align-items: center;" onclick="agregarMateriaPrima()">
+              <i class="fa fa-plus me-2"></i>Agregar Materia Prima
+            </button>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="observacionProduccion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-comment me-2" style="color: #dc3545;"></i>Observación *</label>
+                <input type="text" class="form-control" id="observacionProduccion" name="observacionProduccion" placeholder="Ingrese la observación" style="border-radius: 8px;" oninput="validar_observacion()" required>
+                <span id="errorObservacion" class="error-messege text-dredr small"></span>
+              </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="fechaProduccion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-calendar me-2" style="color: #dc3545;"></i>Fecha de Producción *</label>
+                <input type="date" class="form-control" id="fechaProduccion" name="fechaProduccion" style="border-radius: 8px;" oninput="validar_fecha()" required>
+                <span id="errorFecha" class="error-messege text-dredr small"></span>
+              </div>
           </div>
 
           <!-- Nota informativa -->
@@ -219,7 +304,7 @@ require_once 'components/scripts.php';
 <div class="modal fade" id="produccionModalModificar" tabindex="-1" aria-labelledby="produccionModalModificarLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
-      <form id="formProduccionModificar" enctype="multipart/form-data" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=producciones&action=modificar">
+      <form id="formProduccionModificar" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=producciones&action=modificar">
         <div class="modal-header" style="background: #dc3545; border: none; padding: 20px 25px;">
           <h5 class="modal-title" id="produccionModalModificarLabel" style="color: white; font-weight: 600;">
             <i class="fa fa-edit me-2"></i>Modificar Producción
@@ -229,24 +314,72 @@ require_once 'components/scripts.php';
         <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
           <input type="hidden" class="form-control" id="idEdit" name="idEdit" required>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="productoProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Producto *</label>
-              <select name="productoProduccionEdit" id="productoProduccionEdit" class="form-select" style="border-radius: 8px;" oninput="validar_producto_modificado()" required>
-                <option value="">Seleccione un producto</option>
-                <?php foreach ($productos as $producto): ?>
-                <option value="<?php echo $producto['id_producto'] ?>"><?php echo $producto['nombre_producto']; ?></option>
-                <?php endforeach; ?>
-              </select>
-              <span id="errorProductoEdit" class="error-messege text-dredr small"></span>
+        <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="motivoProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-comment me-2" style="color: #dc3545;"></i>Motivo de Producción *</label>
+                <input type="text" class="form-control" id="motivoProduccionEdit" name="motivoProduccionEdit" placeholder="Ingrese el motivo" style="border-radius: 8px;" oninput="validar_motivo_modificado()" required>
+                <span id="errorMotivoEdit" class="error-messege text-dredr small"></span>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="productoProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Producto *</label>
+                <select name="productoProduccionEdit" id="productoProduccionEdit" class="form-select" style="border-radius: 8px;" oninput="validar_producto_modificado()" required>
+                  <option value="">Seleccione un producto</option>
+                  <?php foreach ($productos as $producto): ?>
+                  <option value="<?php echo $producto['id_producto'] ?>"><?php echo $producto['nombre_producto']; ?></option>
+                  <?php endforeach; ?>
+                </select>
+                <span id="errorProductoEdit" class="error-messege text-dredr small"></span>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="cantidadProductoEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad Producto *</label>
+                <input type="number" class="form-control" id="cantidadProductoEdit" name="cantidadProductoEdit" placeholder="Ingrese la cantidad" style="border-radius: 8px;" oninput="validar_cantidad_producto_modificado()" required>
+                <span id="errorCantidadProductoEdit" class="error-messege text-dredr small"></span>
+              </div>
             </div>
 
-            <div class="col-md-6 mb-3">
-              <label for="cantidadProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad Producida *</label>
-              <input type="number" class="form-control" id="cantidadProduccionEdit" name="cantidadProduccionEdit" placeholder="Ingrese la cantidad" style="border-radius: 8px;" oninput="validar_cantidad_modificado()" required>
-              <span id="errorCantidadEdit" class="error-messege text-dredr small"></span>
+            <div id="contenedorMateriaPrimaEdit">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="materiaPrimaProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Materia Prima *</label>
+                  <select name="materiaPrimaEdit[]" id="materiaPrimaEdit" class="form-select" style="border-radius: 8px;" oninput="validar_materia_prima_modificada()">
+                    <option value="">Seleccione una materia prima</option>
+                    <?php foreach ($materiaPrimas as $materia): ?>
+                    <option value="<?php echo $materia['id_materia_prima'] ?>"><?php echo $materia['nombre_materia_prima']; ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <span id="errorMateriaPrimaEdit" class="error-messege text-dredr small"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="cantidadProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad Utilizada *</label>
+                  <input type="number" class="form-control" id="cantidadProduccionEdit" name="cantidadEdit[]" placeholder="Ingrese la cantidad" style="border-radius: 8px;" oninput="validar_cantidad_modificada()">
+                  <span id="errorCantidadEdit" class="error-messege text-dredr small"></span>
+                </div>
+              </div>
             </div>
-          </div>
+
+            <div>
+              <button type="button" class="btn btn-outline-success" style="margin-bottom: 1rem; width: 100%; align-items: center;" onclick="agregarMateriaPrimaModificada()">
+                <i class="fa fa-plus me-2"></i>Agregar Materia Prima
+              </button>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="observacionProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-comment me-2" style="color: #dc3545;"></i>Observación *</label>
+                <input type="text" class="form-control" id="observacionProduccionEdit" name="observacionProduccionEdit" placeholder="Ingrese la observación" style="border-radius: 8px;" oninput="validar_observacion_modificada()" required>
+                <span id="errorObservacionEdit" class="error-messege text-dredr small"></span>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="fechaProduccionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-calendar me-2" style="color: #dc3545;"></i>Fecha de Producción *</label>
+                <input type="date" class="form-control" id="fechaProduccionEdit" name="fechaProduccionEdit" style="border-radius: 8px;" oninput="validar_fecha_modificada()" required>
+                <span id="errorFechaEdit" class="error-messege text-dredr small"></span>
+              </div>
+            </div>
 
           <!-- Nota informativa -->
           <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #d1ecf1; border: none;">
@@ -270,6 +403,6 @@ require_once 'components/scripts.php';
 <script src="assets/js/validaciones/produccion_validaciones.js"></script>
 <script src="assets/js/ajax/produccion_ajax.js"></script>
 <script src="assets/js/animacionesJs/dashboard_producciones.js"></script>
-
+<script src="assets/js/animacionesJs/producciones.js"></script>
   </body>
 </html>

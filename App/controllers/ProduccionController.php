@@ -2,6 +2,7 @@
     // llama el archivo del modelo
     require_once 'app/models/ProduccionModel.php';
     require_once 'app/models/ProductoModel.php';
+    require_once 'app/models/MateriaPrimaModel.php';
     require_once 'app/models/PermisoModel.php';
     require_once 'app/models/BitacoraModel.php';
 
@@ -51,6 +52,7 @@
         // instacia el modelo
         $modelo = new Produccion();
         $producto = new Producto();
+        $materiaPrima = new MateriaPrima();
         $permiso = new Permiso();
         $bitacora = new Bitacora();
 
@@ -80,8 +82,8 @@
                     $producciones = $resultado['data'];
 
                     // extrae los datos de los productos
-                    $productos = $producto->manejarAccion('consultar', null)['data'];
-                    $prod = $productos;
+                    $prod = $productos = $producto->manejarAccion('consultar', null)['data'];
+                    $materia =$materiaPrimas = $materiaPrima->manejarAccion('consultar', null)['data'];
 
                     // se arma el json de bitacora
                     $bitacora_json = json_encode([
@@ -102,11 +104,11 @@
                 }
                 else {
                     // usa mensaje dinamico del modelo
-                    setError($resultado['msj']);
+                    //setError($resultado['msj']);
 
                     // extrae los datos de los productos para los selects
-                    $productos = $producto->manejarAccion('consultar', null)['data'];
-                    $prod = $productos;
+                    $prod = $productos = $producto->manejarAccion('consultar', null)['data'];
+                    $materia =$materiaPrimas = $materiaPrima->manejarAccion('consultar', null)['data'];
                     $producciones = [];
 
                     //carga la vista
@@ -119,10 +121,19 @@
                 exit();
             }
         }
+        else {
 
+        //muestra un modal de info que dice acceso no permitido
+        setError("Error acceso no permitido");
+
+        //redirect
         header("Location: index.php?url=403");
+                
+        // termina el script
         exit();
     }
+
+}
 
     //funcion para guardar datos
     function Agregar() {
@@ -148,21 +159,38 @@
         if (isset($status['status']) && $status['status'] === true) {
 
             // obtiene y sinatiza los valores
+            $motivo_produccion = filter_var($_POST['motivoProduccion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
             $producto_produccion = filter_var($_POST['productoProduccion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
-            $cantidad_produccion = filter_var($_POST['cantidadProduccion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $cantidad_producto = filter_var($_POST['cantidadProducto'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $materia_prima_produccion = $_POST['materiaPrimaProduccion'] ?? [];
+            $cantidad_produccion = $_POST['cantidadProduccion'] ?? [];
+            $observacion_produccion = filter_var($_POST['observacionProduccion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $fecha_produccion = filter_var($_POST['fechaProduccion'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
 
             // valida si los campos no estan vacios
-            if (empty($producto_produccion) || empty($cantidad_produccion)) {
+            if (empty($producto_produccion)  || empty($cantidad_producto) || empty($cantidad_produccion ) || empty($materia_prima_produccion) || empty($observacion_produccion) || empty($fecha_produccion) || empty($motivo_produccion)) {
+                
+                // usa mensaje dinamico del modelo
                 setError('Todos los campos son requeridos no se puede enviar vacios.');
+                
+                // redirige ai estan vacios
                 header('Location: index.php?url=producciones');
+
+                // detiene la ejecucion del script
                 exit();
             }
 
             // se arma el json
             $produccion_json = json_encode([
+                'motivo' => $motivo_produccion,
                 'producto' => $producto_produccion,
-                'cantidad' => $cantidad_produccion
+                'cantidad_producto' => $cantidad_producto,
+                'materia_prima' => $materia_prima_produccion,
+                'cantidad' => $cantidad_produccion,
+                'observacion' => $observacion_produccion,
+                'fecha' => $fecha_produccion
             ]);
+            //print_r($produccion_json);
 
             try {
                 // llama la funcion que maneja las acciones en el modelo
@@ -187,7 +215,7 @@
                 }
                 else {
                     setError($resultado['msj']);
-                    header('Location: index.php?url=producciones');
+                    //header('Location: index.php?url=producciones');
                 }
             }
             catch (Exception $e) {
@@ -228,11 +256,16 @@
 
             // obtiene y sinatiza los valores
             $id = $_POST['idEdit'];
+            $motivo_produccion = filter_var($_POST['motivoProduccionEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
             $producto_produccion = filter_var($_POST['productoProduccionEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
-            $cantidad_produccion = filter_var($_POST['cantidadProduccionEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $cantidad_producto = filter_var($_POST['cantidadProductoEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $materia_prima_produccion = $_POST['materiaPrimaEdit'] ?? [];
+            $cantidad_produccion = $_POST['cantidadEdit'] ?? [];
+            $observacion_produccion = filter_var($_POST['observacionProduccionEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
+            $fecha_produccion = filter_var($_POST['fechaProduccionEdit'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
 
             // valida si los campos no estan vacios
-            if (empty($id) || empty($producto_produccion) || empty($cantidad_produccion)) {
+            if (empty($id) || empty($producto_produccion) || empty($cantidad_produccion) || empty($cantidad_producto) || empty($materia_prima_produccion) || empty($observacion_produccion) || empty($fecha_produccion) || empty($motivo_produccion)) {
                 setError('Todos los campos son requeridos no se puede enviar vacios.');
                 header('Location: index.php?url=producciones');
                 exit();
@@ -241,9 +274,15 @@
             // se arma el json
             $produccion_json = json_encode([
                 'id' => $id,
+                'motivo' => $motivo_produccion,
                 'producto' => $producto_produccion,
-                'cantidad' => $cantidad_produccion
+                'cantidad_producto' => $cantidad_producto,
+                'materia_prima' => $materia_prima_produccion,
+                'cantidad' => $cantidad_produccion,
+                'observacion' => $observacion_produccion,
+                'fecha' => $fecha_produccion
             ]);
+            //print_r($produccion_json);
 
             try {
                 // llama la funcion que maneja las acciones en el modelo
@@ -267,34 +306,57 @@
                     $bitacora->manejarAccion('agregar', $bitacora_json);
                 }
                 else {
+
+                    // usa mensaje dinamico del modelo
                     setError($resultado['msj']);
+
+                    // redirige ai esta condicion no se cumple
                     header('Location: index.php?url=producciones');
                 }
             }
             catch (Exception $e) {
+
+                // registra el error en el log del servidor
                 error_log('Error al registrar...' . $e->getMessage());
+
+                // usa mensaje dinamico del modelo
                 setError('Error en operacion.');
             }
 
+            // redirige ai se cumple todo
             header('Location: index.php?url=producciones');
+            
+            // detiene la ejecucion del script
             exit();
         }
 
+        //muestra un modal de info que dice acceso no permitido
         header("Location: index.php?url=403");
+        
+        // termina el script
         exit();
     }
 
+
     // function para obtener un dato
     function Obtener() {
+
         // instacia el modelo
         $modelo = new Produccion();
 
+        // obtiene y sinatiza los valores
         $id = $_GET['ID'];
 
         // valida si los campos no estan vacios
         if (empty($id)) {
+
+            // usa mensaje dinamico del modelo
             setError('Todos los campos son requeridos no se puede enviar vacios.');
+            
+            // redirige ai estan vacios
             header('Location: index.php?url=producciones');
+            
+            // detiene la ejecucion del script
             exit();
         }
 
@@ -303,10 +365,16 @@
             'id' => $id
         ]);
 
+        // llama la funcion que maneja las acciones en el modelo
         $resultado = $modelo->manejarAccion('obtener', $produccion_json);
+        
+        // obtiene los datos de la produccion
         $produccion = $resultado['data'];
 
+        // retorna el resultado en formato json
         echo json_encode($produccion);
+        
+        // detiene la ejecucion del script
         exit();
     }
 
@@ -338,8 +406,14 @@
 
             // valida si los campos no estan vacios
             if (empty($id_produccion)) {
+
+                // usa mensaje dinamico del modelo
                 setError('ID vacio.');
+
+                // redirige ai estan vacios
                 header('Location: index.php?url=producciones');
+                
+                // detiene la ejecucion del script
                 exit();
             }
 
@@ -370,20 +444,34 @@
                     $bitacora->manejarAccion('agregar', $bitacora_json);
                 }
                 else {
+
+                    // usa mensaje dinamico del modelo
                     setError($resultado['msj']);
+
+                    // redirige ai esta condicion no se cumple
                     header('Location: index.php?url=producciones');
                 }
             }
             catch (Exception $e) {
+
+                // registra el error en el log del servidor
                 error_log('Error al registrar...' . $e->getMessage());
+                
+                // usa mensaje dinamico del modelo
                 setError('Error en operacion.');
             }
 
+            // redirige ai se cumple todo
             header('Location: index.php?url=producciones');
+            
+            // detiene la ejecucion del script
             exit();
         }
 
+        //muestra un modal de info que dice acceso no permitido
         header("Location: index.php?url=403");
+
+        // termina el script
         exit();
     }
 ?>

@@ -1,29 +1,3 @@
-<?php
-// Iniciar sesión si no está iniciada
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Obtener módulos accesibles del usuario
-$modulos_accesibles = [];
-if (isset($_SESSION['s_usuario']['id_rol_usuario'])) {
-    require_once 'app/models/PermisoModel.php';
-    $permiso = new Permiso();
-    $permiso_json = json_encode(['id' => $_SESSION['s_usuario']['id_rol_usuario']]);
-    $resultado = $permiso->manejarAccion('obtener_modulos', $permiso_json);
-    if ($resultado['status']) {
-        foreach ($resultado['data'] as $modulo) {
-            $modulos_accesibles[] = $modulo['nombre_modulo'];
-        }
-    }
-}
-
-// Función helper para verificar si un módulo es accesible
-function tieneAcceso($modulo_nombre, $modulos_accesibles) {
-    return in_array($modulo_nombre, $modulos_accesibles);
-}
-?>
-
 <div class="wrapper">
     <!-- Sidebar -->
 <div class="sidebar" style="background-color: #000000ff;">
@@ -49,23 +23,18 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
   <div class="sidebar-wrapper scrollbar scrollbar-inner">
     <div class="sidebar-content">
       <ul class="nav nav-secondary">
-        <?php if (tieneAcceso('Dashboard', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=dashboard">
             <i class="fas fa-home"></i>
             <p>Dashboard</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Ecommerce', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=ecommerce">
             <i class="fas fa-store"></i>
             <p>Ecommerce</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Notificaciones', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=notificaciones">
             <i class="fas fa-bell"></i>
@@ -78,16 +47,12 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
             <p>Tasa Cambiaria</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Clientes', $modulos_accesibles) || tieneAcceso('Tipos Clientes', $modulos_accesibles)): ?>
         <li class="nav-section">
           <span class="sidebar-mini-icon">
             <i class="fa fa-ellipsis-h"></i>
           </span>
           <h4 class="text-section"><i class="fa fa-briefcase"></i> Administracion</h4>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Tipos Clientes', $modulos_accesibles) || tieneAcceso('Clientes', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#socios">
             <i class="fa fa-handshake" aria-hidden="true"></i>
@@ -96,27 +61,21 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
           </a>
           <div class="collapse" id="socios">
             <ul class="nav nav-collapse">
-              <?php if (tieneAcceso('Tipos Clientes', $modulos_accesibles)): ?>
               <li>
                 <a href="index.php?url=tipos_clientes">
                   <i class="fa fa-user-tag"></i>
                   <span class="sub-item">Tipos de Clientes</span>
                 </a>
               </li>
-              <?php endif; ?>
-              <?php if (tieneAcceso('Clientes', $modulos_accesibles)): ?>
               <li>
                 <a href="index.php?url=clientes">
                   <i class="fa fa-users"></i>
                   <span class="sub-item">Clientes</span>
                 </a>
               </li>
-              <?php endif; ?>
             </ul>
           </div>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Categorias', $modulos_accesibles) || tieneAcceso('Productos', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#catalogo">
             <i class="fa fa-th, fa fa-th-list" aria-hidden="true"></i>
@@ -125,27 +84,21 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
           </a>
           <div class="collapse" id="catalogo">
             <ul class="nav nav-collapse">
-              <?php if (tieneAcceso('Categorias', $modulos_accesibles)): ?>
               <li>
                 <a href="index.php?url=categorias">
                   <i class="fa fa-list-alt"></i>
                   <span class="sub-item">Categorias</span>
                 </a>
               </li>
-              <?php endif; ?>
-              <?php if (tieneAcceso('Productos', $modulos_accesibles)): ?>
               <li>
                 <a href="index.php?url=productos">
                   <i class="fa fa-cubes"></i>
                   <span class="sub-item">Productos</span>
                 </a>
               </li>
-              <?php endif; ?>
             </ul>
           </div>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Materias Prima', $modulos_accesibles) || tieneAcceso('Producciones', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#inventario">
             <i class="fa fa-th, fa fa-warehouse" aria-hidden="true"></i>
@@ -154,59 +107,45 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
           </a>
           <div class="collapse" id="inventario">
             <ul class="nav nav-collapse">
-              <?php if (tieneAcceso('Materias Prima', $modulos_accesibles)): ?>
               <li>
                 <a href="index.php?url=materias_primas">
                   <i class="fa fa-archive"></i>
                   <span class="sub-item">Materias Primas</span>
                 </a>
               </li>
-              <?php endif; ?>
-              <?php if (tieneAcceso('Producciones', $modulos_accesibles)): ?>
               <li>
                 <a href="index.php?url=producciones">
                   <i class="fa fa-industry"></i>
                   <span class="sub-item">Producciones</span>
                 </a>
               </li>
-              <?php endif; ?>
             </ul>
           </div>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Proveedores', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=proveedores">
             <i class="fa fa-truck"></i>
             <p>Proveedores</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Pedidos', $modulos_accesibles) || tieneAcceso('Promociones', $modulos_accesibles)): ?>
         <li class="nav-section">
           <span class="sidebar-mini-icon">
             <i class="fa fa-ellipsis-h"></i>
           </span>
           <h4 class="text-section"><i class="fa fa-file-invoice"></i> Facturacion / Ordenes</h4>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Pedidos', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=pedidos">
             <i class="fas fa-shopping-basket"></i>
             <p>Pedidos</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Promociones', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=promociones">
             <i class="fa fa-gift"></i>
             <p>Promociones</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Pagos', $modulos_accesibles)): ?>
         <li class="nav-section">
           <span class="sidebar-mini-icon">
             <i class="fa fa-ellipsis-h"></i>
@@ -242,8 +181,6 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
             </ul>
           </div>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Entregas', $modulos_accesibles)): ?>
         <li class="nav-section">
           <span class="sidebar-mini-icon">
             <i class="fa fa-ellipsis-h"></i>
@@ -256,39 +193,30 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
             <p>Entregas</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Roles', $modulos_accesibles) || tieneAcceso('Usuarios', $modulos_accesibles) || tieneAcceso('Bitacoras', $modulos_accesibles)): ?>
         <li class="nav-section">
           <span class="sidebar-mini-icon">
             <i class="fa fa-ellipsis-h"></i>
           </span>
           <h4 class="text-section"><i class="fa fa-cog"></i> Configuracion</h4>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Roles', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=roles">
             <i class="fas fa-user-shield"></i>
             <p>Roles y Permisos</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Usuarios', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=usuarios">
             <i class="fas fa-users"></i>
             <p>Usuarios</p>
           </a>
         </li>
-        <?php endif; ?>
-        <?php if (tieneAcceso('Bitacoras', $modulos_accesibles)): ?>
         <li class="nav-item">
           <a href="index.php?url=bitacora">
             <i class="fa fa-file-text"></i>
             <p>Bitácora</p>
           </a>
         </li>
-        <?php endif; ?>
         <li class="nav-section">
           <span class="sidebar-mini-icon">
             <i class="fa fa-ellipsis-h"></i>
@@ -324,6 +252,8 @@ function tieneAcceso($modulo_nombre, $modulos_accesibles) {
     </div>
   </div>
 </div>
+
+<script src="assets/js/ajax/menu_ajax.js"></script>
 
 <style>
 /* Solo estilos para el sidebar - no afecta al resto de la página */
