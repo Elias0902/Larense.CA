@@ -27,7 +27,7 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
         const WARNING_MS   = <?php echo (int)$warningMs; ?>;
         const LOGOUT_URL   = '<?php echo $logoutUrl; ?>';
 
-        console.log('🔐 Inicializando temporizador de inactividad:', (INACTIVITY_MS/1000) + ' segundos');
+        //console.log('🔐 Inicializando temporizador de inactividad:', (INACTIVITY_MS/1000) + ' segundos');
 
         let inactivityTimer = null;
         let warningTimer = null;
@@ -35,7 +35,7 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
 
         // Cerrar sesión por inactividad
         function logoutDueToInactivity() {
-            console.log('🔴 Cerrando sesión por inactividad');
+            //console.log('🔴 Cerrando sesión por inactividad');
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     title: 'Sesión cerrada',
@@ -60,15 +60,15 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
             // Cancelar el temporizador principal para evitar doble logout
             if (inactivityTimer) clearTimeout(inactivityTimer);
 
-            console.log('⚠️ Mostrando advertencia de inactividad');
+            //console.log('⚠️ Mostrando advertencia de inactividad');
 
             if (typeof Swal === 'undefined') {
-                // Fallback con confirm + timeout automático
-                console.warn('SweetAlert2 no disponible, usando confirm()');
+                 Fallback con confirm + timeout automático
+                //console.warn('SweetAlert2 no disponible, usando confirm()');
                 const msg = '⚠️ ¡Inactividad detectada!\n\nSe cerrará la sesión en 5 segundos.\nPresione Aceptar para continuar o espere para salir.';
                 const warningConfirmed = confirm(msg);
                 if (warningConfirmed) {
-                    console.log('✅ Usuario activo, reiniciando temporizador');
+                    //console.log('✅ Usuario activo, reiniciando temporizador');
                     isWarningShown = false;
                     resetInactivityTimer();
                 } else {
@@ -91,11 +91,11 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
             }).then((result) => {
                 if (result.dismiss === Swal.DismissReason.timer) {
                     // No interactuó en 5 segundos
-                    console.log('⏰ Tiempo agotado, cerrando sesión');
+                    //console.log('⏰ Tiempo agotado, cerrando sesión');
                     logoutDueToInactivity();
                 } else if (result.isConfirmed) {
                     // Hizo clic en "Continuar"
-                    console.log('✅ Usuario confirmó, reiniciando temporizador');
+                    //console.log('✅ Usuario confirmó, reiniciando temporizador');
                     isWarningShown = false;
                     resetInactivityTimer();
                 }
@@ -104,7 +104,7 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
 
         // Reiniciar ambos temporizadores
         function resetInactivityTimer() {
-            console.log('🔄 Reiniciando temporizadores');
+            //console.log('🔄 Reiniciando temporizadores');
             if (inactivityTimer) clearTimeout(inactivityTimer);
             if (warningTimer) clearTimeout(warningTimer);
             if (isWarningShown && typeof Swal !== 'undefined') {
@@ -125,7 +125,7 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
 
         // Eventos que indican actividad del usuario
         const activityEvents = ['click', 'keydown', 'scroll', 'touchstart', 'mousedown'];
-        console.log('📡 Eventos monitoreados:', activityEvents.join(', '));
+        //console.log('📡 Eventos monitoreados:', activityEvents.join(', '));
 
         activityEvents.forEach(event => {
             document.addEventListener(event, resetInactivityTimer);
@@ -133,7 +133,7 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
 
         // Iniciar el temporizador cuando la página esté lista
         function startTimer() {
-            console.log('🚀 Iniciando temporizador de inactividad');
+            //console.log('🚀 Iniciando temporizador de inactividad');
             resetInactivityTimer();
         }
 

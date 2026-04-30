@@ -200,6 +200,22 @@ class Permiso extends Conexion {
                 return $this->Obtener_Permisos();
             break;
 
+            case 'obtener_modulo':
+
+                // asidna el resultado de la validacion
+                $validacion = $this->setPermisoRolData($permiso_json);
+
+                // valida el estado de la valicacion
+                if (!$validacion['status']) {
+
+                    // retorna el status de la validacion
+                    return $validacion;
+                }
+
+                // llama el metodo en caso de axito y retorna el status del metodo
+                return $this->Obtener_Permisos_Modulo();
+            break;
+
             case 'obtener_modulos':
 
                 // asidna el resultado de la validacion
@@ -418,7 +434,7 @@ class Permiso extends Conexion {
             }
         }
 
-    private function Obtener_Modulos_Por_Rol() {
+    private function Obtener_Permisos_Modulo() {
 
             // la conexion esta cerrado por defecto
             $this->closeConnection();
@@ -430,9 +446,15 @@ class Permiso extends Conexion {
                 $conn = $this->getConnectionSeguridad();
 
                 // consulta sql - obtiene módulos donde el rol tiene al menos un permiso activo
-                $query = "SELECT DISTINCT m.id_modulo, m.nombre_modulo
+                $query = "SELECT a.id_rol,
+                                 a.id_modulo,
+                                 a.id_permiso,
+                                 a.status,
+                                 p.nombre_permiso,
+                                 m.nombre_modulo
                             FROM accesos a
-                            JOIN modulos m ON a.id_modulo = m.id_modulo
+                            INNER JOIN modulos m ON a.id_modulo = m.id_modulo
+                            INNER JOIN permisos p ON a.id_permiso = p.id_permisos
                             WHERE a.id_rol = :rol
                             AND a.status = 1
                             ORDER BY m.id_modulo";

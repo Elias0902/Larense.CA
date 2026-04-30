@@ -109,5 +109,5 @@
         }, 100);
     });
     
-    console.log('🌓 Theme Critical: Tema inicial aplicado -', theme);
+    //console.log('🌓 Theme Critical: Tema inicial aplicado -', theme);
 })();

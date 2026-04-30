@@ -196,7 +196,7 @@
                 setError('Todos los campos son requeridos no se puede enviar vacios.');
 
                 //redirec
-                header('Location: index.php?url=materias_primas');
+                header('Location: index.php?url=materias');
 
                 //termina el script
                 exit();
@@ -250,7 +250,7 @@
                         setError($resultado['msj']);
 
                         //redirect
-                        header('Location: index.php?url=materias_primas');
+                        header('Location: index.php?url=materias');
 
                     }
                 }
@@ -264,7 +264,7 @@
                 }
 
             //redirect
-            header('Location: index.php?url=materias_primas');
+            header('Location: index.php?url=materias');
             
             // termina el script
             exit();
@@ -325,7 +325,7 @@
                 setError('Todos los campos son requeridos no se puede enviar vacios.');
 
                 //redirec
-                header('Location: index.php?url=materias_primas');
+                header('Location: index.php?url=materias');
 
                 //termina el script
                 exit();
@@ -387,7 +387,7 @@
                         setError($resultado['msj']);
 
                         //redirect
-                        header('Location: index.php?url=materias_primas ');
+                        header('Location: index.php?url=materias ');
 
                     }
                 }
@@ -401,7 +401,7 @@
                 }
 
             //redirect
-            header('Location: index.php?url=materias_primas');
+            header('Location: index.php?url=materias');
             
             // termina el script
             exit();
@@ -437,7 +437,7 @@
             setError('Todos los campos son requeridos no se puede enviar vacios.');
 
             //redirec
-            header('Location: index.php?url=materias_primas');
+            header('Location: index.php?url=materias');
 
             //termina el script
             exit();
@@ -518,7 +518,7 @@
                 setError('ID vacio.');
 
                 //redirec
-                header('Location: index.php?url=materias_primas');
+                header('Location: index.php?url=materias');
 
                 //termina el script
                 exit();
@@ -570,7 +570,7 @@
                         setError($resultado['msj']);
 
                         //redirect
-                        header('Location: index.php?url=materias_primas');
+                        header('Location: index.php?url=materias');
 
                     }
                 }
@@ -584,7 +584,7 @@
                 }
 
         //redirect
-        header('Location: index.php?url=materias_primas');
+        header('Location: index.php?url=materias');
 
         // termina el script
         exit();

@@ -166,7 +166,7 @@ function getIconoRol($nombre_rol) {
                     <?php endif; ?>
                     
                     <!-- Perfil Usuario -->
-                    <li class="nav-item topbar-user dropdown hidden-caret">
+                    <li class=" topbar-user dropdown hidden-caret" style="margin-right: 1.5rem;">
                         <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                             <div class="avatar-sm">
                                 <img src="<?php 

@@ -14,7 +14,7 @@
     function applyTheme(isDark) {
         // Respetar bloqueo inicial para prevenir parpadeo
         if (window.__THEME_LOCKED) {
-            console.log('🌓 Theme Manager: Bloqueo activo, ignorando cambio temporal');
+            //console.log('🌓 Theme Manager: Bloqueo activo, ignorando cambio temporal');
             return;
         }
         
@@ -153,7 +153,7 @@
         
         // Mostrar retroalimentación visual (opcional)
         const message = !isCurrentlyDark ? 'Modo oscuro activado' : 'Modo claro activado';
-        console.log(`🌓 Theme Manager: ${message}`);
+        //console.log(`🌓 Theme Manager: ${message}`);
     }
     
     // Función para inicializar el manager (después de que el DOM esté listo)
@@ -333,5 +333,5 @@
         });
     }
     
-    console.log('🌓 Theme Manager inicializado - Sin flash de modo claro');
+    //console.log('🌓 Theme Manager inicializado - Sin flash de modo claro');
 })();

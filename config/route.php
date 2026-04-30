@@ -7,7 +7,7 @@
         'autenticator' => 'app/controllers/AutenticatorController.php',
         'categorias' => 'app/controllers/CategoriaController.php',
         'productos' => 'app/controllers/ProductoController.php',
-        'materias_primas' => 'app/controllers/MateriaPrimaController.php',
+        'materias' => 'app/controllers/MateriaPrimaController.php',
         'producciones' => 'app/controllers/ProduccionController.php',
         'tipos_clientes' => 'app/controllers/TipoClienteController.php',
         'clientes' => 'app/controllers/ClienteController.php',

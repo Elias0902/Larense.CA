@@ -177,7 +177,7 @@ require_once 'components/scripts.php';
 <div class="modal fade" id="materiaPrimaModal" tabindex="-1" aria-labelledby="materiaPrimaModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
-      <form id="formMateriaPrima" enctype="multipart/form-data" onsubmit="return validar_formulario()" method="post" action="index.php?url=materias_primas&action=agregar">
+      <form id="formMateriaPrima" enctype="multipart/form-data" onsubmit="return validar_formulario()" method="post" action="index.php?url=materias&action=agregar">
         <div class="modal-header" style="background: #dc3545; border: none; padding: 20px 25px;">
           <h5 class="modal-title" id="materiaPrimaModalLabel" style="color: white; font-weight: 600;">
             <i class="fa fa-plus-circle me-2"></i>Nueva Materia Prima
@@ -253,7 +253,7 @@ require_once 'components/scripts.php';
 <div class="modal fade" id="materiaPrimaModalModificar" tabindex="-1" aria-labelledby="materiaPrimaModalModificarLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
-      <form id="formMateriaPrimaModificar" enctype="multipart/form-data" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=materias_primas&action=modificar">
+      <form id="formMateriaPrimaModificar" enctype="multipart/form-data" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=materias&action=modificar">
         <div class="modal-header" style="background: #dc3545; border: none; padding: 20px 25px;">
           <h5 class="modal-title" id="materiaPrimaModalModificarLabel" style="color: white; font-weight: 600;">
             <i class="fa fa-edit me-2"></i>Modificar Materia Prima

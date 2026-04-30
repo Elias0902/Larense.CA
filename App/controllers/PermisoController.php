@@ -22,6 +22,12 @@
             }
         break;
 
+        case 'obtener_modulo':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerModulo();
+            }
+        break;
+
         case 'actualizar':
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 Actualizar();
@@ -63,6 +69,41 @@
 
             exit();
     }
+
+    // function para obtener un dato
+function ObtenerModulo() {
+
+    // instacia el modelo
+    $modelo = new Permiso();
+
+    $id = $_GET['ID'];
+
+     // valida si los campos no estan vacios
+    if (empty($id)) {
+
+        // manda mensaje de error
+        setError('Todos los campos son requeridos no se puede enviar vacios.');
+
+        //redirec
+        header('Location: index.php?url=roles');
+
+        //termina el script
+        exit();
+    }
+
+        // se arma el josn
+        $permiso_json = json_encode([
+            'id' => $id
+        ]);
+
+        $resultado = $modelo->manejarAccion('obtener_modulo', $permiso_json);
+
+        $permisos = $resultado['data'];
+
+        echo json_encode($permisos);
+
+        exit();
+}
 
     // function para obtener un dato
 function Actualizar() {

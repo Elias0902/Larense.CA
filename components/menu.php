@@ -1,3 +1,4 @@
+<input type="hidden" id="s_usuario" value="<?php echo $_SESSION['s_usuario']['id_rol_usuario']; ?>">
 <div class="wrapper">
     <!-- Sidebar -->
 <div class="sidebar" style="background-color: #000000ff;">
@@ -108,7 +109,7 @@
           <div class="collapse" id="inventario">
             <ul class="nav nav-collapse">
               <li>
-                <a href="index.php?url=materias_primas">
+                <a href="index.php?url=materias">
                   <i class="fa fa-archive"></i>
                   <span class="sub-item">Materias Primas</span>
                 </a>
@@ -138,6 +139,12 @@
           <a href="index.php?url=pedidos">
             <i class="fas fa-shopping-basket"></i>
             <p>Pedidos</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="index.php?url=compras">
+            <i class="fas fa-shopping-cart"></i>
+            <p>Compras</p>
           </a>
         </li>
         <li class="nav-item">
@@ -252,8 +259,7 @@
     </div>
   </div>
 </div>
-
-<script src="assets/js/ajax/menu_ajax.js"></script>
+    <script src="assets/js/ajax/menu_ajax.js"></script>
 
 <style>
 /* Solo estilos para el sidebar - no afecta al resto de la página */
