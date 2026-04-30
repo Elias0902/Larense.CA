@@ -681,7 +681,7 @@ class Produccion extends Conexion {
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 // se retorna el resultado exitoso con los datos
-                return['status' => true, 'msj' => 'Producción encontrada con exito.', 'data' => $data];
+                return['status' => true, 'msj' => 'Producción encontrada con exito.', 'data' => $data, 'data_bitacora' => $data];
             }
             else {
 

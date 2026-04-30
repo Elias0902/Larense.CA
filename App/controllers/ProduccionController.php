@@ -206,7 +206,16 @@
                         'modulo' => 'Producciones',
                         'accion' => 'Agregar',
                         'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' .
-                            'ha Agregado una producción en el sistema',
+                            'ha Agregado una producción' . ' ' . 
+                            'Con los siguientes datos:' . ' ' .
+                            'Motivo:' . ' ' . $motivo_produccion . ',' . ' ' .
+                            'Producto:' . ' ' . $producto_produccion . ',' . ' ' . 
+                            'Cantidad Producto:' . ' ' . $cantidad_producto . ',' . ' ' .
+                            'Materia Prima:' . ' ' . implode(', ', $materia_prima_produccion) . ',' . ' ' .
+                            'Cantidad:' . ' ' . implode(', ', $cantidad_produccion) . ',' . ' ' .
+                            'Observacion:' . ' ' . $observacion_produccion . ',' . ' ' . 
+                            'Fecha:' . ' ' . $fecha_produccion . ',' . ' ' .
+                            'en el sistema',
                         'fecha' => $fecha
                     ]);
 
@@ -298,7 +307,18 @@
                         'modulo' => 'Producciones',
                         'accion' => 'Modificar',
                         'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' .
-                            'ha Modificado una producción en el sistema',
+                            'ha Modificado una producción' . ' ' . 
+                            'Con los siguientes datos:' . ' ' .
+                            'Codigo de produccion:' . ' ' . $id . ',' . ' ' .
+                            'Motivo:' . ' ' . $motivo_produccion . ',' . ' ' .
+                            'Producto:' . ' ' . $producto_produccion . ',' . ' ' . 
+                            'Cantidad Producto:' . ' ' . $cantidad_producto . ',' . ' ' .
+                            'Materia Prima:' . ' ' . implode(', ', $materia_prima_produccion) . ',' . ' ' .
+                            'Cantidad:' . ' ' . implode(', ', $cantidad_produccion) . ',' . ' ' .
+                            'Observacion:' . ' ' . $observacion_produccion . ',' . ' ' . 
+                            'Fecha:' . ' ' . $fecha_produccion . ',' . ' ' .
+                            'en el sistema',
+                            'en el sistema',
                         'fecha' => $fecha
                     ]);
 
@@ -343,6 +363,10 @@
 
         // instacia el modelo
         $modelo = new Produccion();
+        $bitacora = new Bitacora();
+
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
 
         // obtiene y sinatiza los valores
         $id = $_GET['ID'];
@@ -370,6 +394,31 @@
         
         // obtiene los datos de la produccion
         $produccion = $resultado['data'];
+
+        // se almacena para la bitacora
+        $data_bitacora = $resultado['data_bitacora'];
+
+        // se arma el json de bitacora
+            $bitacora_json = json_encode([
+                'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                'modulo' => 'Producciones',
+                'accion' => 'Obtener',
+                'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                    'ha obtenido los datos de la siguiente produccion' . ' ' . 
+                    'PR-00' . $data_bitacora['id_produccion'] . ' ' . 
+                    $data_bitacora['motivo_produccion'] . ' ' . 
+                    $data_bitacora['nombre_producto'] . ' ' . 
+                    $data_bitacora['cantidad_producida'] . ' ' . 
+                    $data_bitacora['nombre_materia_prima'] . ' ' . 
+                    $data_bitacora['cantidad_utilizada'] . ' ' . 
+                    $data_bitacora['observacion'] . ' ' . 
+                    $data_bitacora['fecha_produccion'] . ' ' . 
+                    ' ' . 'en el sistema.',
+                'fecha' => $fecha
+            ]);
+
+            //realiza la insercion de la bitacora
+            $bitacora->manejarAccion('agregar', $bitacora_json);
 
         // retorna el resultado en formato json
         echo json_encode($produccion);
@@ -436,7 +485,9 @@
                         'modulo' => 'Producciones',
                         'accion' => 'Eliminar',
                         'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' .
-                            'ha Eliminado una producción en el sistema',
+                            'ha Eliminado una producción' . ' ' . 
+                            'Codigo de produccion:' . ' ' . $id_produccion . ' ' .
+                            'en el sistema',
                         'fecha' => $fecha
                     ]);
 
