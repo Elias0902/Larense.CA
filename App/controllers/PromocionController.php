@@ -2,6 +2,7 @@
     // llama el archivo del modelo
     require_once 'app/models/PromocionModel.php';
     require_once 'app/models/PermisoModel.php';
+    require_once 'app/models/ProductoModel.php';
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -32,6 +33,12 @@
             }
         break;
 
+        case 'obtener_productos':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerProductos();
+            }
+        break;
+
         case 'eliminar':
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 Eliminar();
@@ -52,21 +59,30 @@
     // funcion para consultar datos
     function Consultar() {
         $modelo = new Promocion();
+        $modeloProducto = new Producto();
         try {
             $resultado = $modelo->manejarAccion('consultar', null);
+            $resultadoProductos = $modeloProducto->manejarAccion('consultar', null);
+            
             if (isset($resultado['status']) && $resultado['status'] === true) {
                 $promociones = $resultado['data'];
-                require_once 'app/views/promocionesView.php';
-                exit();
             } else {
                 $promociones = [];
-                require_once 'app/views/promocionesView.php';
-                exit();
             }
+            
+            if (isset($resultadoProductos['status']) && $resultadoProductos['status'] === true) {
+                $productos = $resultadoProductos['data'];
+            } else {
+                $productos = [];
+            }
+            
+            require_once 'app/views/promocionesView.php';
+            exit();
         } catch (Exception $e) {
             error_log('Error al consultar promociones...' . $e->getMessage());
             setError('Error en operacion.');
             $promociones = [];
+            $productos = [];
             require_once 'app/views/promocionesView.php';
             exit();
         }
@@ -86,6 +102,9 @@
         $fecha_fin = filter_var($_POST['fechaFin'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
         $estado = isset($_POST['estadoPromocion']) ? '1' : '0';
 
+        // obtiene los productos seleccionados
+        $productos = isset($_POST['productos']) ? $_POST['productos'] : [];
+
         // valida si los campos no estan vacios
         if (empty($codigo) || empty($nombre) || empty($descripcion) || empty($tipo) || empty($valor) || empty($fecha_inicio) || empty($fecha_fin)) {
             setError('Todos los campos son requeridos. No se puede enviar vacíos.');
@@ -94,7 +113,7 @@
         }
 
         // se arma el json
-        $promocion_json = json_encode([
+        $promocion_json = [
             'codigo' => $codigo,
             'nombre' => $nombre,
             'descripcion' => $descripcion,
@@ -103,10 +122,15 @@
             'fecha_inicio' => $fecha_inicio,
             'fecha_fin' => $fecha_fin,
             'estado' => $estado
-        ]);
+        ];
+
+        // agrega los productos si existen
+        if (!empty($productos)) {
+            $promocion_json['productos'] = $productos;
+        }
 
         try {
-            $resultado = $modelo->manejarAccion('agregar', $promocion_json);
+            $resultado = $modelo->manejarAccion('agregar', json_encode($promocion_json));
             if (isset($resultado['status']) && $resultado['status'] === true) {
                 setSuccess($resultado['msj']);
             } else {
@@ -136,6 +160,9 @@
         $fecha_fin = filter_var($_POST['fechaFin'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
         $estado = isset($_POST['estadoPromocion']) ? '1' : '0';
 
+        // obtiene los productos seleccionados
+        $productos = isset($_POST['productos']) ? $_POST['productos'] : [];
+
         // valida si los campos no estan vacios
         if (empty($id) || empty($codigo) || empty($nombre) || empty($descripcion) || empty($tipo) || empty($valor) || empty($fecha_inicio) || empty($fecha_fin)) {
             setError('Todos los campos son requeridos. No se puede enviar vacíos.');
@@ -144,7 +171,7 @@
         }
 
         // se arma el json
-        $promocion_json = json_encode([
+        $promocion_json = [
             'id' => $id,
             'codigo' => $codigo,
             'nombre' => $nombre,
@@ -154,10 +181,15 @@
             'fecha_inicio' => $fecha_inicio,
             'fecha_fin' => $fecha_fin,
             'estado' => $estado
-        ]);
+        ];
+
+        // agrega los productos si existen
+        if (!empty($productos)) {
+            $promocion_json['productos'] = $productos;
+        }
 
         try {
-            $resultado = $modelo->manejarAccion('modificar', $promocion_json);
+            $resultado = $modelo->manejarAccion('modificar', json_encode($promocion_json));
             if (isset($resultado['status']) && $resultado['status'] === true) {
                 setSuccess($resultado['msj']);
             } else {
@@ -198,6 +230,27 @@
             echo json_encode($data);
         } else {
             echo json_encode(['error' => 'No se encontró la promoción']);
+        }
+        exit();
+    }
+
+    // function para obtener productos de una promoción
+    function ObtenerProductos() {
+        $modelo = new Promocion();
+        $id = $_GET['ID'] ?? '';
+
+        if (empty($id)) {
+            echo json_encode(['error' => 'ID vacío']);
+            exit();
+        }
+
+        $promocion_json = json_encode(['id' => $id]);
+        $resultado = $modelo->manejarAccion('obtener_productos', $promocion_json);
+
+        if (isset($resultado['data'])) {
+            echo json_encode($resultado['data']);
+        } else {
+            echo json_encode([]);
         }
         exit();
     }

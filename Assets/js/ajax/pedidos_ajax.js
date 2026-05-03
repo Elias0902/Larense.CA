@@ -11,6 +11,39 @@ function ObtenerPedido(id) {
       document.getElementById('telefonoPedidoEdit').value = data.telefono_contacto || '';
       document.getElementById('direccionPedidoEdit').value = data.direccion_entrega || '';
       document.getElementById('observacionesPedidoEdit').value = data.observaciones || '';
+
+      // Obtener productos asociados al pedido
+      fetch('index.php?url=pedidos&action=obtener_productos&ID=' + id)
+        .then(response => response.json())
+        .then(productos => {
+          // Deseleccionar todos los productos primero
+          const selectProductos = document.getElementById('productosEdit');
+          for (let i = 0; i < selectProductos.options.length; i++) {
+            selectProductos.options[i].selected = false;
+          }
+
+          // Seleccionar los productos asociados
+          if (Array.isArray(productos)) {
+            productos.forEach(producto => {
+              for (let i = 0; i < selectProductos.options.length; i++) {
+                if (selectProductos.options[i].value == producto.id_producto) {
+                  selectProductos.options[i].selected = true;
+                  break;
+                }
+              }
+            });
+          }
+
+          // Abrir el modal después de cargar los datos
+          var modal = new bootstrap.Modal(document.getElementById('pedidoModalModificar'));
+          modal.show();
+        })
+        .catch(error => {
+          console.error('Error al obtener productos:', error);
+          // Abrir el modal aunque falle la carga de productos
+          var modal = new bootstrap.Modal(document.getElementById('pedidoModalModificar'));
+          modal.show();
+        });
     })
     .catch(error => {
       console.error('Error:', error);

@@ -271,8 +271,26 @@ body.dark-mode .table-modern tbody th {
     border-bottom-color: #2a3041 !important;
 }
 
+body.dark-mode .table-modern tbody tr {
+    background: transparent !important;
+    border-bottom-color: #2a3041 !important;
+}
+
+body.dark-mode .table-modern tbody td,
+body.dark-mode .table-modern tbody th {
+    background: transparent !important;
+}
+
 body.dark-mode .table-modern tbody tr:hover {
     background: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .table-modern tbody th i {
+    color: #8bc34a !important;
+}
+
+body.dark-mode .table-modern tbody th i.text-warning {
+    color: #ffc107 !important;
 }
 
 body.dark-mode .status-completed {

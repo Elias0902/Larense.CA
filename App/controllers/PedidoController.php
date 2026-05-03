@@ -3,6 +3,7 @@
     require_once 'app/models/PedidoModel.php';
     require_once 'app/models/ClienteModel.php';
     require_once 'app/models/PromocionModel.php';
+    require_once 'app/models/ProductoModel.php';
     require_once 'app/models/PermisoModel.php';
 
     // llama el archivo que contiene la carga de alerta
@@ -46,6 +47,12 @@
             }
         break;
 
+        case 'obtener_productos':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerProductos();
+            }
+        break;
+
         default:
             Consultar();
         break;
@@ -56,6 +63,7 @@
         $modelo = new Pedido();
         $cliente_modelo = new Cliente();
         $promocion_modelo = new Promocion();
+        $producto_modelo = new Producto();
 
         try {
             // Obtener pedidos
@@ -70,6 +78,10 @@
             $promociones_resultado = $promocion_modelo->manejarAccion('consultar', null);
             $promociones = (isset($promociones_resultado['status']) && $promociones_resultado['status'] === true) ? $promociones_resultado['data'] : [];
 
+            // Obtener productos para el select
+            $productos_resultado = $producto_modelo->manejarAccion('consultar', null);
+            $productos = (isset($productos_resultado['status']) && $productos_resultado['status'] === true) ? $productos_resultado['data'] : [];
+
             require_once 'app/views/pedidosView.php';
             exit();
         } catch (Exception $e) {
@@ -78,6 +90,7 @@
             $pedidos = [];
             $clientes = [];
             $promociones = [];
+            $productos = [];
             require_once 'app/views/pedidosView.php';
             exit();
         }
@@ -97,6 +110,9 @@
         $observaciones = filter_var($_POST['observacionesPedido'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
         $promocion_id = filter_var($_POST['promocionId'] ?? '', FILTER_SANITIZE_NUMBER_INT);
 
+        // obtiene los productos seleccionados
+        $productos = isset($_POST['productos']) ? $_POST['productos'] : [];
+
         // valida si los campos requeridos no estan vacios
         if (empty($cliente_id) || empty($fecha) || empty($total)) {
             setError('Los campos Cliente, Fecha y Total son requeridos.');
@@ -105,7 +121,7 @@
         }
 
         // se arma el json
-        $pedido_json = json_encode([
+        $pedido_json = [
             'cliente_id' => $cliente_id,
             'fecha' => $fecha,
             'total' => $total,
@@ -114,10 +130,23 @@
             'telefono' => $telefono,
             'observaciones' => $observaciones,
             'promocion_id' => $promocion_id
-        ]);
+        ];
+
+        // agrega los productos si existen (con cantidad y precio)
+        if (!empty($productos)) {
+            $productos_con_detalle = [];
+            foreach ($productos as $id_producto) {
+                $productos_con_detalle[] = [
+                    'id_producto' => $id_producto,
+                    'cantidad' => 1, // Por defecto 1, se puede ajustar según necesidad
+                    'precio_unitario' => 0 // Se puede obtener del producto si es necesario
+                ];
+            }
+            $pedido_json['productos'] = $productos_con_detalle;
+        }
 
         try {
-            $resultado = $modelo->manejarAccion('agregar', $pedido_json);
+            $resultado = $modelo->manejarAccion('agregar', json_encode($pedido_json));
             if (isset($resultado['status']) && $resultado['status'] === true) {
                 setSuccess($resultado['msj']);
             } else {
@@ -147,6 +176,9 @@
         $observaciones = filter_var($_POST['observacionesPedido'] ?? '', FILTER_SANITIZE_SPECIAL_CHARS);
         $promocion_id = filter_var($_POST['promocionId'] ?? '', FILTER_SANITIZE_NUMBER_INT);
 
+        // obtiene los productos seleccionados
+        $productos = isset($_POST['productos']) ? $_POST['productos'] : [];
+
         // valida si los campos requeridos no estan vacios
         if (empty($id) || empty($cliente_id) || empty($fecha) || empty($total)) {
             setError('Los campos Cliente, Fecha y Total son requeridos.');
@@ -155,7 +187,7 @@
         }
 
         // se arma el json
-        $pedido_json = json_encode([
+        $pedido_json = [
             'id' => $id,
             'cliente_id' => $cliente_id,
             'fecha' => $fecha,
@@ -165,10 +197,23 @@
             'telefono' => $telefono,
             'observaciones' => $observaciones,
             'promocion_id' => $promocion_id
-        ]);
+        ];
+
+        // agrega los productos si existen (con cantidad y precio)
+        if (!empty($productos)) {
+            $productos_con_detalle = [];
+            foreach ($productos as $id_producto) {
+                $productos_con_detalle[] = [
+                    'id_producto' => $id_producto,
+                    'cantidad' => 1, // Por defecto 1, se puede ajustar según necesidad
+                    'precio_unitario' => 0 // Se puede obtener del producto si es necesario
+                ];
+            }
+            $pedido_json['productos'] = $productos_con_detalle;
+        }
 
         try {
-            $resultado = $modelo->manejarAccion('modificar', $pedido_json);
+            $resultado = $modelo->manejarAccion('modificar', json_encode($pedido_json));
             if (isset($resultado['status']) && $resultado['status'] === true) {
                 setSuccess($resultado['msj']);
             } else {
@@ -264,6 +309,27 @@
         }
 
         header('Location: index.php?url=pedidos');
+        exit();
+    }
+
+    // function para obtener productos de un pedido
+    function ObtenerProductos() {
+        $modelo = new Pedido();
+        $id = $_GET['ID'] ?? '';
+
+        if (empty($id)) {
+            echo json_encode(['error' => 'ID vacío']);
+            exit();
+        }
+
+        $pedido_json = json_encode(['id' => $id]);
+        $resultado = $modelo->manejarAccion('obtener_productos', $pedido_json);
+
+        if (isset($resultado['data'])) {
+            echo json_encode($resultado['data']);
+        } else {
+            echo json_encode([]);
+        }
         exit();
     }
 ?>
