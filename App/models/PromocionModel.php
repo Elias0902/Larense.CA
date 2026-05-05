@@ -7,9 +7,9 @@ class Promocion extends Conexion {
 
     // Atributos
     private $promocion_id;
-    private $promocion_codigo;
     private $promocion_nombre;
     private $promocion_descripcion;
+    private $promocion_productos = [];
     private $promocion_tipo;
     private $promocion_valor;
     private $promocion_fecha_inicio;
@@ -22,7 +22,93 @@ class Promocion extends Conexion {
     }
 
     // SETTER para datos completos
+
     private function setPromocionData($promocion_json) {
+
+        if (is_string($promocion_json)) {
+            $promocion = json_decode($promocion_json, true);
+            if ($promocion === null) {
+                return ['status' => false, 'msj' => 'JSON inválido.'];
+            }
+        } elseif (is_array($promocion_json)) {
+            $promocion = $promocion_json;
+        } else {
+            return ['status' => false, 'msj' => 'Formato de datos inválido.'];
+        }
+
+        // expresiones regulares y validaciones
+        $expre_nombre = '/^[a-zA-Z0-9\s\-_%]{5,70}$/'; // permite letras, números, espacios, -, _ con longitud entre 5 y 70
+        $expre_fecha = '/^\d{4}-\d{2}-\d{2}$/'; // formato YYYY-MM-DD
+
+        // Validar nombre
+        $nombre = trim($promocion['nombre'] ?? '');
+        if ($nombre === '' || !preg_match($expre_nombre, $nombre) || strlen($nombre) > 70 || strlen($nombre) < 5) {
+            return ['status' => false, 'msj' => 'El nombre de la promoción es inválido. Debe tener entre 5 y 70 caracteres.'];
+        }
+        $this->promocion_nombre = $nombre;
+
+        // Validar descripción
+        $descripcion = trim($promocion['descripcion'] ?? '');
+        if ($descripcion === '' || strlen($descripcion) > 200) {
+            return ['status' => false, 'msj' => 'La descripción es inválida. Debe tener máximo 200 caracteres.'];
+        }
+        $this->promocion_descripcion = $descripcion;
+
+        // Validar productos (ARRAY)
+        $productos_raw = $promocion['productos'] ?? [];
+        if (!is_array($productos_raw)) {
+            $productos_raw = [$productos_raw];  // convertir string único a array
+        }
+
+        $productos = array_filter(array_map('trim', $productos_raw), function($p) {
+            return !empty($p);
+        });
+
+        if (empty($productos)) {
+            return ['status' => false, 'msj' => 'Debe seleccionar al menos un producto.'];
+        }
+
+        $this->promocion_productos = $productos;  // array limpio ["7", "6"]
+
+        // Validar tipo
+        $tipo = trim($promocion['tipo'] ?? '');
+        $tipos_permitidos = ['porcentaje', '2x1', 'monto_fijo'];
+        if ($tipo === '' || !in_array($tipo, $tipos_permitidos)) {
+            return ['status' => false, 'msj' => 'El tipo de promoción es inválido. Debe ser: porcentaje, 2x1 o monto_fijo.'];
+        }
+        $this->promocion_tipo = $tipo;
+
+        // Validar valor
+        $valor = trim($promocion['valor'] ?? '');
+        if ($valor === '' || !is_numeric($valor) || $valor < 0 || $valor > 100) {
+            return ['status' => false, 'msj' => 'El valor de la promoción es inválido. Debe ser un número entre 0 y 100.'];
+        }
+        $this->promocion_valor = $valor;
+
+        // Validar fechas
+        $fecha_inicio = trim($promocion['fecha_inicio'] ?? '');
+        $fecha_fin = trim($promocion['fecha_fin'] ?? '');
+        if (!preg_match($expre_fecha, $fecha_inicio) || !preg_match($expre_fecha, $fecha_fin)) {
+            return ['status' => false, 'msj' => 'Las fechas deben tener formato YYYY-MM-DD.'];
+        }
+        if ($fecha_inicio > $fecha_fin) {
+            return ['status' => false, 'msj' => 'La fecha de inicio no puede ser mayor que la fecha de fin.'];
+        }
+        $this->promocion_fecha_inicio = $fecha_inicio;
+        $this->promocion_fecha_fin = $fecha_fin;
+
+        // Validar estado
+        $estado = trim($promocion['estado'] ?? '1');
+        $estados_permitidos = ['0', '1', 'activa', 'inactiva'];
+        if (!in_array($estado, $estados_permitidos)) {
+            return ['status' => false, 'msj' => 'El estado de la promoción es inválido.'];
+        }
+        $this->promocion_estado = ($estado === 'activa' || $estado === '1') ? 1 : 0;
+
+        return ['status' => true, 'msj' => 'Datos validados y asignados correctamente.'];
+    }
+
+    private function setPromocionUpdateData($promocion_json) {
 
         // valida si el json es string y lo descompone
         if (is_string($promocion_json)) {
@@ -35,29 +121,21 @@ class Promocion extends Conexion {
         }
 
         // expresiones regulares y validaciones
-        $expre_id = '/^(0|[1-9][0-9]*)$/';
-        $expre_codigo = '/^[A-Za-z0-9%\-]{2,10}$/';
-        $expre_nombre = '/^[a-zA-Z0-9\s\-_%]{5,50}$/';
-        $expre_fecha = '/^\d{4}-\d{2}-\d{2}$/';
+        $expre_id = '/^(0|[1-9][0-9]*)$/'; // permite números enteros no negativos
+        $expre_nombre = '/^[a-zA-Z0-9\sáéíóúÁÉÍÓÚñÑ\-_%]{5,70}$/u'; // permite letras, números, espacios, -, _ con longitud entre 5 y 70
+        $expre_fecha = '/^\d{4}-\d{2}-\d{2}$/'; // formato YYYY-MM-DD
 
         // Validar ID
         $id = trim($promocion['id'] ?? '');
-        if ($id === '' || !preg_match($expre_id, $id) || strlen($id) > 10 || $id < 0) {
+        if ($id === '') {
             return ['status' => false, 'msj' => 'El ID de la promoción es invalido'];
         }
         $this->promocion_id = $id;
 
-        // Validar código
-        $codigo = trim($promocion['codigo'] ?? '');
-        if ($codigo === '' || !preg_match($expre_codigo, $codigo) || strlen($codigo) > 10 || strlen($codigo) < 2) {
-            return ['status' => false, 'msj' => 'El código de la promoción es inválido. Debe tener entre 2 y 10 caracteres. Ej: 2x1, 10%'];
-        }
-        $this->promocion_codigo = $codigo;
-
         // Validar nombre
         $nombre = trim($promocion['nombre'] ?? '');
-        if ($nombre === '' || !preg_match($expre_nombre, $nombre) || strlen($nombre) > 50 || strlen($nombre) < 5) {
-            return ['status' => false, 'msj' => 'El nombre de la promoción es inválido. Debe tener entre 5 y 50 caracteres.'];
+        if ($nombre === '' || !preg_match($expre_nombre, $nombre) || strlen($nombre) > 70 || strlen($nombre) < 5) {
+            return ['status' => false, 'msj' => 'El nombre de la promoción es inválido. Debe tener entre 5 y 70 caracteres.'];
         }
         $this->promocion_nombre = $nombre;
 
@@ -67,6 +145,22 @@ class Promocion extends Conexion {
             return ['status' => false, 'msj' => 'La descripción es inválida. Debe tener máximo 200 caracteres.'];
         }
         $this->promocion_descripcion = $descripcion;
+
+        // Validar productos (ARRAY)
+        $productos_raw = $promocion['productos'] ?? [];
+        if (!is_array($productos_raw)) {
+            $productos_raw = [$productos_raw];  // convertir string único a array
+        }
+
+        $productos = array_filter(array_map('trim', $productos_raw), function($p) {
+            return !empty($p);
+        });
+
+        if (empty($productos)) {
+            return ['status' => false, 'msj' => 'Debe seleccionar al menos un producto.'];
+        }
+
+        $this->promocion_productos = $productos;  // array limpio ["7", "6"]
 
         // Validar tipo
         $tipo = trim($promocion['tipo'] ?? '');
@@ -129,104 +223,160 @@ class Promocion extends Conexion {
 
     // GETTERS
     private function getPromocionID() {
+
+        // retorna el ID de la promoción
         return $this->promocion_id;
     }
 
-    private function getPromocionCodigo() {
-        return $this->promocion_codigo;
-    }
-
     private function getPromocionNombre() {
+
+        // retorna el nombre de la promoción
         return $this->promocion_nombre;
     }
 
     private function getPromocionDescripcion() {
+
+        // retorna la descripción de la promoción
         return $this->promocion_descripcion;
     }
 
+    private function getPromocionProductos() {
+
+        // retorna los productos asociados a la promoción
+        return $this->promocion_productos;
+    }
+
     private function getPromocionTipo() {
+
+        // retorna el tipo de la promoción
         return $this->promocion_tipo;
     }
 
     private function getPromocionValor() {
+
+        // retorna el valor de la promoción
         return $this->promocion_valor;
     }
 
     private function getPromocionFechaInicio() {
+
+    // retorna la fecha de inicio de la promoción
         return $this->promocion_fecha_inicio;
     }
 
     private function getPromocionFechaFin() {
+
+    // retorna la fecha de fin de la promoción
         return $this->promocion_fecha_fin;
     }
 
     private function getPromocionEstado() {
+
+        // retorna el estado de la promoción
         return $this->promocion_estado;
     }
 
     // Manejador de acciones
     public function manejarAccion($action, $promocion_json) {
         switch($action) {
+
             case 'agregar':
+                
+                // valida y asigna los datos de la promoción
                 $validacion = $this->setPromocionData($promocion_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                $resultado = $this->Guardar_Promocion();
-                if ($resultado['status'] && isset($promocion_json['productos'])) {
-                    $this->Guardar_Productos_Promocion($promocion_json['productos']);
-                }
-                return $resultado;
+                    
+                    // si la validación falla, retorna el mensaje de error
+                    if (!$validacion['status']) {
+
+                        // retorna el mensaje de error al controlador
+                        return $validacion;
+                    }
+
+                    // si es exitosa la validacion, llama la duncion guardar promoción
+                    return $this->Guardar_Promocion();
+
             break;
 
             case 'obtener':
-                $validacion = $this->setPromocionID($promocion_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Obtener_Promocion();
-            break;
 
-            case 'obtener_productos':
+                // valida y asigna el ID de la promoción
                 $validacion = $this->setPromocionID($promocion_json);
+                
+                // si la validación falla, retorna el mensaje de error
                 if (!$validacion['status']) {
+
+                    // retorna el mensaje de error al controlador
                     return $validacion;
                 }
-                return $this->Obtener_Productos_Promocion();
+
+                // si es exitosa la validacion, llama la función obtener promoción
+                return $this->Obtener_Promocion();
+
             break;
 
             case 'modificar':
-                $validacion = $this->setPromocionData($promocion_json);
+                
+                // valida y asigna los datos de la promoción
+                $validacion = $this->setPromocionUpdateData($promocion_json);
+                
+                // si la validación falla, retorna el mensaje de error
                 if (!$validacion['status']) {
+                    
+                    // retorna el mensaje de error al controlador
                     return $validacion;
                 }
-                $resultado = $this->Actualizar_Promocion();
-                if ($resultado['status'] && isset($promocion_json['productos'])) {
-                    $this->Guardar_Productos_Promocion($promocion_json['productos']);
-                }
-                return $resultado;
+
+                // si es exitosa la validacion, llama la función actualizar promoción
+                return $this->Actualizar_Promocion();
+
             break;
 
             case 'eliminar':
+
+                // valida y asigna el ID de la promoción
                 $validacion = $this->setPromocionID($promocion_json);
+                
+                // si la validación falla, retorna el mensaje de error
                 if (!$validacion['status']) {
+                    
+                    // retorna el mensaje de error al controlador
                     return $validacion;
                 }
-                $this->Eliminar_Productos_Promocion();
+
+                // si es exitosa la validacion, llama la función eliminar promoción
                 return $this->Eliminar_Promocion();
+
             break;
 
             case 'consultar':
-                return $this->Mostrar_Promociones_Con_Productos();
+
+                // llama la función para consultar promociones
+                return $this->Mostrar_Promocion();
+
             break;
 
             case 'cambiar_estado':
+
+                // valida y asigna el ID de la promoción
                 $validacion = $this->setPromocionID($promocion_json);
+
+                // si la validación falla, retorna el mensaje de error
                 if (!$validacion['status']) {
+
+                    // retorna el mensaje de error al controlador
                     return $validacion;
                 }
-                $nuevo_estado = isset($promocion_json['nuevo_estado']) ? $promocion_json['nuevo_estado'] : null;
-                return $this->CambiarEstado_Promocion($nuevo_estado);
+                
+                // retorna el nuevo estado desde el json
+                return $this->CambiarEstado_Promocion();
+            
+            break;
+
+            case 'consultar_estado':
+
+                // llama la función para consultar promociones
+                return $this->Consultar_Estado();
+
             break;
 
             default:
@@ -237,197 +387,476 @@ class Promocion extends Conexion {
 
     // Función para consultar promociones
     private function Mostrar_Promocion() {
+
+        //conexion cerrado 
         $this->closeConnection();
+
         try {
+
+            // se establrece la conexión
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT * FROM promociones WHERE status = 1 ORDER BY id_promocion DESC";
+
+            // consulta para mostras las promociones
+            $query = "SELECT * FROM promociones 
+                                WHERE status = 1 
+                                ORDER BY id_promocion DESC";
+
+            // se prepara la consulta
             $stmt = $conn->prepare($query);
+ 
+            // se ejecuta la consulta
             $stmt->execute();
 
+            // se verifica si se encontraron promociones
             if ($stmt->rowCount() > 0) {
+
+                // se almacen en una var las promociones
                 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna las promociones encontradas
                 return ['status' => true, 'msj' => 'Promociones encontradas con exito.', 'data' => $data];
-            } else {
+            } 
+            else {
+
+                // no se encontraron promociones, retorna mensaje
                 return ['status' => false, 'msj' => 'No hay promociones registradas.'];
             }
         } catch (PDOException $e) {
+
+            // en caso de error, retorna mensaje de error
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
+        } 
+        finally {
+
+            // se cierra la conexión
             $this->closeConnection();
         }
     }
 
     // Función para guardar promoción
     private function Guardar_Promocion() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "INSERT INTO promociones (codigo_promocion, nombre_promocion, descripcion, tipo_descuento, valor_descuento, fecha_inicio, fecha_fin, status)
-                      VALUES (:codigo, :nombre, :descripcion, :tipo, :valor, :fecha_inicio, :fecha_fin, :estado)";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':codigo', $this->getPromocionCodigo());
-            $stmt->bindValue(':nombre', $this->getPromocionNombre());
-            $stmt->bindValue(':descripcion', $this->getPromocionDescripcion());
-            $stmt->bindValue(':tipo', $this->getPromocionTipo());
-            $stmt->bindValue(':valor', $this->getPromocionValor());
-            $stmt->bindValue(':fecha_inicio', $this->getPromocionFechaInicio());
-            $stmt->bindValue(':fecha_fin', $this->getPromocionFechaFin());
-            $stmt->bindValue(':estado', $this->getPromocionEstado());
 
-            if ($stmt->execute()) {
-                // Obtener el ID de la promoción recién insertada
-                $ultimo_id = $conn->lastInsertId();
-                $this->promocion_id = $ultimo_id;
-                
-                $this->registrarAuditoria('Promociones', Auditoria::OP_INSERT, 'promociones', $ultimo_id, 'Promoción creada');
-                return ['status' => true, 'msj' => 'Promoción registrada con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al registrar la promoción.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
+        //conexion cerrado
+        $this->closeConnection();
+
+        try {
+
+            // se establrece la conexión
+            $conn = $this->getConnectionNegocio();
+
+            // Iniciar transacción
+            $conn->beginTransaction();
+
+            // consulta para insertar la promoción
+            $queryInsetr = "INSERT INTO promociones (nombre_promocion, descripcion_promocion, tipo_descuento, valor_descuento, fecha_inicio, fecha_fin, estado)
+                      VALUES (:nombre, :descripcion, :tipo, :valor, :fecha_inicio, :fecha_fin, :estado)";
+            
+            // se prepara la consulta
+            $stmtInsert = $conn->prepare($queryInsetr);
+
+            // se vinculan los datos
+            $stmtInsert->bindValue(':nombre', $this->getPromocionNombre());
+            $stmtInsert->bindValue(':descripcion', $this->getPromocionDescripcion());
+            $stmtInsert->bindValue(':tipo', $this->getPromocionTipo());
+            $stmtInsert->bindValue(':valor', $this->getPromocionValor());
+            $stmtInsert->bindValue(':fecha_inicio', $this->getPromocionFechaInicio());
+            $stmtInsert->bindValue(':fecha_fin', $this->getPromocionFechaFin());
+            $stmtInsert->bindValue(':estado', $this->getPromocionEstado());
+
+            // se ejecuta la consulta para insertar la promoción
+            $stmtInsert->execute();
+
+            // Obtener el ID de la promoción recién insertada
+            $ultimo_id = $conn->lastInsertId();
+
+            //consulta para inserta detalles de la promoción
+            $queryDetalle = "INSERT INTO detalle_promocion (id_promocion, id_producto) 
+                                                    VALUES (:id_promocion, :id_producto)";
+            
+            // se prepara la consulta
+            $stmtDetalle = $conn->prepare($queryDetalle);
+
+            // se extraen los productos
+            $productos = $this->getPromocionProductos();
+            
+            // bucle para isertar varios valores
+            foreach ($productos as $id_producto) {
+
+                //se vinculan los daotos
+                $stmtDetalle->bindValue(':id_promocion', $ultimo_id);
+                $stmtDetalle->bindValue(':id_producto', $id_producto);
+            
+                // EJECUTA POR CADA PRODUCTO
+                $stmtDetalle->execute();  
         }
+
+            // Confirmar transacción
+            $conn->commit();
+
+            // retorna mensaje de exito
+            return ['status' => true, 'msj' => 'Promoción registrada con éxito.'];
+
+    } catch (PDOException $e) {
+
+        // valida si hay un error en alguna consulta
+            if ($conn->inTransaction()) {
+
+                // Revierte la transacción si hay un error
+                $conn->rollBack();
+            }
+            
+            // se retorna un mensaje de error si hay un problema con la consulta
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+    } finally {
+
+        // se cierra la conexión
+        $this->closeConnection();
     }
+}
 
     // Función para obtener una promoción
     private function Obtener_Promocion() {
+
+        //conexion cerrado
         $this->closeConnection();
+        
         try {
+        
+            // se establrece la conexión
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT * FROM promociones WHERE id_promocion = :id AND status = 1";
+
+            // consulta para obtener la promoción por ID
+            $query = "SELECT p.*, dp.id_producto 
+                                FROM promociones p
+                                INNER JOIN detalle_promocion dp ON p.id_promocion = dp.id_promocion
+                                WHERE p.id_promocion = :id AND p.status = 1";
+            
+            // se prepara la consulta
             $stmt = $conn->prepare($query);
+
+            // se vincula el ID de la promoción
             $stmt->bindValue(':id', $this->getPromocionID());
+            
+            // se ejecuta la consulta
             $stmt->execute();
 
+            // se verifica si se encontró la promoción
             if ($stmt->rowCount() > 0) {
+
+                // se almacena en una var la promoción encontrada
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
-                return ['status' => true, 'msj' => 'Promoción encontrada con éxito.', 'data' => $data];
-            } else {
+
+                // retorna la promoción encontrada
+                return ['status' => true, 'msj' => 'Promoción encontrada con éxito.', 'data' => $data, 'data_bitacora' => $data];
+            } 
+            else {
+
+                // no se encontró la promoción, retorna mensaje
                 return ['status' => false, 'msj' => 'Promoción no encontrada.'];
             }
         } catch (PDOException $e) {
+
+            // mensaje de error dinamico
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
+
+            // cierra la conexion
             $this->closeConnection();
         }
     }
 
     // Función para actualizar promoción
     private function Actualizar_Promocion() {
+
+        //conexion cerrado
         $this->closeConnection();
+        
         try {
+        
+            // se establrece la conexión
             $conn = $this->getConnectionNegocio();
-            $query = "UPDATE promociones 
-                      SET codigo_promocion = :codigo,
-                          nombre_promocion = :nombre,
-                          descripcion = :descripcion,
+            
+            // Iniciar transacción
+            $conn->beginTransaction();
+
+            // consulta para obtener la promoción por ID
+            $query = "SELECT p.*, dp.id_producto 
+                                FROM promociones p
+                                INNER JOIN detalle_promocion dp ON p.id_promocion = dp.id_promocion
+                                WHERE p.id_promocion = :id AND p.status = 1";
+            
+            // se prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // se vincula el ID de la promoción
+            $stmt->bindValue(':id', $this->getPromocionID());
+            
+            // se ejecuta la consulta
+            $stmt->execute();
+
+            // se almacena en una var la promoción encontrada
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // consulta para actualizar la promoción por ID
+            $queryUpadte = "UPDATE promociones 
+                      SET nombre_promocion = :nombre,
+                          descripcion_promocion = :descripcion,
                           tipo_descuento = :tipo,
                           valor_descuento = :valor,
                           fecha_inicio = :fecha_inicio,
                           fecha_fin = :fecha_fin,
-                          status = :estado
+                          estado = :estado
                       WHERE id_promocion = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getPromocionID());
-            $stmt->bindValue(':codigo', $this->getPromocionCodigo());
-            $stmt->bindValue(':nombre', $this->getPromocionNombre());
-            $stmt->bindValue(':descripcion', $this->getPromocionDescripcion());
-            $stmt->bindValue(':tipo', $this->getPromocionTipo());
-            $stmt->bindValue(':valor', $this->getPromocionValor());
-            $stmt->bindValue(':fecha_inicio', $this->getPromocionFechaInicio());
-            $stmt->bindValue(':fecha_fin', $this->getPromocionFechaFin());
-            $stmt->bindValue(':estado', $this->getPromocionEstado());
 
-            if ($stmt->execute()) {
-                $this->registrarAuditoria('Promociones', Auditoria::OP_UPDATE, 'promociones', $this->getPromocionID(), 'Promoción actualizada');
-                return ['status' => true, 'msj' => 'Promoción actualizada con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al actualizar la promoción.'];
+            // se prepara la consulta
+            $stmtUpdate = $conn->prepare($queryUpadte);
+
+            // se vinculan los datos
+            $stmtUpdate->bindValue(':id', $this->getPromocionID());
+            $stmtUpdate->bindValue(':nombre', $this->getPromocionNombre());
+            $stmtUpdate->bindValue(':descripcion', $this->getPromocionDescripcion());
+            $stmtUpdate->bindValue(':tipo', $this->getPromocionTipo());
+            $stmtUpdate->bindValue(':valor', $this->getPromocionValor());
+            $stmtUpdate->bindValue(':fecha_inicio', $this->getPromocionFechaInicio());
+            $stmtUpdate->bindValue(':fecha_fin', $this->getPromocionFechaFin());
+            $stmtUpdate->bindValue(':estado', $this->getPromocionEstado());
+
+            // se ejecuta la consulta para actualizar la promoción
+            $stmtUpdate->execute();
+
+            // se extraen los productos
+            $productos = $this->getPromocionProductos();
+
+            // consulta para elimanr detalle
+            $queryDelet = "DELETE FROM detalle_promocion
+                                WHERE id_promocion = :id_promocion";
+
+            // prepara la consulta
+            $stmtDelete = $conn->prepare($queryDelet);
+
+            // vincula los datos
+            $stmtDelete->bindValue(':id_promocion', $this->getPromocionID());
+
+            // ejecuta la consulta
+            $stmtDelete->execute();
+
+            //consulta para insertar los nuevo datos modificados
+            $queryDetalleInsert = "INSERT INTO detalle_promocion (id_promocion, id_producto)
+                                        VALUES (:id_promocion, :id_producto)";
+
+            // prepara la consulta
+            $stmtDetalleInsert = $conn->prepare($queryDetalleInsert);
+
+            foreach ($productos as $id_producto) {
+
+                // vincula los datos
+                $stmtDetalleInsert->bindValue(':id_promocion', $this->getPromocionID());
+                $stmtDetalleInsert->bindValue(':id_producto', $id_producto);
+                
+                // ejecuta la sentencia
+                $stmtDetalleInsert->execute();
             }
+
+            // Confirmar transacción
+            $conn->commit();
+
+            // retorna mensaje de exito   
+            return ['status' => true, 'msj' => 'Promoción actualizada con éxito.', 'data_bitacora'=>$data];
+            
         } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+
+            // valida si hay un error en alguna consulta
+            if ($conn->inTransaction()) {
+
+                // Revierte la transacción si hay un error
+                $conn->rollBack();
+            }
+            
+            // se retorna un mensaje de error si hay un problema con la consulta
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
         } finally {
+
+            // CIERRA LA CONEXION
             $this->closeConnection();
         }
     }
 
     // Función para eliminar (desactivar) promoción
     private function Eliminar_Promocion() {
+
+        //conexion cerrado
         $this->closeConnection();
+        
         try {
+        
+            // se establrece la conexión
             $conn = $this->getConnectionNegocio();
-            $query = "UPDATE promociones SET status = 0 WHERE id_promocion = :id";
+            
+            // consulta para eliminar (desactivar) la promoción por ID
+            $query = "UPDATE promociones 
+                            SET status = 0 
+                            WHERE id_promocion = :id";
+            
+            // se prepara la consulta
             $stmt = $conn->prepare($query);
+
+            // se vincula el ID de la promoción
             $stmt->bindValue(':id', $this->getPromocionID());
 
+            // se ejecuta la consulta para eliminar (desactivar) la promoción
             if ($stmt->execute()) {
-                $this->registrarAuditoria('Promociones', Auditoria::OP_DELETE, 'promociones', $this->getPromocionID(), 'Promoción eliminada');
+
+                // retorna mensaje de éxito
                 return ['status' => true, 'msj' => 'Promoción eliminada con éxito.'];
-            } else {
+            } 
+            else {
+
+                // retorna mensaje de error
                 return ['status' => false, 'msj' => 'Error al eliminar la promoción.'];
             }
         } catch (PDOException $e) {
+
+            // mensaje de error dinamico
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    // funcion verifica fecha y estado de la proocion
+    private function Consultar_Estado() {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+
+            // Iniciar transacción
+            $conn->beginTransaction();
+
+            // Obtener todas las promociones con estado = 1 (activas) y comparar con hoy
+            $query = "SELECT id_promocion, fecha_inicio, fecha_fin
+                            FROM promociones
+                            WHERE status = 1";
+
+            // prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la consulta
+            $stmt->execute();
+
+            // se establece fecha 
+            $hoy = date('Y-m-d'); // solo fecha
+
+            // se establece contador
+            $desactivadas = 0; // inicializar el contador
+
+            // bucle que recorre cada registro y verifica la fecha limite
+            while ($fila = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $id         = $fila['id_promocion'];
+                $fecha_fin  = $fila['fecha_fin'] ?? '';
+
+                // Si la fecha_fin es válida y es menor a hoy → desactivar
+                if ($fecha_fin && $fecha_fin < $hoy) {
+
+                    // consulta para la actualizacion
+                    $queryUpdate = "UPDATE promociones
+                                    SET estado = 0
+                                    WHERE id_promocion = :id_promocion";
+
+                    // prepara la consulta
+                    $stmtUpdate = $conn->prepare($queryUpdate);
+
+                    // vincula los datos
+                    $stmtUpdate->bindValue(':id_promocion', $id, PDO::PARAM_INT);
+
+                    // ejecuta la sentencia
+                    $stmtUpdate->execute();
+
+                    // contador
+                    $desactivadas++;
+                }
+            }
+
+            // Confirmar transacción
+            $conn->commit();
+
+            if ($desactivadas > 0) {
+            return [
+                'status'   => true,
+                'mostrar'  => true,
+                'msj'      => "Una Promocion acaba de vencer y se ha desactivado."
+            ];
+            } else {
+                return [
+                    'status'   => true,
+                    'mostrar'  => false,
+                    'msj'      => 'No hay promociones vencidas.'
+                ];
+            }
+
+        } catch (PDOException $e) {
+            if ($conn->inTransaction()) {
+                $conn->rollBack();
+            }
+            return [
+                'status' => false,
+                'msj' => 'Error al verificar estado de promociones: ' . $e->getMessage()
+            ];
         } finally {
             $this->closeConnection();
         }
     }
 
     // Función para cambiar estado de la promoción
-    private function CambiarEstado_Promocion($nuevo_estado) {
+    private function CambiarEstado_Promocion() {
+
+        //conexion cerrado
         $this->closeConnection();
+        
         try {
+        
+            // se establrece la conexión
             $conn = $this->getConnectionNegocio();
-            $estado = ($nuevo_estado === 'activa' || $nuevo_estado === '1' || $nuevo_estado === 1) ? 1 : 0;
-            $query = "UPDATE promociones SET status = :estado WHERE id_promocion = :id";
+
+            // consulta para cambiar el estado de la promoción por ID
+            $query = "UPDATE promociones 
+                            SET status = :estado 
+                            WHERE id_promocion = :id";
+            
+            // se prepara la consulta
             $stmt = $conn->prepare($query);
+            
+            //se vincula el ID de la promoción y el nuevo estado
             $stmt->bindValue(':id', $this->getPromocionID());
             $stmt->bindValue(':estado', $estado);
 
+            // se ejecuta la consulta para cambiar el estado de la promoción
             if ($stmt->execute()) {
+
+                // se declara la var de msj de estado
                 $msg = $estado ? 'activada' : 'desactivada';
+
+                // retorna mensaje de éxito
                 return ['status' => true, 'msj' => 'Promoción ' . $msg . ' con éxito.'];
-            } else {
+            } 
+            else {
+                
+                // retorna mensaje de error
                 return ['status' => false, 'msj' => 'Error al cambiar el estado de la promoción.'];
             }
         } catch (PDOException $e) {
+
+            // mensaje de error dinamico    
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
-            $this->closeConnection();
-        }
-    }
 
-    // Función para guardar productos asociados a una promoción
-    private function Guardar_Productos_Promocion($productos) {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $id_promocion = $this->getPromocionID();
-
-            // Primero eliminar los productos existentes para esta promoción
-            $query_delete = "DELETE FROM detalle_promocion WHERE id_promocion = :id_promocion";
-            $stmt_delete = $conn->prepare($query_delete);
-            $stmt_delete->bindValue(':id_promocion', $id_promocion);
-            $stmt_delete->execute();
-
-            // Insertar los nuevos productos
-            if (!empty($productos) && is_array($productos)) {
-                $query_insert = "INSERT INTO detalle_promocion (id_promocion, id_producto) VALUES (:id_promocion, :id_producto)";
-                $stmt_insert = $conn->prepare($query_insert);
-
-                foreach ($productos as $id_producto) {
-                    $stmt_insert->bindValue(':id_promocion', $id_promocion);
-                    $stmt_insert->bindValue(':id_producto', $id_producto);
-                    $stmt_insert->execute();
-                }
-            }
-
-            return ['status' => true, 'msj' => 'Productos asociados correctamente.'];
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error al asociar productos: ' . $e->getMessage()];
-        } finally {
+            // cierra la conexion
             $this->closeConnection();
         }
     }
@@ -449,27 +878,6 @@ class Promocion extends Conexion {
             return ['status' => true, 'msj' => 'Productos encontrados.', 'data' => $data];
         } catch (PDOException $e) {
             return ['status' => false, 'msj' => 'Error al obtener productos: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
-
-    // Función para eliminar productos de una promoción
-    private function Eliminar_Productos_Promocion() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "DELETE FROM detalle_promocion WHERE id_promocion = :id_promocion";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id_promocion', $this->getPromocionID());
-
-            if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Productos eliminados correctamente.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al eliminar productos.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error al eliminar productos: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
         }

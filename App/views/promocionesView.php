@@ -71,7 +71,6 @@
                     <thead>
                       <tr style="background: #f8f9fa;">
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">#</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Código</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Nombre</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Tipo</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Valor</th>
@@ -84,17 +83,14 @@
                           <?php
                 if(isset($promociones) && is_array($promociones) && !empty($promociones)){
                 foreach ($promociones as $promocion):
-                    $estado_class = $promocion['status'] == 1 ? 'background: #d4edda; color: #155724;' : 'background: #f8d7da; color: #721c24;';
-                    $estado_texto = $promocion['status'] == 1 ? 'Activa' : 'Inactiva';
+                    $estado_class = $promocion['estado'] == 1 ? 'background: #d4edda; color: #155724;' : 'background: #f8d7da; color: #721c24;';
+                    $estado_texto = $promocion['estado'] == 1 ? 'Activa' : 'Inactiva';
             ?>
                           <tr style="transition: all 0.2s;">
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
                               <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
                                 PRO-00<?php echo $promocion['id_promocion']; ?>
                               </span>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle; font-weight: 600; color: #dc3545;">
-                              <i class="fa fa-ticket-alt me-1"></i><?php echo $promocion['codigo_promocion'] ?? 'N/A'; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; color: #333;">
                               <?php echo $promocion['nombre_promocion']; ?>
@@ -179,12 +175,11 @@ require_once 'components/scripts.php';
         </div>
         <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
           <div class="row">
-            <div class="col-md-6">
+            <div class="">
               <div class="form-group mb-3">
-                <label for="codigoPromocion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-ticket-alt me-2" style="color: #dc3545;"></i>Código *</label>
-                <input type="text" class="form-control" id="codigoPromocion" name="codigoPromocion" placeholder="Ej: 2x1, 10%, VERANO" style="border-radius: 8px;" oninput="validar_codigo()" required>
-                <span id="errorCodigo" class="error-messege text-danger small"></span>
-                <small class="form-text text-muted">Código corto que identifica la promoción</small>
+                <label for="nombrePromocion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-heading me-2" style="color: #dc3545;"></i>Nombre *</label>
+                <input type="text" class="form-control" id="nombrePromocion" name="nombrePromocion" placeholder="Ej: 2x1 Galletas de Avena" style="border-radius: 8px;" oninput="validar_nombre()" required>
+                <span id="errorNombre" class="error-messege text-danger small"></span>
               </div>
             </div>
             <div class="col-md-6">
@@ -199,16 +194,7 @@ require_once 'components/scripts.php';
                 <span id="errorTipo" class="error-messege text-danger small"></span>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-8">
-              <div class="form-group mb-3">
-                <label for="nombrePromocion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-heading me-2" style="color: #dc3545;"></i>Nombre *</label>
-                <input type="text" class="form-control" id="nombrePromocion" name="nombrePromocion" placeholder="Ej: 2x1 Galletas de Avena" style="border-radius: 8px;" oninput="validar_nombre()" required>
-                <span id="errorNombre" class="error-messege text-danger small"></span>
-              </div>
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="valorPromocion" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-percent me-2" style="color: #dc3545;"></i>Valor *</label>
                 <input type="number" class="form-control" id="valorPromocion" name="valorPromocion" placeholder="10" step="0.01" min="0" max="100" style="border-radius: 8px;" oninput="validar_valor()" required>
@@ -243,9 +229,11 @@ require_once 'components/scripts.php';
               <label class="form-check-label" for="estadoPromocion" style="color: #333; font-weight: 500;"><i class="fa fa-power-off me-2" style="color: #dc3545;"></i>Promoción Activa</label>
             </div>
           </div>
+          <div id="contenedorProductos">
           <div class="form-group mb-3">
             <label for="productos" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Productos Asociados</label>
-            <select class="form-select" id="productos" name="productos[]" multiple style="border-radius: 8px; height: 120px;">
+            <select class="form-select" id="productos"  style="border-radius: 8px;">
+              <option value="">Seleccione un Producto</option>
               <?php
               if(isset($productos) && is_array($productos) && !empty($productos)){
                   foreach ($productos as $producto):
@@ -258,7 +246,8 @@ require_once 'components/scripts.php';
               }
               ?>
             </select>
-            <small class="form-text text-muted">Selecciona los productos que aplican a esta promoción (Ctrl+Click para selección múltiple)</small>
+              <input type="button" value="Agregar Producto" class="btn btn-sm mt-2" id="agregarProductoBtn" onclick="agregarProducto()" style="background: #dc3545; color: white; border-radius: 6px; border: none;">
+          </div>
           </div>
 
           <!-- Nota informativa -->
@@ -294,18 +283,19 @@ require_once 'components/scripts.php';
         <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
           <input type="hidden" class="form-control" id="id" name="id" required>
           <div class="row">
-            <div class="col-md-6">
+            <div class="">
               <div class="form-group mb-3">
-                <label for="codigoPromocionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-ticket-alt me-2" style="color: #dc3545;"></i>Código *</label>
-                <input type="text" class="form-control" id="codigoPromocionEdit" name="codigoPromocion" placeholder="Ej: 2x1, 10%, VERANO" style="border-radius: 8px;" oninput="validar_codigo_modificado()" required>
-                <span id="errorCodigoEdit" class="error-messege text-danger small"></span>
-                <small class="form-text text-muted">Código corto que identifica la promoción</small>
+                <label for="nombrePromocionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-heading me-2" style="color: #dc3545;"></i>Nombre *</label>
+                <input type="text" class="form-control" id="nombrePromocionEdit" name="nombrePromocionEdit" placeholder="Ej: 2x1 Galletas de Avena" style="border-radius: 8px;" oninput="validar_nombre_modificado()" required>
+                <span id="errorNombreEdit" class="error-messege text-danger small"></span>
               </div>
             </div>
+            </div>
+            <div class="row">
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="tipoPromocionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tag me-2" style="color: #dc3545;"></i>Tipo *</label>
-                <select class="form-select" id="tipoPromocionEdit" name="tipoPromocion" style="border-radius: 8px;" onchange="actualizarPlaceholderEdit()" required>
+                <select class="form-select" id="tipoPromocionEdit" name="tipoPromocionEdit" style="border-radius: 8px;" onchange="actualizarPlaceholderEdit()" required>
                   <option value="">Seleccione...</option>
                   <option value="porcentaje">Porcentaje (%)</option>
                   <option value="2x1">2x1 (Dos por uno)</option>
@@ -314,53 +304,46 @@ require_once 'components/scripts.php';
                 <span id="errorTipoEdit" class="error-messege text-danger small"></span>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-8">
-              <div class="form-group mb-3">
-                <label for="nombrePromocionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-heading me-2" style="color: #dc3545;"></i>Nombre *</label>
-                <input type="text" class="form-control" id="nombrePromocionEdit" name="nombrePromocion" placeholder="Ej: 2x1 Galletas de Avena" style="border-radius: 8px;" oninput="validar_nombre_modificado()" required>
-                <span id="errorNombreEdit" class="error-messege text-danger small"></span>
-              </div>
-            </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="valorPromocionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-percent me-2" style="color: #dc3545;"></i>Valor *</label>
-                <input type="number" class="form-control" id="valorPromocionEdit" name="valorPromocion" placeholder="10" step="0.01" min="0" max="100" style="border-radius: 8px;" oninput="validar_valor_modificado()" required>
+                <input type="number" class="form-control" id="valorPromocionEdit" name="valorPromocionEdit" placeholder="10" step="0.01" min="0" max="100" style="border-radius: 8px;" oninput="validar_valor_modificado()" required>
                 <span id="errorValorEdit" class="error-messege text-danger small"></span>
               </div>
             </div>
           </div>
           <div class="form-group mb-3">
             <label for="descripcionPromocionEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-align-left me-2" style="color: #dc3545;"></i>Descripción *</label>
-            <textarea class="form-control" id="descripcionPromocionEdit" name="descripcionPromocion" rows="2" placeholder="Describe la promoción..." style="border-radius: 8px;" oninput="validar_descripcion_modificado()" required></textarea>
+            <textarea class="form-control" id="descripcionPromocionEdit" name="descripcionPromocionEdit" rows="2" placeholder="Describe la promoción..." style="border-radius: 8px;" oninput="validar_descripcion_modificado()" required></textarea>
             <span id="errorDescripcionEdit" class="error-messege text-danger small"></span>
           </div>
           <div class="row">
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="fechaInicioEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-calendar me-2" style="color: #dc3545;"></i>Inicio *</label>
-                <input type="date" class="form-control" id="fechaInicioEdit" name="fechaInicio" style="border-radius: 8px;" oninput="validar_fechas_modificado()" required>
+                <input type="date" class="form-control" id="fechaInicioEdit" name="fechaInicioEdit" style="border-radius: 8px;" oninput="validar_fechas_modificado()" required>
                 <span id="errorFechaInicioEdit" class="error-messege text-danger small"></span>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="fechaFinEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-calendar-check me-2" style="color: #dc3545;"></i>Fin *</label>
-                <input type="date" class="form-control" id="fechaFinEdit" name="fechaFin" style="border-radius: 8px;" oninput="validar_fechas_modificado()" required>
+                <input type="date" class="form-control" id="fechaFinEdit" name="fechaFinEdit" style="border-radius: 8px;" oninput="validar_fechas_modificado()" required>
                 <span id="errorFechaFinEdit" class="error-messege text-danger small"></span>
               </div>
             </div>
           </div>
           <div class="form-group mb-3">
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="estadoPromocionEdit" name="estadoPromocion" style="cursor: pointer;">
+              <input class="form-check-input" type="checkbox" id="estadoPromocionEdit" name="estadoPromocionEdit" style="cursor: pointer;">
               <label class="form-check-label" for="estadoPromocionEdit" style="color: #333; font-weight: 500;"><i class="fa fa-power-off me-2" style="color: #dc3545;"></i>Promoción Activa</label>
             </div>
           </div>
+          <div id="contenedorProductosEdit">
           <div class="form-group mb-3">
-            <label for="productosEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Productos Asociados</label>
-            <select class="form-select" id="productosEdit" name="productos[]" multiple style="border-radius: 8px; height: 120px;">
+            <label for="productos" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-box me-2" style="color: #dc3545;"></i>Productos Asociados</label>
+            <select class="form-select" id="productosEdit"  style="border-radius: 8px;">
+              <option value="">Seleccione un Producto</option>
               <?php
               if(isset($productos) && is_array($productos) && !empty($productos)){
                   foreach ($productos as $producto):
@@ -373,9 +356,9 @@ require_once 'components/scripts.php';
               }
               ?>
             </select>
-            <small class="form-text text-muted">Selecciona los productos que aplican a esta promoción (Ctrl+Click para selección múltiple)</small>
+              <input type="button" value="Agregar Producto" class="btn btn-sm mt-2" id="agregarProductoBtnEdit" onclick="agregarProductoEdit()" style="background: #dc3545; color: white; border-radius: 6px; border: none;">
           </div>
-
+          </div>
           <!-- Nota informativa -->
           <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #f8d7da; border: none;">
             <i class="fa fa-info-circle me-2" style="color: #721c24;"></i>
@@ -397,7 +380,7 @@ require_once 'components/scripts.php';
 
 <script src="assets/js/validaciones/promociones_validaciones.js"></script>
 <script src="assets/js/ajax/promociones_ajax.js"></script>
-<script src="assets/js/animacionesJs/dashboard_promociones.js"></script>
+<script src="assets/js/animacionesJs/promociones.js"></script>
 
   </body>
 </html>

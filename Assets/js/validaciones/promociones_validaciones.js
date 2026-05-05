@@ -42,43 +42,6 @@ function actualizarPlaceholderEdit() {
 }
 
 // Funciones de validación para el formulario de agregar
-function validar_codigo() {
-  var codigo = document.getElementById('codigoPromocion');
-  var error = document.getElementById('errorCodigo');
-
-  error.innerHTML = '';
-  codigo.classList.remove('input-error', 'input-valid');
-
-  const regex = /^[A-Za-z0-9%\-]{2,10}$/;
-  var valor = codigo.value.trim();
-
-  if (valor === '') {
-    error.innerHTML = 'El código no puede estar vacío.';
-    codigo.classList.add('input-error', 'is-invalid');
-    codigo.classList.remove('is-valid');
-    return false;
-  }
-
-  if (valor.length < 2 || valor.length > 10) {
-    error.innerHTML = 'El código debe tener entre 2 y 10 caracteres.';
-    codigo.classList.add('input-error', 'is-invalid');
-    codigo.classList.remove('is-valid');
-    return false;
-  }
-
-  if (!regex.test(valor)) {
-    error.innerHTML = 'El código solo puede contener letras, números, % y -.';
-    codigo.classList.add('input-error', 'is-invalid');
-    codigo.classList.remove('is-valid');
-    return false;
-  }
-
-  error.innerHTML = '';
-  codigo.classList.add('input-valid', 'is-valid');
-  codigo.classList.remove('is-invalid');
-  return true;
-}
-
 function validar_nombre() {
   var nombre = document.getElementById('nombrePromocion');
   var error = document.getElementById('errorNombre');
@@ -96,8 +59,8 @@ function validar_nombre() {
     return false;
   }
 
-  if (valor.length < 5 || valor.length > 50) {
-    error.innerHTML = 'El nombre debe tener entre 5 y 50 caracteres.';
+  if (valor.length < 5 || valor.length > 70) {
+    error.innerHTML = 'El nombre debe tener entre 5 y 70 caracteres.';
     nombre.classList.add('input-error', 'is-invalid');
     nombre.classList.remove('is-valid');
     return false;
@@ -278,43 +241,6 @@ function validar_formulario() {
 }
 
 // Funciones de validación para el formulario de modificar
-function validar_codigo_modificado() {
-  var codigo = document.getElementById('codigoPromocionEdit');
-  var error = document.getElementById('errorCodigoEdit');
-
-  error.innerHTML = '';
-  codigo.classList.remove('input-error', 'input-valid');
-
-  const regex = /^[A-Za-z0-9%\-]{2,10}$/;
-  var valor = codigo.value.trim();
-
-  if (valor === '') {
-    error.innerHTML = 'El código no puede estar vacío.';
-    codigo.classList.add('input-error', 'is-invalid');
-    codigo.classList.remove('is-valid');
-    return false;
-  }
-
-  if (valor.length < 2 || valor.length > 10) {
-    error.innerHTML = 'El código debe tener entre 2 y 10 caracteres.';
-    codigo.classList.add('input-error', 'is-invalid');
-    codigo.classList.remove('is-valid');
-    return false;
-  }
-
-  if (!regex.test(valor)) {
-    error.innerHTML = 'El código solo puede contener letras, números, % y -.';
-    codigo.classList.add('input-error', 'is-invalid');
-    codigo.classList.remove('is-valid');
-    return false;
-  }
-
-  error.innerHTML = '';
-  codigo.classList.add('input-valid', 'is-valid');
-  codigo.classList.remove('is-invalid');
-  return true;
-}
-
 function validar_nombre_modificado() {
   var nombre = document.getElementById('nombrePromocionEdit');
   var error = document.getElementById('errorNombreEdit');
@@ -332,8 +258,8 @@ function validar_nombre_modificado() {
     return false;
   }
 
-  if (valor.length < 5 || valor.length > 50) {
-    error.innerHTML = 'El nombre debe tener entre 5 y 50 caracteres.';
+  if (valor.length < 5 || valor.length > 70) {
+    error.innerHTML = 'El nombre debe tener entre 5 y 70 caracteres.';
     nombre.classList.add('input-error', 'is-invalid');
     nombre.classList.remove('is-valid');
     return false;

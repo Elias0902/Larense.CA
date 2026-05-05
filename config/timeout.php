@@ -47,7 +47,7 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
                     window.location.href = LOGOUT_URL;
                 });
             } else {
-                alert('Sesión cerrada por inactividad. Será redirigido.');
+                //alert('Sesión cerrada por inactividad. Será redirigido.');
                 window.location.href = LOGOUT_URL;
             }
         }
@@ -63,7 +63,7 @@ function getInactivityTimerScript($inactivitySeconds = 300, $warningSeconds = 29
             //console.log('⚠️ Mostrando advertencia de inactividad');
 
             if (typeof Swal === 'undefined') {
-                 Fallback con confirm + timeout automático
+                 //Fallback con confirm + timeout automático
                 //console.warn('SweetAlert2 no disponible, usando confirm()');
                 const msg = '⚠️ ¡Inactividad detectada!\n\nSe cerrará la sesión en 5 segundos.\nPresione Aceptar para continuar o espere para salir.';
                 const warningConfirmed = confirm(msg);

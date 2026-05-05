@@ -223,8 +223,15 @@
                     $bitacora->manejarAccion('agregar', $bitacora_json);
                 }
                 else {
+
+                    // muestra el mensaje dinamico del modelo
                     setError($resultado['msj']);
-                    //header('Location: index.php?url=producciones');
+
+                    // redirige ai esta condicion no se cumple
+                    header('Location: index.php?url=producciones');
+
+                    // termina la ejecucion del script
+                    exit();
                 }
             }
             catch (Exception $e) {
