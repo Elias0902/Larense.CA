@@ -88,10 +88,10 @@ function aplicarPermisosMenu() {
     });
 
     // Ocultar secciones vacías
-    const secciones = document.querySelectorAll('.nav-section');
+    //const secciones = document.querySelectorAll('.nav-section');
     
     secciones.forEach(seccion => {
-        const hijosVisibles = seccion.querySelectorAll('.nav-item:not([style*="display: none"])');
+        //const hijosVisibles = seccion.querySelectorAll('.nav-item:not([style*="display: none"])');
         
         if (hijosVisibles.length === 0) {
             seccion.style.display = 'none';
