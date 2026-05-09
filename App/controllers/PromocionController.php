@@ -34,6 +34,12 @@
             }
         break;
 
+        case 'obtener_promociones':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerPromociones();
+            }
+        break;
+
         case 'obtener_productos':
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 ObtenerProductos();
@@ -493,6 +499,25 @@
 
         // retorna el resultado en formato json
         echo json_encode($promocion);
+        
+        // detiene la ejecucion del script
+        exit();
+    }
+
+    // function para obtener un dato
+    function ObtenerPromociones() {
+
+        // instancia el modelo
+        $modelo = new Promocion();
+
+        // se llama la funcion de obtener al modelo
+        $resultado = $modelo->manejarAccion('obtener_promociones', null);
+        
+        // obtiene los datos de la promocion
+        $promocion = $resultado['data'];
+
+        // retorna el resultado en formato json
+        echo json_encode($resultado);
         
         // detiene la ejecucion del script
         exit();

@@ -355,6 +355,13 @@ class Promocion extends Conexion {
 
             break;
 
+            case 'obtener_promociones':
+
+                // llama la función para obtener promociones
+                return $this->Obtener_Promociones();
+
+            break;
+
             case 'cambiar_estado':
 
                 // valida y asigna el ID de la promoción
@@ -561,6 +568,57 @@ class Promocion extends Conexion {
         } finally {
 
             // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+        private function Obtener_Promociones() {
+
+        //conexion cerrado 
+        $this->closeConnection();
+
+        try {
+
+            // se establrece la conexión
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostras las promociones
+            $query = "SELECT p.*, 
+                        GROUP_CONCAT(dp.id_producto) AS id_productos
+                        FROM promociones p
+                        INNER JOIN detalle_promocion dp ON p.id_promocion = dp.id_promocion
+                        WHERE p.status = 1 
+                        GROUP BY p.id_promocion
+                        ORDER BY p.id_promocion DESC";
+
+            // se prepara la consulta
+            $stmt = $conn->prepare($query);
+ 
+            // se ejecuta la consulta
+            $stmt->execute();
+
+            // se verifica si se encontraron promociones
+            if ($stmt->rowCount() > 0) {
+
+                // se almacen en una var las promociones
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna las promociones encontradas
+                return ['status' => true, 'msj' => 'Promociones encontradas con exito.', 'data' => $data];
+            } 
+            else {
+
+                // no se encontraron promociones, retorna mensaje
+                return ['status' => false, 'msj' => 'No hay promociones registradas.'];
+            }
+        } catch (PDOException $e) {
+
+            // en caso de error, retorna mensaje de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } 
+        finally {
+
+            // se cierra la conexión
             $this->closeConnection();
         }
     }

@@ -73,6 +73,94 @@ function validar_fecha() {
   return true;
 }
 
+function validar_producto() {
+  var producto = document.getElementById('productos');
+  var error = document.getElementById('errorProducto');
+
+  error.innerHTML = '';
+  producto.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+  var valor = producto.value;
+
+  if (valor === '') {
+    error.innerHTML = 'Debe seleccionar un producto.';
+    producto.classList.add('input-error', 'is-invalid');
+    producto.classList.remove('is-valid');
+    return false;
+  }
+
+  error.innerHTML = '';
+  producto.classList.add('input-valid', 'is-valid');
+  producto.classList.remove('is-invalid');
+  return true;
+}
+
+function validar_cantidad() {
+  var cantidad = document.getElementById('cantidadProducto');
+  var error = document.getElementById('errorCantidad');
+
+  error.innerHTML = '';
+  cantidad.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+  var valor = cantidad.value;
+
+  if (valor === '' || parseFloat(valor) <= 0) {
+    error.innerHTML = 'La cantidad es requerida y debe ser mayor a 0.';
+    cantidad.classList.add('input-error', 'is-invalid');
+    cantidad.classList.remove('is-valid');
+    return false;
+  }
+
+  error.innerHTML = '';
+  cantidad.classList.add('input-valid', 'is-valid');
+  cantidad.classList.remove('is-invalid');
+  return true;
+}
+
+function validar_precio() {
+  var precio = document.getElementById('precioProducto');
+  var error = document.getElementById('errorPrecio');
+
+  error.innerHTML = '';
+  precio.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+  var valor = precio.value;
+
+  if (valor === '' || parseFloat(valor) <= 0) {
+    error.innerHTML = 'El precio es requerido y debe ser mayor a 0.';
+    precio.classList.add('input-error', 'is-invalid');
+    precio.classList.remove('is-valid');
+    return false;
+  }
+
+  error.innerHTML = '';
+  precio.classList.add('input-valid', 'is-valid');
+  precio.classList.remove('is-invalid');
+  return true;
+}
+
+function validar_fecha() {
+  var fecha = document.getElementById('fechaPedido');
+  var error = document.getElementById('errorFecha');
+
+  error.innerHTML = '';
+  fecha.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+  var valor = fecha.value;
+
+  if (valor === '') {
+    error.innerHTML = 'La fecha es requerida.';
+    fecha.classList.add('input-error', 'is-invalid');
+    fecha.classList.remove('is-valid');
+    return false;
+  }
+
+  error.innerHTML = '';
+  fecha.classList.add('input-valid', 'is-valid');
+  fecha.classList.remove('is-invalid');
+  return true;
+}
+
 function validar_total() {
   var total = document.getElementById('totalPedido');
   var error = document.getElementById('errorTotal');
@@ -266,44 +354,6 @@ function validar_fecha_modificado() {
   return true;
 }
 
-function validar_total_modificado() {
-  var total = document.getElementById('totalPedidoEdit');
-  var error = document.getElementById('errorTotalEdit');
-
-  error.innerHTML = '';
-  total.classList.remove('input-error', 'input-valid');
-
-  var valor = total.value.trim();
-
-  if (valor === '') {
-    error.innerHTML = 'El total es requerido.';
-    total.classList.add('input-error', 'is-invalid');
-    total.classList.remove('is-valid');
-    return false;
-  }
-
-  var valorNum = parseFloat(valor);
-  if (isNaN(valorNum) || valorNum <= 0) {
-    error.innerHTML = 'El total debe ser mayor a 0.';
-    total.classList.add('input-error', 'is-invalid');
-    total.classList.remove('is-valid');
-    return false;
-  }
-
-  var partes = valor.split('.');
-  if (partes.length > 1 && partes[1].length > 2) {
-    error.innerHTML = 'Máximo 2 decimales permitidos.';
-    total.classList.add('input-error', 'is-invalid');
-    total.classList.remove('is-valid');
-    return false;
-  }
-
-  error.innerHTML = '';
-  total.classList.add('input-valid', 'is-valid');
-  total.classList.remove('is-invalid');
-  return true;
-}
-
 function validar_telefono_modificado() {
   var telefono = document.getElementById('telefonoPedidoEdit');
   var error = document.getElementById('errorTelefonoEdit');
@@ -375,15 +425,80 @@ function validar_observaciones_modificado() {
   return true;
 }
 
+function validar_producto() {
+  var producto = document.getElementById('productosEdit');
+  var error = document.getElementById('errorProductoEdit');
+
+  error.innerHTML = '';
+  producto.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+  var valor = producto.value;
+
+  if (valor === '') {
+    error.innerHTML = 'Debe seleccionar un producto.';
+    producto.classList.add('input-error', 'is-invalid');
+    producto.classList.remove('is-valid');
+    return false;
+  }
+
+  error.innerHTML = '';
+  producto.classList.add('input-valid', 'is-valid');
+  producto.classList.remove('is-invalid');
+  return true;
+}
+
+function validar_cantidad() {
+  var cantidad = document.getElementById('cantidadProductoEdit');
+  var error = document.getElementById('errorCantidadEdit');
+
+  error.innerHTML = '';
+  cantidad.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+  var valor = cantidad.value;
+
+  if (valor === '' || parseFloat(valor) <= 0) {
+    error.innerHTML = 'La cantidad es requerida y debe ser mayor a 0.';
+    cantidad.classList.add('input-error', 'is-invalid');
+    cantidad.classList.remove('is-valid');
+    return false;
+  }
+
+  error.innerHTML = '';
+  cantidad.classList.add('input-valid', 'is-valid');
+  cantidad.classList.remove('is-invalid');
+  return true;
+}
+
+function validar_precioEdit() {
+  var precio = document.getElementById('precioProductoEdit');
+  var error = document.getElementById('errorPrecioEdit');
+
+  error.innerHTML = '';
+  precio.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+  var valor = precio.value;
+
+  if (valor === '' || parseFloat(valor) <= 0) {
+    error.innerHTML = 'El precio es requerido y debe ser mayor a 0.';
+    precio.classList.add('input-error', 'is-invalid');
+    precio.classList.remove('is-valid');
+    return false;
+  }
+
+  error.innerHTML = '';
+  precio.classList.add('input-valid', 'is-valid');
+  precio.classList.remove('is-invalid');
+  return true;
+}
+
 function validar_formulario_modificado() {
   const cliente_valido = validar_cliente_modificado();
   const fecha_valida = validar_fecha_modificado();
-  const total_valido = validar_total_modificado();
   const telefono_valido = validar_telefono_modificado();
   const direccion_valida = validar_direccion_modificado();
   const observaciones_validas = validar_observaciones_modificado();
 
-  if (cliente_valido && fecha_valida && total_valido && telefono_valido && direccion_valida && observaciones_validas) {
+  if (cliente_valido && fecha_valida && telefono_valido && direccion_valida && observaciones_validas) {
     return true;
   } else {
     Swal.fire({
@@ -396,6 +511,41 @@ function validar_formulario_modificado() {
     });
     return false;
   }
+}
+
+// funcion que cambia el estado
+function CambiarEstadoPedido(id, nuevoEstado) {
+
+  Swal.fire({
+    title: '¿Cambiar Estado?',
+    text: `¿Deseas cambiar el estado del pedido"?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, cambiar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Crear formulario temporal para enviar POST
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'index.php?url=pedidos&action=cambiar_estado';
+      
+      const inputId = document.createElement('input');
+      inputId.type = 'hidden';
+      inputId.name = 'id';
+      inputId.value = id;
+      
+      const inputEstado = document.createElement('input');
+      inputEstado.type = 'hidden';
+      inputEstado.name = 'nuevo_estado';
+      inputEstado.value = nuevoEstado;
+      
+      form.appendChild(inputId);
+      form.appendChild(inputEstado);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
 }
 
 // Función para eliminar pedido

@@ -91,10 +91,14 @@
                       <tr style="background: #f8f9fa;">
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">#</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Cliente</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Fecha</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Productos</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Cantidad</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Total</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Promoción</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Estado</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Pago</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Tasa</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Fecha</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545; text-align: center;">Acciones</th>
                       </tr>
                     </thead>
@@ -106,63 +110,95 @@
                     $estado_texto = '';
                     $estado_icono = '';
                     
-                    switch($pedido['estado']) {
-                        case 'pendiente':
+                    switch($pedido['nombre_estado']) {
+                        case 'Pendiente':
                             $estado_class = 'badge-warning';
                             $estado_texto = 'Pendiente';
                             $estado_icono = '<i class="fa fa-clock"></i>';
                             break;
-                        case 'procesando':
+                        case 'Procesando':
                             $estado_class = 'badge-info';
                             $estado_texto = 'Procesando';
                             $estado_icono = '<i class="fa fa-cog fa-spin"></i>';
                             break;
-                        case 'enviado':
+                        case 'Enviado':
                             $estado_class = 'badge-primary';
                             $estado_texto = 'Enviado';
                             $estado_icono = '<i class="fa fa-truck"></i>';
                             break;
-                        case 'entregado':
+                        case 'Entregado':
                             $estado_class = 'badge-success';
                             $estado_texto = 'Entregado';
                             $estado_icono = '<i class="fa fa-check-circle"></i>';
                             break;
-                        case 'cancelado':
+                        case 'Cancelado':
                             $estado_class = 'badge-danger';
                             $estado_texto = 'Cancelado';
                             $estado_icono = '<i class="fa fa-times-circle"></i>';
                             break;
                         default:
                             $estado_class = 'badge-secondary';
-                            $estado_texto = ucfirst($pedido['estado']);
+                            $estado_texto = ucfirst($pedido['nombre_estado']);
                             $estado_icono = '<i class="fa fa-question"></i>';
                     }
-                    
-                    $cliente_nombre = $pedido['nombre_cliente'];
-                    $promocion_info = $pedido['codigo_promocion'] ? '<span class="badge badge-info">' . $pedido['codigo_promocion'] . '</span>' : '<span class="text-muted">-</span>';
+
+                    switch($pedido['pago']) {
+                        case 'Por Pagar':
+                            $estadoPago_class = 'badge-warning';
+                            //$estado_texto = 'Pendiente';
+                            $estadoPago_icono = '<i class="fa fa-clock"></i>';
+                            break;
+                        case 'Pagado':
+                            $estadoPago_class = 'badge-success';
+                            //$estado_texto = 'Entregado';
+                            $estadoPago_icono = '<i class="fa fa-check-circle"></i>';
+                            break;
+                        default:
+                            $estadoPago_class = 'badge-secondary';
+                            $estadoPago_texto = ucfirst($pedido['pago']);
+                            $estadoPago_icono = '<i class="fa fa-question"></i>';
+                    }
             ?>
-                          <tr style="transition: all 0.2s;" data-id="<?php echo $pedido['id_pedido']; ?>" data-estado="<?php echo $pedido['estado']; ?>">
+                          <tr style="transition: all 0.2s;" data-id="<?php echo $pedido['id_pedido']; ?>" data-estado="<?php echo $pedido['nombre_estado']; ?>">
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
                               <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
                                 PED-00<?php echo $pedido['id_pedido']; ?>
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
-                              <i class="fa fa-user me-1" style="color: #dc3545;"></i><?php echo $cliente_nombre; ?>
+                              <i class="fa fa-user me-1" style="color: #dc3545;"></i><?php echo $pedido['tipo_id'] . '-' . $pedido['id_cliente'] . ' ' . $pedido['nombre_cliente']; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
-                              <i class="fa fa-calendar me-1" style="color: #dc3545;"></i><?php echo date('d/m/Y', strtotime($pedido['fecha_pedido'])); ?>
+                              <i class="fa fa-cubes me-1" style="color: #dc3545;"></i><br><?php echo $pedido['productos']; ?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle;">
+                              <span class="badge" style="background: #ffc107; color: black; padding: 6px 12px; border-radius: 20px; font-weight: 500;">
+                                <i class="fa fa-cubes me-1" style="color: #dc3545;"></i><br><?php echo $pedido['cantidades']; ?><br> unidades
+                              </span>
+                              </td>
+                            <td style="padding: 15px; vertical-align: middle;">
+                              <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
+                                $<?php echo number_format($pedido['monto_total_pedido'], 2); ?>
+                              </span>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle;"><?php echo $pedido['nombre_promocion']; ?></td>
+                            <td style="padding: 15px; vertical-align: middle;">
+                              <span class="badge <?php echo $estado_class; ?>" style=" color: black; padding: 6px 12px; border-radius: 20px;">
+                                <?php echo $estado_icono . ' ' . $pedido['nombre_estado']; ?>
+                              </span>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle;">
+                              <span class="badge <?php echo $estadoPago_class; ?>" style=" color: black; padding: 6px 12px; border-radius: 20px;">
+                                <?php echo $estadoPago_icono . ' ' . $pedido['pago']; ?>
+                              </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
                               <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
-                                $<?php echo number_format($pedido['total'], 2); ?>
+                                $<?php echo number_format($pedido['monto_tasa'], 2); ?>
                               </span>
                             </td>
-                            <td style="padding: 15px; vertical-align: middle;"><?php echo $promocion_info; ?></td>
                             <td style="padding: 15px; vertical-align: middle;">
-                              <span class="badge <?php echo $estado_class; ?>" style="padding: 6px 12px; border-radius: 20px;">
-                                <?php echo $estado_icono . ' ' . $estado_texto; ?>
-                              </span>
+                              <i class="fa fa-calendar me-1" style="color: #dc3545;"></i><?php echo date('d/m/Y', strtotime($pedido['fecha_pedido'])); ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; text-align: center;">
                               <div class="btn-group" role="group">
@@ -184,12 +220,18 @@
                                     <i class="fa fa-exchange-alt"></i>
                                   </button>
                                   <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#" onclick="CambiarEstadoPedido(<?php echo $pedido['id_pedido']; ?>, 'pendiente')">🟡 Pendiente</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="CambiarEstadoPedido(<?php echo $pedido['id_pedido']; ?>, 'procesando')">🔵 Procesando</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="CambiarEstadoPedido(<?php echo $pedido['id_pedido']; ?>, 'enviado')">🚚 Enviado</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="CambiarEstadoPedido(<?php echo $pedido['id_pedido']; ?>, 'entregado')">✅ Entregado</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#" onclick="CambiarEstadoPedido(<?php echo $pedido['id_pedido']; ?>, 'cancelado')">❌ Cancelar</a></li>
+                                      <?php foreach($estadoPedido as $estado): ?>
+                                          <?php if($estado['id_estado_pedido'] != $pedido['id_estado_pedido']): // No repetir actual ?>
+                                              <li>
+                                                  <a class="dropdown-item" href="#" 
+                                                    onclick="CambiarEstadoPedido(<?= $pedido['id_pedido'] ?>, <?= $estado['id_estado_pedido'] ?>)">
+                                                      <?= $estado['nombre_estado'] ?>
+                                                  </a>
+                                              </li>
+                                          <?php endif; ?>
+                                      <?php endforeach; ?>
+                                      <li><hr class="dropdown-divider"></li>
+                                      <li><a class="dropdown-item text-danger" href="#" onclick="CambiarEstadoPedido(<?= $pedido['id_pedido'] ?>, 'cancelado')">❌ Cancelar</a></li>
                                   </ul>
                                 </div>
                                 <a
@@ -242,6 +284,218 @@ require_once 'components/footer.php';
 require_once 'components/scripts.php';
 ?>
 
+
+<!-- Modal Modificar -->
+<div class="modal fade" id="pedidoModalModificar" tabindex="-1" aria-labelledby="pedidoModalModificarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
+      <form id="formPedidoModificar" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=pedidos&action=modificar">
+        <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; padding: 20px 25px;">
+          <h5 class="modal-title" id="pedidoModalModificarLabel" style="color: white; font-weight: 600;">
+            <i class="fa fa-edit me-2"></i>Modificar Pedido
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
+          <input type="hidden" class="form-control" id="idEdit" name="id" required>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="clienteIdEdit" class="form-label"><b>Cliente <span class="text-danger">*</span></b></label>
+                <select class="form-select select-readonly" id="clienteIdEdit" name="clienteId" onchange="validar_cliente_modificado()" readonly>
+                  <option value="">Seleccione un cliente...</option>
+                  <?php
+                  if(isset($clien) && is_array($clien) && !empty($clien)) {
+                      foreach($clien as $cliente) {
+                        echo '<option value="' . $cliente['id_cliente'] . '" 
+                                      data-dias="' . $cliente['dias_credito'] . '" 
+                                      data-tipo-id="' . $cliente['id_tipo_cliente'] . '">'
+                            . $cliente['tipo_id'] . '-' . $cliente['id_cliente'] . ' ' . $cliente['nombre_cliente']
+                            . '</option>';
+                      }
+                  }
+                  ?>
+                </select>
+                <span id="errorClienteEdit" class="error-messege"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="diasCreditoEdit" class="form-label"><b>Días Crédito <span class="text-danger">*</span></b></label>
+                <input type="number" class="form-control" id="diasCreditoEdit" name="diasCredito" readonly >
+                <span id="errorCreditoEdit" class="error-messege"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="fechaPedidoEdit" class="form-label"><b>Fecha del Pedido <span class="text-danger">*</span></b></label>
+                <input type="date" class="form-control" id="fechaPedidoEdit" name="fechaPedido" oninput="validar_fecha_modificado()" required>
+                <span id="errorFechaEdit" class="error-messege"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="estadoPedidoEdit" class="form-label"><b>Estado del Pedido</b></label>
+                <select class="form-select" id="estadoPedidoEdit" name="estadoPedido">
+                  <?php
+                  if (isset($estadoPedido) && is_array($estadoPedido) && !empty($estadoPedido)) {
+                      foreach ($estadoPedido as $estado) {
+                          echo '<option value="' . $estado['id_estado_pedido'] . '">'
+                              . $estado['nombre_estado'] . '</option>';
+                      }
+                  }
+                  ?>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="promocionIdEdit" class="form-label"><b>Promoción Aplicada</b></label>
+                <select class="form-select" id="promocionIdEdit" name="promocionId" disabled>
+                  <option value="">Sin promoción</option>
+                  <?php
+                  if(isset($promociones) && is_array($promociones) && !empty($promociones)) {
+                      foreach($promociones as $promocion) {
+                          echo '<option value="' . $promocion['id_promocion'] . '">' . $promocion['nombre_promocion'] . '</option>';
+                      }
+                  }
+                  ?>
+                </select>
+                <small class="form-text text-muted">Seleccione una promoción activa</small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="telefonoPedidoEdit" class="form-label"><b>Teléfono de Contacto</b></label>
+                <input type="text" class="form-control" id="telefonoPedidoEdit" name="telefonoPedido" placeholder="0412-1234567" maxlength="12" oninput="formatear_telefono_modificado(); validar_telefono_modificado()">
+                <span id="errorTelefonoEdit" class="error-messege"></span>
+                <small class="form-text text-muted">Formato: 04XX-XXXXXXX</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="direccionPedidoEdit" class="form-label"><b>Dirección de Entrega</b></label>
+            <textarea class="form-control" id="direccionPedidoEdit" name="direccionPedido" rows="2" placeholder="Calle, Casa/Edificio, Ciudad, Estado..." maxlength="300" oninput="validar_direccion_modificado()"></textarea>
+            <span id="errorDireccionEdit" class="error-messege"></span>
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="observacionesPedidoEdit" class="form-label"><b>Observaciones</b></label>
+            <textarea class="form-control" id="observacionesPedidoEdit" name="observacionesPedido" rows="2" placeholder="Notas adicionales sobre el pedido..." maxlength="500" oninput="validar_observaciones_modificado()"></textarea>
+            <span id="errorObservacionesEdit" class="error-messege"></span>
+          </div>
+
+          <!-- Sección de Productos -->
+          <div class="row align-items-center" id="contenedorProductoEdit">
+            <div class="col-md-8 mb-3">
+              <div class="form-group">
+                <label for="productosEdit" class="form-label"><b>Productos *</b></label>
+                <select class="form-select" id="productosEdit"  disabled>
+                  <option value="">Seleccione un producto</option>
+                  <?php
+                  if(isset($productos) && is_array($productos) && !empty($productos)){
+                      foreach ($productos as $producto):
+                  ?>
+                  <option value="<?php echo $producto['id_producto']; ?>" 
+                          data-precio="<?php echo $producto['precio_venta']; ?>">
+                    <?php echo $producto['nombre_producto'] . ' - $' . $producto['precio_venta']; ?>
+                  </option>
+                  <?php
+                      endforeach;
+                  }
+                  ?>
+                </select>
+                <span id="errorProductoEdit" class="error-messege text-danger small"></span>
+              </div>
+            </div>
+
+            <div class="col-md-2 mb-3">
+              <label for="cantidadProductoEdit" class="form-label" style="color: #333; font-weight: 500;">
+                <i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad *
+              </label>
+              <input type="number" class="form-control" id="cantidadProductoEdit" placeholder="00" style="border-radius: 8px;" oninput="validar_cantidadEdit(); actualizarPrecioProductoEdit()">
+              <span id="errorCantidadEdit" class="error-messege text-danger small"></span>
+            </div>
+
+            <div class="col-md-2 mb-3">
+              <label for="precioProductoEdit" class="form-label" style="color: #333; font-weight: 500;">
+                <i class="fa fa-dollar me-2" style="color: #dc3545;"></i>Precio *
+              </label>
+              <input type="number" class="form-control" id="precioProductoEdit" placeholder="0.00" style="border-radius: 8px;" oninput="validar_precioEdit()" readonly>
+              <span id="errorPrecioEdit" class="error-messege text-danger small"></span>
+            </div>
+          </div>
+
+          <div>
+            <button type="button" class="btn btn-outline-success" style="margin-bottom: 1rem; width: 100%; align-items: center;" onclick="agregarProductoEdit()">
+              <i class="fa fa-plus me-2"></i>Agregar/Modificar Producto
+            </button>
+          </div>
+
+          <!-- Tabla de productos agregados (necesitarás implementarla) -->
+          <div id="listaProductosEdit" class="mb-3"></div>
+
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <div class="form-group mb-3">
+                <label for="subtotalEdit" class="form-label"><b>Subtotal <span class="text-danger">*</span></b></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="subtotalEdit" readonly name="subtotalPedido" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <span id="errorSubtotalEdit" class="error-messege"></span>
+              </div>
+            </div>
+
+            <div class="col-md-4 d-flex align-items-center mb-3">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" id="aplicarIvaEdit" onchange="actualizarTotalConIvaEdit()">
+                <label class="form-check-label" for="aplicarIvaEdit">
+                  Aplicar IVA <b>(16%)</b>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group mb-3">
+                <label for="totalPedidoEdit" class="form-label"><b>Total del Pedido <span class="text-danger">*</span></b></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="totalPedidoEdi" readonly name="totalPedido" placeholder="0.00" step="0.01" min="0.01">
+                </div>
+                <span id="errorTotalEdit" class="error-messege"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nota informativa -->
+          <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #d1ecf1; border: none;">
+            <i class="fa fa-info-circle me-2" style="color: #0c5460;"></i>
+            <small style="color: #0c5460;"><strong>Nota:</strong> Los campos marcados con * son obligatorios.</small>
+          </div>
+        </div>
+        <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 20px 25px;">
+          <button type="button" class="btn" data-bs-dismiss="modal" style="background: #6c757d; color: white; border-radius: 8px; padding: 10px 25px;">
+            <i class="fa fa-times me-2"></i>Cancelar
+          </button>
+          <button type="submit" class="btn" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #212529; border-radius: 8px; padding: 10px 25px;">
+            <i class="fa fa-edit me-2"></i>Modificar Pedido
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <!-- Modal Agregar -->
 <div class="modal fade" id="pedidoModal" tabindex="-1" aria-labelledby="pedidoModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -258,13 +512,17 @@ require_once 'components/scripts.php';
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="clienteId" class="form-label"><b>Cliente <span class="text-danger">*</span></b></label>
-                <select class="form-select" id="clienteId" name="clienteId" onchange="validar_cliente()" required>
+                <select class="form-select" id="clienteId" name="clienteId" onchange="cargarDiasCredito(); validar_cliente()" required>
                   <option value="">Seleccione un cliente...</option>
                   <?php
                   if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
                       foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
-                      }
+                        echo '<option value="' . $cliente['id_cliente'] . '" 
+                                      data-dias="' . $cliente['dias_credito'] . '" 
+                                      data-tipo-id="' . $cliente['id_tipo_cliente'] . '">'
+                              . $cliente['tipo_id'] . '-' . $cliente['id_cliente'] . ' ' . $cliente['nombre_cliente']
+                              . '</option>';
+                    }
                   }
                   ?>
                 </select>
@@ -273,31 +531,31 @@ require_once 'components/scripts.php';
             </div>
             <div class="col-md-6">
               <div class="form-group mb-3">
+                <label for="diasCredito" class="form-label"><b>Días Crédito <span class="text-danger">*</span></b></label>
+                <input type="number" class="form-control" id="diasCredito" name="diasCredito" readonly required>
+                <span id="errorCredito" class="error-messege"></span>
+              </div>
+            </div>
+          <div class="row">
+           <div class="col-md-6"> 
+            <div class="form-group mb-3">
                 <label for="fechaPedido" class="form-label"><b>Fecha del Pedido <span class="text-danger">*</span></b></label>
                 <input type="date" class="form-control" id="fechaPedido" name="fechaPedido" oninput="validar_fecha()" required>
                 <span id="errorFecha" class="error-messege"></span>
-              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="totalPedido" class="form-label"><b>Total del Pedido <span class="text-danger">*</span></b></label>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" id="totalPedido" name="totalPedido" placeholder="0.00" step="0.01" min="0.01" oninput="validar_total()" required>
-                </div>
-                <span id="errorTotal" class="error-messege"></span>
-              </div>
             </div>
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="estadoPedido" class="form-label"><b>Estado del Pedido</b></label>
                 <select class="form-select" id="estadoPedido" name="estadoPedido">
-                  <option value="pendiente">🟡 Pendiente</option>
-                  <option value="procesando">🔵 Procesando</option>
-                  <option value="enviado">🚚 Enviado</option>
-                  <option value="entregado">✅ Entregado</option>
+                  <?php
+                    if (isset($estadoPedido) && is_array($estadoPedido) && !empty($estadoPedido)) {
+                        foreach ($estadoPedido as $estado) {
+                            echo '<option value="' . $estado['id_estado_pedido'] . '">'
+                                . $estado['nombre_estado'] . '</option>';
+                        }
+                    }
+                    ?>
                 </select>
               </div>
             </div>
@@ -306,12 +564,12 @@ require_once 'components/scripts.php';
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="promocionId" class="form-label"><b>Promoción Aplicada</b></label>
-                <select class="form-select" id="promocionId" name="promocionId">
+                <select class="form-select" id="promocionId" onchange="recalcularPromociones()" name="promocionId">
                   <option value="">Sin promoción</option>
                   <?php
                   if(isset($promociones) && is_array($promociones) && !empty($promociones)) {
                       foreach($promociones as $promocion) {
-                          echo '<option value="' . $promocion['id_promocion'] . '">' . $promocion['codigo_promocion'] . ' - ' . $promocion['nombre_promocion'] . '</option>';
+                          echo '<option value="' . $promocion['id_promocion'] . '">' . $promocion['nombre_promocion'] . '</option>';
                       }
                   }
                   ?>
@@ -338,23 +596,84 @@ require_once 'components/scripts.php';
             <textarea class="form-control" id="observacionesPedido" name="observacionesPedido" rows="2" placeholder="Notas adicionales sobre el pedido..." maxlength="500" oninput="validar_observaciones()"></textarea>
             <span id="errorObservaciones" class="error-messege"></span>
           </div>
-          <div class="form-group mb-3">
-            <label for="productos" class="form-label"><b>Productos del Pedido</b></label>
-            <select class="form-select" id="productos" name="productos[]" multiple style="height: 120px;">
-              <?php
-              if(isset($productos) && is_array($productos) && !empty($productos)){
-                  foreach ($productos as $producto):
-              ?>
-                  <option value="<?php echo $producto['id_producto']; ?>">
+          
+          <div class="row align-items-center" id="contenedorProducto">
+            <div class="col-md-8 mb-3">
+              <div class="form-group">
+                <label for="productos" class="form-label"><b>Productos *</b></label>
+                <select class="form-select" id="productos" onchange="validar_producto(); cargarPrecioProducto()">
+                  <option value="">Seleccione un producto</option>
+                  <?php
+                  if(isset($productos) && is_array($productos) && !empty($productos)){
+                    foreach ($productos as $producto):
+                  ?>
+                    <option value="<?php echo $producto['id_producto']; ?>" 
+                            data-precio="<?php echo $producto['precio_venta']; ?>">
                       <?php echo $producto['nombre_producto'] . ' - $' . $producto['precio_venta']; ?>
-                  </option>
-              <?php
-                  endforeach;
-              }
-              ?>
-            </select>
-            <small class="form-text text-muted">Selecciona los productos del pedido (Ctrl+Click para selección múltiple)</small>
+                    </option>
+                  <?php
+                    endforeach;
+                  }
+                  ?>
+                </select>
+                <span id="errorProducto" class="error-messege text-danger small"></span>
+              </div>
+            </div>
+
+            <div class="col-md-2 mb-3">
+              <label for="cantidadProducto" class="form-label" style="color: #333; font-weight: 500;">
+                <i class="fa fa-cubes me-2" style="color: #dc3545;"></i>Cantidad *
+              </label>
+              <input type="number" class="form-control" id="cantidadProducto" placeholder="00" style="border-radius: 8px;" oninput="validar_cantidad(); actualizarPrecioProducto()">
+              <span id="errorCantidad" class="error-messege text-danger small"></span>
+            </div>
+
+            <div class="col-md-2 mb-3">
+              <label for="precioProducto" class="form-label" style="color: #333; font-weight: 500;">
+                <i class="fa fa-dollar me-2" style="color: #dc3545;"></i>Precio *
+              </label>
+              <input type="number" class="form-control" id="precioProducto" placeholder="0.00" style="border-radius: 8px;" oninput="validar_precio()" readonly>
+              <span id="errorPrecio" class="error-messege text-danger small"></span>
+            </div>
           </div>
+
+            <div>
+            <button type="button" class="btn btn-outline-success" style="margin-bottom: 1rem; width: 100%; align-items: center;" onclick="agregarProducto()">
+              <i class="fa fa-plus me-2"></i>Agregar Producto
+            </button>
+          </div>
+            <div class="row align-items-center">
+              <div class="col-md-4">
+                <div class="form-group mb-3">
+                  <label for="subtotalPedido" class="form-label"><b>Subtotal <span class="text-danger">*</span></b></label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="subtotal" readonly name="subtotalPedido" placeholder="0.00" step="0.01" min="0">
+                  </div>
+                  <span id="errorSubtotal" class="error-messege"></span>
+                </div>
+              </div>
+
+              <div class="col-md-4 d-flex align-items-center mb-3">
+                <div class="form-check mt-4">
+                  <input class="form-check-input" type="checkbox" id="aplicarIva" onchange="actualizarTotalConIva()">
+                  <label class="form-check-label" for="aplicarIva">
+                    Aplicar IVA <b>(16%)</b>
+                  </label>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group mb-3">
+                  <label for="totalPedido" class="form-label"><b>Total del Pedido <span class="text-danger">*</span></b></label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" id="total" readonly name="totalPedido" placeholder="0.00" step="0.01" min="0.01" oninput="validar_total()" required>
+                  </div>
+                  <span id="errorTotal" class="error-messege"></span>
+                </div>
+              </div>
+            </div>
           <!-- Nota informativa -->
           <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #d1ecf1; border: none;">
             <i class="fa fa-info-circle me-2" style="color: #0c5460;"></i>
@@ -374,137 +693,7 @@ require_once 'components/scripts.php';
   </div>
 </div>
 
-<!-- Modal Modificar -->
-<div class="modal fade" id="pedidoModalModificar" tabindex="-1" aria-labelledby="pedidoModalModificarLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
-      <form id="formPedidoModificar" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=pedidos&action=modificar">
-        <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; padding: 20px 25px;">
-          <h5 class="modal-title" id="pedidoModalModificarLabel" style="color: white; font-weight: 600;">
-            <i class="fa fa-edit me-2"></i>Modificar Pedido
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body" style="padding: 25px; background: #f8f9fa;">
-          <input type="hidden" class="form-control" id="id" name="id" required>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="clienteIdEdit" class="form-label"><b>Cliente <span class="text-danger">*</span></b></label>
-                <select class="form-select" id="clienteIdEdit" name="clienteId" onchange="validar_cliente_modificado()" required>
-                  <option value="">Seleccione un cliente...</option>
-                  <?php
-                  if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
-                      foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
-                      }
-                  }
-                  ?>
-                </select>
-                <span id="errorClienteEdit" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="fechaPedidoEdit" class="form-label"><b>Fecha del Pedido <span class="text-danger">*</span></b></label>
-                <input type="date" class="form-control" id="fechaPedidoEdit" name="fechaPedido" oninput="validar_fecha_modificado()" required>
-                <span id="errorFechaEdit" class="error-messege"></span>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="totalPedidoEdit" class="form-label"><b>Total del Pedido <span class="text-danger">*</span></b></label>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" id="totalPedidoEdit" name="totalPedido" placeholder="0.00" step="0.01" min="0.01" oninput="validar_total_modificado()" required>
-                </div>
-                <span id="errorTotalEdit" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="estadoPedidoEdit" class="form-label"><b>Estado del Pedido</b></label>
-                <select class="form-select" id="estadoPedidoEdit" name="estadoPedido">
-                  <option value="pendiente">🟡 Pendiente</option>
-                  <option value="procesando">🔵 Procesando</option>
-                  <option value="enviado">🚚 Enviado</option>
-                  <option value="entregado">✅ Entregado</option>
-                  <option value="cancelado">❌ Cancelado</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="promocionIdEdit" class="form-label"><b>Promoción Aplicada</b></label>
-                <select class="form-select" id="promocionIdEdit" name="promocionId">
-                  <option value="">Sin promoción</option>
-                  <?php
-                  if(isset($promociones) && is_array($promociones) && !empty($promociones)) {
-                      foreach($promociones as $promocion) {
-                          echo '<option value="' . $promocion['id_promocion'] . '">' . $promocion['codigo_promocion'] . ' - ' . $promocion['nombre_promocion'] . '</option>';
-                      }
-                  }
-                  ?>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="telefonoPedidoEdit" class="form-label"><b>Teléfono de Contacto</b></label>
-                <input type="text" class="form-control" id="telefonoPedidoEdit" name="telefonoPedido" placeholder="0412-1234567" maxlength="12" oninput="formatear_telefono_modificado(); validar_telefono_modificado()">
-                <span id="errorTelefonoEdit" class="error-messege"></span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="direccionPedidoEdit" class="form-label"><b>Dirección de Entrega</b></label>
-            <textarea class="form-control" id="direccionPedidoEdit" name="direccionPedido" rows="2" placeholder="Calle, Casa/Edificio, Ciudad, Estado..." maxlength="300" oninput="validar_direccion_modificado()"></textarea>
-            <span id="errorDireccionEdit" class="error-messege"></span>
-          </div>
-          <div class="form-group mb-3">
-            <label for="observacionesPedidoEdit" class="form-label"><b>Observaciones</b></label>
-            <textarea class="form-control" id="observacionesPedidoEdit" name="observacionesPedido" rows="2" placeholder="Notas adicionales sobre el pedido..." maxlength="500" oninput="validar_observaciones_modificado()"></textarea>
-            <span id="errorObservacionesEdit" class="error-messege"></span>
-          </div>
-          <div class="form-group mb-3">
-            <label for="productosEdit" class="form-label"><b>Productos del Pedido</b></label>
-            <select class="form-select" id="productosEdit" name="productos[]" multiple style="height: 120px;">
-              <?php
-              if(isset($productos) && is_array($productos) && !empty($productos)){
-                  foreach ($productos as $producto):
-              ?>
-                  <option value="<?php echo $producto['id_producto']; ?>">
-                      <?php echo $producto['nombre_producto'] . ' - $' . $producto['precio_venta']; ?>
-                  </option>
-              <?php
-                  endforeach;
-              }
-              ?>
-            </select>
-            <small class="form-text text-muted">Selecciona los productos del pedido (Ctrl+Click para selección múltiple)</small>
-          </div>
-          <!-- Nota informativa -->
-          <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #d1ecf1; border: none;">
-            <i class="fa fa-info-circle me-2" style="color: #0c5460;"></i>
-            <small style="color: #0c5460;"><strong>Nota:</strong> Los campos marcados con * son obligatorios.</small>
-          </div>
-        </div>
-        <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 20px 25px;">
-          <button type="button" class="btn" data-bs-dismiss="modal" style="background: #6c757d; color: white; border-radius: 8px; padding: 10px 25px;">
-            <i class="fa fa-times me-2"></i>Cancelar
-          </button>
-          <button type="submit" class="btn" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #212529; border-radius: 8px; padding: 10px 25px;">
-            <i class="fa fa-edit me-2"></i>Modificar Pedido
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+
 
 <!-- Modal Ver Detalle Pedido -->
 <div class="modal fade" id="pedidoDetalleModal" tabindex="-1" aria-labelledby="pedidoDetalleModalLabel" aria-hidden="true">
@@ -678,6 +867,7 @@ function VerDetallePedido(id) {
 
 <script src="assets/js/validaciones/pedidos_validaciones.js"></script>
 <script src="assets/js/ajax/pedidos_ajax.js"></script>
+<script src="assets/js/animacionesJS/pedido.js"></script>
 
   </body>
 </html>

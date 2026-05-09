@@ -1,5 +1,5 @@
 function ObtenerMateriaPrima(id) {
-    fetch('index.php?url=materias_primas&action=obtener&ID=' + id)
+    fetch('index.php?url=materias&action=obtener&ID=' + id)
         .then(response => response.json())
         .then(data => {
 

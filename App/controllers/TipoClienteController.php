@@ -35,6 +35,12 @@
             }
         break;
 
+        case 'obtener_tipos_clientes':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerTiposClientes();
+            }
+        break;
+
         case 'eliminar':
             if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 Eliminar();
@@ -459,6 +465,20 @@
             $bitacora->manejarAccion('agregar', $bitacora_json);
 
             echo json_encode($tipoCliente);
+
+            exit();
+    }
+
+    function ObtenerTiposClientes() {
+
+        // instacia el modelo
+        $modelo = new TipoCliente();
+
+            $resultado = $modelo->manejarAccion('obtener_tipos_clientes', null);
+
+            $tipoCliente = $resultado['data'];
+
+            echo json_encode($resultado);
 
             exit();
     }

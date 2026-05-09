@@ -283,20 +283,6 @@ class Cliente extends Conexion {
         return $this->estado_cliente;
       }
 
-    private function registrarBitacoraCliente($tipo_operacion, $descripcion, $datos_anteriores = null, $datos_nuevos = null) {
-        $id_usuario = Auditoria::getUsuarioActual();
-        Auditoria::logCrud(
-            $id_usuario,
-            'Clientes',
-            $tipo_operacion,
-            'clientes',
-            $this->getClienteID(),
-            $descripcion,
-            $datos_anteriores,
-            $datos_nuevos
-        );
-    }
-
     // Esta se encarga de procesar los action indiferentemente cual sea llama la funcion de 
     // validacio y luego al metodo correspondiente al action
     // donde primero recibe el action como primer parametro que son los de agregar etc.. 

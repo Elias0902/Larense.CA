@@ -3,7 +3,7 @@ function ObtenerProduccion(id) {
         .then(response => response.json())
         .then(data => {
 
-            console.log(data);
+            //console.log(data);
 
             // llena los campos del formulario con los datos obtenidos
             document.getElementById('idEdit').value = data.id_produccion || '';

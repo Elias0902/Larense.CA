@@ -38,3 +38,10 @@
   box-shadow: 0 0 5px green !important;
 }
 
+.select-readonly {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+    cursor: not-allowed !important;
+    opacity: 0.65 !important;
+    pointer-events: none;  /* Bloquea clics completamente */
+}
