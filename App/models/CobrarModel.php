@@ -8,13 +8,11 @@ class CuentaCobrar extends Conexion {
     // Atributos
     private $cuenta_id;
     private $cuenta_cliente_id;
-    private $cuenta_pedido_id;
     private $cuenta_monto;
-    private $cuenta_saldo;
-    private $cuenta_fecha_emision;
-    private $cuenta_fecha_vencimiento;
-    private $cuenta_estado;
-    private $cuenta_descripcion;
+    private $cuenta_fecha_pago;
+    private $cuenta_concepto;
+    private $cuenta_referencia;
+    private $cuenta_metodo;
 
     // constructor
     public function __construct() {
@@ -26,11 +24,19 @@ class CuentaCobrar extends Conexion {
 
         // valida si el json es string y lo descompone
         if (is_string($cuenta_json)) {
+
+            // descompone el json
             $cuenta = json_decode($cuenta_json, true);
+
+            // valida el json
             if ($cuenta === null) {
+                
+                // retorna msj
                 return ['status' => false, 'msj' => 'JSON invalido.'];
             }
         } else {
+
+            // asigna de lo contrario
             $cuenta = $cuenta_json;
         }
 
@@ -47,21 +53,14 @@ class CuentaCobrar extends Conexion {
         $this->cuenta_id = $id;
 
         // Validar cliente_id
-        $cliente_id = trim($cuenta['cliente_id'] ?? '');
+        $cliente_id = trim($cuenta['cliente'] ?? '');
         if ($cliente_id === '' || !preg_match($expre_id, $cliente_id) || strlen($cliente_id) > 10 || $cliente_id < 0) {
             return ['status' => false, 'msj' => 'El ID del cliente es invalido'];
         }
         $this->cuenta_cliente_id = $cliente_id;
 
-        // Validar pedido_id (opcional)
-        $pedido_id = trim($cuenta['pedido_id'] ?? '');
-        if ($pedido_id !== '' && (!preg_match($expre_id, $pedido_id) || strlen($pedido_id) > 10 || $pedido_id < 0)) {
-            return ['status' => false, 'msj' => 'El ID del pedido es invalido'];
-        }
-        $this->cuenta_pedido_id = $pedido_id ?: null;
-
         // Validar monto
-        $monto = trim($cuenta['monto'] ?? '');
+        $monto = trim($cuenta['monto_pago'] ?? '');
         if ($monto === '' || !is_numeric($monto) || $monto <= 0) {
             return ['status' => false, 'msj' => 'El monto es invalido. Debe ser mayor a 0.'];
         }
@@ -70,44 +69,33 @@ class CuentaCobrar extends Conexion {
         }
         $this->cuenta_monto = $monto;
 
-        // Validar saldo (si no se proporciona, es igual al monto)
-        $saldo = trim($cuenta['saldo'] ?? $monto);
-        if (!is_numeric($saldo) || $saldo < 0 || $saldo > $monto) {
-            return ['status' => false, 'msj' => 'El saldo es invalido.'];
-        }
-        $this->cuenta_saldo = $saldo;
-
         // Validar fecha de emisión
-        $fecha_emision = trim($cuenta['fecha_emision'] ?? '');
-        if ($fecha_emision === '' || !preg_match($expre_fecha, $fecha_emision)) {
-            return ['status' => false, 'msj' => 'La fecha de emisión es requerida.'];
+        $fecha_pago = trim($cuenta['fecha'] ?? '');
+        if ($fecha_pago === '' || !preg_match($expre_fecha, $fecha_pago)) {
+            return ['status' => false, 'msj' => 'La fecha de es requerida.'];
         }
-        $this->cuenta_fecha_emision = $fecha_emision;
-
-        // Validar fecha de vencimiento
-        $fecha_vencimiento = trim($cuenta['fecha_vencimiento'] ?? '');
-        if ($fecha_vencimiento === '' || !preg_match($expre_fecha, $fecha_vencimiento)) {
-            return ['status' => false, 'msj' => 'La fecha de vencimiento es requerida.'];
-        }
-        if ($fecha_vencimiento < $fecha_emision) {
-            return ['status' => false, 'msj' => 'La fecha de vencimiento no puede ser anterior a la fecha de emisión.'];
-        }
-        $this->cuenta_fecha_vencimiento = $fecha_vencimiento;
-
-        // Validar estado
-        $estado = trim($cuenta['estado'] ?? 'pendiente');
-        $estados_permitidos = ['pendiente', 'parcial', 'pagada', 'vencida', 'anulada'];
-        if (!in_array($estado, $estados_permitidos)) {
-            return ['status' => false, 'msj' => 'El estado es inválido.'];
-        }
-        $this->cuenta_estado = $estado;
+        $this->cuenta_fecha_pago = $fecha_pago;
 
         // Validar descripción
-        $descripcion = trim($cuenta['descripcion'] ?? '');
-        if ($descripcion === '' || strlen($descripcion) > 300) {
-            return ['status' => false, 'msj' => 'La descripción es requerida y debe tener máximo 300 caracteres.'];
+        $concepto = trim($cuenta['concepto'] ?? '');
+        if ($concepto === '' || strlen($concepto) > 300) {
+            return ['status' => false, 'msj' => 'El concepto es requerida y debe tener máximo 300 caracteres.'];
         }
-        $this->cuenta_descripcion = $descripcion;
+        $this->cuenta_concepto = $concepto;
+
+        // Validar referencia
+        $referencia = trim($cuenta['referencia'] ?? '');
+        if ($referencia === '' || !is_numeric($referencia) || $referencia <= 0) {
+            return ['status' => false, 'msj' => 'la referencia es invalido. Debe ser mayor a 0.'];
+        }
+        $this->cuenta_referencia = $referencia;
+
+        // Validar monto
+        $metodo = trim($cuenta['metodo'] ?? '');
+        if ($metodo === '' || !is_numeric($metodo) || $metodo <= 0) {
+            return ['status' => false, 'msj' => 'El metodo es invalido.'];
+        }
+        $this->cuenta_metodo = $metodo;
 
         return ['status' => true, 'msj' => 'Datos validados y asignados correctamente.'];
     }
@@ -134,287 +122,406 @@ class CuentaCobrar extends Conexion {
     }
 
     // GETTERS
-    private function getCuentaID() { return $this->cuenta_id; }
-    private function getCuentaClienteID() { return $this->cuenta_cliente_id; }
-    private function getCuentaPedidoID() { return $this->cuenta_pedido_id; }
-    private function getCuentaMonto() { return $this->cuenta_monto; }
-    private function getCuentaSaldo() { return $this->cuenta_saldo; }
-    private function getCuentaFechaEmision() { return $this->cuenta_fecha_emision; }
-    private function getCuentaFechaVencimiento() { return $this->cuenta_fecha_vencimiento; }
-    private function getCuentaEstado() { return $this->cuenta_estado; }
-    private function getCuentaDescripcion() { return $this->cuenta_descripcion; }
+    private function getCuentaID() { 
+        
+        //retorna valor
+        return $this->cuenta_id;
+    }
+
+    private function getCuentaClienteID() { 
+        
+        //retorna valor
+        return $this->cuenta_cliente_id; 
+    }
+    
+    private function getCuentaMonto() { 
+
+        //retorna valor
+        return $this->cuenta_monto; 
+    }
+    
+    private function getCuentaFechaPago() { 
+
+        //retorna valor
+        return $this->cuenta_fecha_pago; 
+    }
+    
+    private function getCuentaMetodo() { 
+
+        //retorna valor
+        return $this->cuenta_metodo; 
+    }
+    
+    private function getCuentaConcepto() {
+        
+        //retorna valor
+        return $this->cuenta_concepto; 
+    }
+
+    private function getCuentaReferencia() {
+        
+        //retorna valor
+        return $this->cuenta_referencia; 
+    }
 
     // Manejador de acciones
     public function manejarAccion($action, $cuenta_json) {
+
+        // maneja el action y carga la funcion correspondiente a la action
         switch($action) {
-            case 'agregar':
-                $validacion = $this->setCobrarData($cuenta_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Guardar_Cuenta();
-            break;
 
             case 'obtener':
+
+                // almacena el status de la respuesta de la funcion de validacion
                 $validacion = $this->setCobrarID($cuenta_json);
+
+                // valida si el status es true o false
                 if (!$validacion['status']) {
+
+                    // retorna el status con el mensaje
                     return $validacion;
                 }
+
+                // llama la funcion si todo sale bien y retorna el resultado
                 return $this->Obtener_Cuenta();
-            break;
 
-            case 'modificar':
-                $validacion = $this->setCobrarData($cuenta_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Actualizar_Cuenta();
-            break;
-
-            case 'eliminar':
-                $validacion = $this->setCobrarID($cuenta_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Eliminar_Cuenta();
+            // termina el script
             break;
 
             case 'consultar':
+
+                // llama la funcion si todo sale bien y retorna el resultado
                 return $this->Mostrar_Cuenta();
+
+            // termina el script
+            break;
+
+            case 'consultar_metodo':
+
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Mostrar_Metodo_Pago();
+
+            // termina el script
             break;
 
             case 'registrar_pago':
-                $validacion = $this->setCobrarID($cuenta_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                $monto_pago = isset($cuenta_json['monto_pago']) ? $cuenta_json['monto_pago'] : 0;
-                return $this->Registrar_Pago($monto_pago);
-            break;
 
-            case 'cambiar_estado':
-                $validacion = $this->setCobrarID($cuenta_json);
+                // almacena el status de la respuesta de la funcion de validacion
+                $validacion = $this->setCobrarData($cuenta_json);
+
+                // valida si el status es true o false
                 if (!$validacion['status']) {
+
+                    // retorna el status con el mensaje
                     return $validacion;
                 }
-                $nuevo_estado = isset($cuenta_json['nuevo_estado']) ? $cuenta_json['nuevo_estado'] : null;
-                return $this->CambiarEstado_Cuenta($nuevo_estado);
+
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Registrar_Pago();
+
+            // termina el script
             break;
 
             default:
+
+                // retorna mensaje derro en acion
                 return ['status' => false, 'msj' => 'Accion Invalida.'];
+
+            //termina el script
             break;
         }
     }
 
     // Función para consultar cuentas por cobrar
     private function Mostrar_Cuenta() {
+
+        // conexion cerrada
         $this->closeConnection();
+
         try {
+
+            // establece conecion
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT cc.*, c.nombre_cliente
-                      FROM cuentas_cobrar cc
-                      LEFT JOIN clientes c ON cc.cliente_id = c.id_cliente
-                      WHERE cc.status = 1
-                      ORDER BY cc.fecha_vencimiento ASC";
+
+            // consulta para mostrar
+            $query = "SELECT cc.*, 
+                            c.tipo_id,
+                            c.nombre_cliente
+                            FROM cuenta_x_cobrar cc
+                            LEFT JOIN clientes c ON cc.id_cliente = c.id_cliente
+                            WHERE cc.status = 1
+                            ORDER BY cc.fecha_vencimiento ASC";
+
+            //prepara la consulta
             $stmt = $conn->prepare($query);
+
+            // ejecuta consulta
             $stmt->execute();
 
+            // valida si se ejecuto
             if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos
                 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna mensaje de exito
                 return ['status' => true, 'msj' => 'Cuentas encontradas con exito.', 'data' => $data];
             } else {
+
+                //retorna mensaje de error
                 return ['status' => false, 'msj' => 'No hay cuentas por cobrar registradas.'];
             }
         } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
 
-    // Función para guardar cuenta
-    private function Guardar_Cuenta() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "INSERT INTO cuentas_cobrar (cliente_id, pedido_id, monto, saldo, fecha_emision, fecha_vencimiento, estado, descripcion)
-                      VALUES (:cliente_id, :pedido_id, :monto, :saldo, :fecha_emision, :fecha_vencimiento, :estado, :descripcion)";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':cliente_id', $this->getCuentaClienteID());
-            $stmt->bindValue(':pedido_id', $this->getCuentaPedidoID());
-            $stmt->bindValue(':monto', $this->getCuentaMonto());
-            $stmt->bindValue(':saldo', $this->getCuentaSaldo());
-            $stmt->bindValue(':fecha_emision', $this->getCuentaFechaEmision());
-            $stmt->bindValue(':fecha_vencimiento', $this->getCuentaFechaVencimiento());
-            $stmt->bindValue(':estado', $this->getCuentaEstado());
-            $stmt->bindValue(':descripcion', $this->getCuentaDescripcion());
-
-            if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Cuenta por cobrar registrada con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al registrar la cuenta.'];
-            }
-        } catch (PDOException $e) {
+            // retorna mensaje de error con exception
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
+        } 
+        finally {
+
+            // cierra la conexion
             $this->closeConnection();
         }
     }
 
     // Función para obtener una cuenta
     private function Obtener_Cuenta() {
+
+        // conexion cerrada
         $this->closeConnection();
+
+        // manejo de errores
         try {
+
+            // establece conexcion
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT cc.*, c.nombre_cliente
-                      FROM cuentas_cobrar cc
-                      LEFT JOIN clientes c ON cc.cliente_id = c.id_cliente
-                      WHERE cc.id_cuenta_cobrar = :id AND cc.status = 1";
+
+            // consulta para obtener la cuenta
+            $query = "SELECT cc.*, c.nombre_cliente, c.tipo_id
+                      FROM cuenta_x_cobrar cc
+                      LEFT JOIN clientes c ON cc.id_cliente = c.id_cliente
+                      WHERE cc.id_cuenta_x_cobrar = :id AND cc.status = 1";
+
+            // prepara la consulta
             $stmt = $conn->prepare($query);
+
+            // vincula los datos 
             $stmt->bindValue(':id', $this->getCuentaID());
+            
+            // ejecuta la consulta
             $stmt->execute();
 
+            // valida si se ejecuto la consulta
             if ($stmt->rowCount() > 0) {
+
+                // almacena los datos 
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
-                return ['status' => true, 'msj' => 'Cuenta encontrada con éxito.', 'data' => $data];
+
+                // retorna msj de exito
+                return ['status' => true, 'msj' => 'Cuenta encontrada con éxito.', 'data' => $data, 'data_bitacora' => $data];
             } else {
+
+                // retorna msj de exito
                 return ['status' => false, 'msj' => 'Cuenta no encontrada.'];
             }
         } catch (PDOException $e) {
+
+            // retona msj con eception
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
-            $this->closeConnection();
-        }
-    }
 
-    // Función para actualizar cuenta
-    private function Actualizar_Cuenta() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "UPDATE cuentas_cobrar 
-                      SET cliente_id = :cliente_id,
-                          pedido_id = :pedido_id,
-                          monto = :monto,
-                          saldo = :saldo,
-                          fecha_emision = :fecha_emision,
-                          fecha_vencimiento = :fecha_vencimiento,
-                          estado = :estado,
-                          descripcion = :descripcion
-                      WHERE id_cuenta_cobrar = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getCuentaID());
-            $stmt->bindValue(':cliente_id', $this->getCuentaClienteID());
-            $stmt->bindValue(':pedido_id', $this->getCuentaPedidoID());
-            $stmt->bindValue(':monto', $this->getCuentaMonto());
-            $stmt->bindValue(':saldo', $this->getCuentaSaldo());
-            $stmt->bindValue(':fecha_emision', $this->getCuentaFechaEmision());
-            $stmt->bindValue(':fecha_vencimiento', $this->getCuentaFechaVencimiento());
-            $stmt->bindValue(':estado', $this->getCuentaEstado());
-            $stmt->bindValue(':descripcion', $this->getCuentaDescripcion());
-
-            if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Cuenta actualizada con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al actualizar la cuenta.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
-
-    // Función para eliminar (desactivar) cuenta
-    private function Eliminar_Cuenta() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "UPDATE cuentas_cobrar SET status = 0 WHERE id_cuenta_cobrar = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getCuentaID());
-
-            if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Cuenta eliminada con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al eliminar la cuenta.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
+            // cierra la conexion
             $this->closeConnection();
         }
     }
 
     // Función para registrar pago
-    private function Registrar_Pago($monto_pago) {
+    private function Registrar_Pago() {
+
+        // conexion cerrada
         $this->closeConnection();
+
+        // para manejo de errores
         try {
+
+            // establece conexion
             $conn = $this->getConnectionNegocio();
+
+            // incia transaccion
+            $conn->beginTransaction();
             
-            // Obtener saldo actual
-            $query_saldo = "SELECT saldo, monto FROM cuentas_cobrar WHERE id_cuenta_cobrar = :id";
+            // consulta para Obtener saldo actual
+            $query_saldo = "SELECT id_pedido, saldo_pendiente, monto_total FROM cuenta_x_cobrar WHERE id_cuenta_x_cobrar = :id";
+
+            // prepara la consulta
             $stmt_saldo = $conn->prepare($query_saldo);
+
+            // vincula los datos
             $stmt_saldo->bindValue(':id', $this->getCuentaID());
+
+            // ejecuta la cinsulta
             $stmt_saldo->execute();
+
+            // almacena los datos obtenidos
             $cuenta = $stmt_saldo->fetch(PDO::FETCH_ASSOC);
             
+            // valida si los datos no estan vacios
             if (!$cuenta) {
+
+                // REVIERTE TRANSACCION
+                $conn->rollBack();
+
+                // retorna msj de error
                 return ['status' => false, 'msj' => 'Cuenta no encontrada.'];
             }
             
-            $saldo_actual = $cuenta['saldo'];
-            $nuevo_saldo = $saldo_actual - $monto_pago;
+            // se calcula y se define el nuevo saldo
+            $pedido = $cuenta['id_pedido'];
+            $saldo_actual = (float) $cuenta['saldo_pendiente'];
+            $monto_pago = (float) $this->getCuentaMonto();
+            $nuevo_saldo = $saldo_actual - $monto_pago; // nuevo saldo
             
+            // valida los montos
             if ($nuevo_saldo < 0) {
+
+                // REVIERTE TRANSACCION
+                $conn->rollBack();
+
+                // retorna msj de error
                 return ['status' => false, 'msj' => 'El monto del pago excede el saldo pendiente.'];
             }
             
-            // Determinar nuevo estado
-            $nuevo_estado = 'parcial';
+
+            // valida resultado
             if ($nuevo_saldo == 0) {
-                $nuevo_estado = 'pagada';
+
+                // determina nuevo estado
+                $nuevo_estado = 'Pagado';
+            }else{
+
+                // determina el estado
+                $nuevo_estado = 'Por Pagar';
             }
             
-            $query = "UPDATE cuentas_cobrar 
-                      SET saldo = :saldo, estado = :estado
-                      WHERE id_cuenta_cobrar = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getCuentaID());
-            $stmt->bindValue(':saldo', $nuevo_saldo);
-            $stmt->bindValue(':estado', $nuevo_estado);
+            // consulta para actualizar la cuenta con el nuevo pago
+            $queryInsert = "UPDATE cuenta_x_cobrar 
+                      SET saldo_pendiente = :saldo, estado_cuenta = :estado
+                      WHERE id_cuenta_x_cobrar = :id";
+            
+            // prepara la consulta
+            $stmtInsert = $conn->prepare($queryInsert);
 
-            if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Pago registrado. Saldo restante: $' . number_format($nuevo_saldo, 2)];
+            // vincula los datos
+            $stmtInsert->bindValue(':id', $this->getCuentaID());
+            $stmtInsert->bindValue(':saldo', $nuevo_saldo);
+            $stmtInsert->bindValue(':estado', $nuevo_estado);
+
+            // ejecuta la consulta
+            $stmtInsert->execute();
+
+            // valida el saldo
+            if( $nuevo_saldo == 0){
+
+                // consulta para cambiar estado del pedido
+                $queryPedido = "UPDATE pedidos SET id_estado_pago = 2
+                                WHERE id_pedido = :id";
+
+                // prepra la consulta
+                $stmtPedido = $conn->prepare($queryPedido);
+
+                // vincula los datos
+                $stmtPedido->bindValue(':id', $pedido);
+
+                // ejecuta la consulta
+                $stmtPedido->execute();
+
+            }
+
+            // consulta para registrar detalle del pago en la tabla pagos
+            $queryPago = "INSERT INTO pagos (id_pedido, monto_pago, fecha_pago, nro_referencia, Concepto, id_metodo_pago)
+                                    VALUES (:pedido, :monto, :fecha, :referencia, :concepto, :metodo)";
+
+            // prepara la consulta
+            $stmtPago = $conn->prepare($queryPago);
+
+            // vincula los datos
+            $stmtPago->bindValue(':pedido', $pedido);
+            $stmtPago->bindValue(':monto', $this->getCuentaMonto());
+            $stmtPago->bindValue(':fecha', $this->getCuentaFechaPago());
+            $stmtPago->bindValue(':referencia', $this->getCuentaReferencia());
+            $stmtPago->bindValue(':concepto', $this->getCuentaConcepto());
+            $stmtPago->bindValue(':metodo', $this->getCuentaMetodo());
+
+            // valida y ejecuta la consulta
+            if ($stmtPago->execute()) {
+
+                // confirma
+                $conn->commit();
+
+                // retorna msj de exito
+                return ['status' => true, 'msj' => 'Pago registrado.'];
             } else {
+
+                // REVIERTE TRANSACCION
+                $conn->rollBack();
+
+                //retorna msj de error
                 return ['status' => false, 'msj' => 'Error al registrar el pago.'];
             }
         } catch (PDOException $e) {
+
+            // REVIERTE TRANSACCION
+            $conn->rollBack();
+
+            // retorna msj de error con eception
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
+
+            //cierra conexion
             $this->closeConnection();
         }
     }
 
-    // Función para cambiar estado
-    private function CambiarEstado_Cuenta($nuevo_estado) {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "UPDATE cuentas_cobrar SET estado = :estado WHERE id_cuenta_cobrar = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getCuentaID());
-            $stmt->bindValue(':estado', $nuevo_estado);
+    private function Mostrar_Metodo_Pago() {
 
-            if ($stmt->execute()) {
-                return ['status' => true, 'msj' => 'Estado actualizado a: ' . $nuevo_estado];
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conecion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostrar
+            $query = "SELECT *
+                            FROM metodos_pago ";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // ejecuta consulta
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna mensaje de exito
+                return ['status' => true, 'msj' => 'Metodos encontradas con exito.', 'data' => $data];
             } else {
-                return ['status' => false, 'msj' => 'Error al cambiar el estado.'];
+
+                //retorna mensaje de error
+                return ['status' => false, 'msj' => 'No hay metodos registradas.'];
             }
         } catch (PDOException $e) {
+
+            // retorna mensaje de error con exception
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
+        } 
+        finally {
+
+            // cierra la conexion
             $this->closeConnection();
         }
     }
