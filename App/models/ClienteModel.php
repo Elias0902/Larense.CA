@@ -372,6 +372,14 @@ class Cliente extends Conexion {
             // termina el script
             break;
 
+            case 'consultarCliente':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_Cliente_Select();
+
+            // termina el script
+            break;
+
             default:
 
                 // retorna un mensaje de error en caso de no existir la accion
@@ -758,6 +766,56 @@ class Cliente extends Conexion {
 
                 // retiorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Cliente no eliminado error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    private function Mostrar_Cliente_Select() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los proveedores activos en la base de datos
+            $query = "SELECT c.*, tc.nombre_tipo_cliente
+                        FROM clientes c
+                        LEFT JOIN tipos_clientes tc ON c.id_tipo_cliente = tc.id_tipo_cliente
+                        WHERE c.status = 1 AND c.estado_cliente = 'Activo'"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Clientes encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Clientes no encontrados o inactivos'];
             }
 
         } catch (PDOException $e) {

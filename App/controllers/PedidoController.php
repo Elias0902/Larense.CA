@@ -107,7 +107,7 @@
                     $pedidos = $resultado['data'];
 
                     // Obtener clientes para el select
-                    $clien = $clientes = $cliente->manejarAccion('consultar', null)['data'];
+                    $clien = $clientes = $cliente->manejarAccion('consultarCliente', null)['data'];
 
                     // Obtener promociones activas para el select
                     $promo = $promociones = $promocion->manejarAccion('consultar', null)['data'];
