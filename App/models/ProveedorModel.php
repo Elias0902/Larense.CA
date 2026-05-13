@@ -380,6 +380,38 @@ class Proveedor extends Conexion {
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
 
+            // Iniciar transacción
+            $conn->beginTransaction();
+
+            // colsuta para selecionar cliente
+            $querySelect = "SELECT id_proveedor FROM proveedores WHERE id_proveedor = :id";
+
+            // prepara la consulta
+            $stmtSelect = $conn->prepare($querySelect);
+
+            //vincula datos
+            $stmtSelect->bindValue(':id', $this->getProveedorID());
+
+            // ejecuta consulta
+            $stmtSelect->execute();
+
+            // alamcena datos
+            $dataProveedor = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+
+            // valida si hay registro
+            if($dataProveedor){
+
+                // Revertir transacción
+                $conn->rollBack();
+            
+                // Verificar si existe por ID
+                if($dataProveedor['id_proveedor'] == $this->getProveedorID()) {
+
+                    // retorna msj de error
+                    return ['status' => false, 'msj' => 'Ya existe un proveedor con ese RIF.'];
+                }
+            }
+
             // inserta una categoria
             $query = "INSERT INTO proveedores (id_proveedor, tipo_id, nombre_proveedor, direccion_proveedor, tlf_proveedor, email_proveedor)
                                             VALUES (:id, :tipo_id, :nombre, :direccion, :telefono, :email)";
@@ -398,16 +430,29 @@ class Proveedor extends Conexion {
              // se valida si se ejecuto la sentencia y si es true
             if ($stmt->execute()) {
 
+                // Confirmar transacción
+                $conn->commit();
+
                 //retorna el status con el mensaje y los datos de usuario
                 return['status' => true, 'msj' => 'Proveedor Registrado con exito.'];
             }
             else {
+
+                // Revertir transacción
+                $conn->rollBack();
 
                 // retorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Error al registrar proveedor.'];
             }
 
         } catch (PDOException $e) {
+
+            // Revertir transacción si está activa
+            if (isset($conn) && $conn->inTransaction()) {
+                
+                // revierte
+                $conn->rollBack();
+            }
             
             // retorna mensaje de error del exception del pdo
             return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
