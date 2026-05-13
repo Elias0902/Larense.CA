@@ -1,26 +1,39 @@
-// Función para validar proveedor
-function validar_proveedor() {
-    var proveedor = document.getElementById('proveedorId');
-    var error = document.getElementById('errorProveedor');
+// Función para cargar días crédito del cliente seleccionado
+function cargarDiasCredito() {
+    var clienteSelect = document.getElementById('clienteId');
+    var diasCreditoInput = document.getElementById('diasCredito');
+    var selectedOption = clienteSelect.options[clienteSelect.selectedIndex];
+    var diasCredito = selectedOption.getAttribute('data-dias');
+    
+    if (diasCredito && diasCredito > 0) {
+        diasCreditoInput.value = diasCredito;
+    } else {
+        diasCreditoInput.value = 0;
+    }
+    
+    validar_dias_credito();
+}
+
+// Función para validar cliente/proveedor
+function validar_cliente() {
+    var cliente = document.getElementById('clienteId');
+    var error = document.getElementById('errorCliente');
 
     error.innerHTML = '';
-    proveedor.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+    cliente.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
 
-    var valor = proveedor.value;
+    var valor = cliente.value;
 
     if (valor === '') {
-        error.innerHTML = 'Debe seleccionar un proveedor.';
-        proveedor.classList.add('input-error', 'is-invalid');
-        proveedor.classList.remove('is-valid');
+        error.innerHTML = 'Debe seleccionar un cliente.';
+        cliente.classList.add('input-error', 'is-invalid');
+        cliente.classList.remove('is-valid');
         return false;
     }
 
     error.innerHTML = '';
-    proveedor.classList.add('input-valid', 'is-valid');
-    proveedor.classList.remove('is-invalid');
-    
-    // Cargar materias primas al seleccionar proveedor
-    cargarMateriasPrimasPorProveedor();
+    cliente.classList.add('input-valid', 'is-valid');
+    cliente.classList.remove('is-invalid');
     return true;
 }
 
@@ -56,7 +69,7 @@ function validar_dias_credito() {
 
 // Función para validar fecha
 function validar_fecha() {
-    var fecha = document.getElementById('fechaCompra');
+    var fecha = document.getElementById('fechaPedido');
     var error = document.getElementById('errorFecha');
 
     error.innerHTML = '';
@@ -71,7 +84,7 @@ function validar_fecha() {
         return false;
     }
 
-    // Validar que la fecha no sea futura (opcional)
+    // Validar que la fecha no sea futura
     var fechaActual = new Date().toISOString().split('T')[0];
     if (valor > fechaActual) {
         error.innerHTML = 'La fecha no puede ser futura.';
@@ -86,32 +99,32 @@ function validar_fecha() {
     return true;
 }
 
-// Función para validar materia prima seleccionada
-function validar_materiaPrima() {
-    var materiaPrima = document.getElementById('materiasPrimas');
-    var error = document.getElementById('errorMateriaPrima');
+// Función para validar producto seleccionado
+function validar_producto() {
+    var producto = document.getElementById('productos');
+    var error = document.getElementById('errorProducto');
 
     error.innerHTML = '';
-    materiaPrima.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+    producto.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
 
-    var valor = materiaPrima.value;
+    var valor = producto.value;
 
     if (valor === '') {
-        error.innerHTML = 'Debe seleccionar una materia prima.';
-        materiaPrima.classList.add('input-error', 'is-invalid');
-        materiaPrima.classList.remove('is-valid');
+        error.innerHTML = 'Debe seleccionar un producto.';
+        producto.classList.add('input-error', 'is-invalid');
+        producto.classList.remove('is-valid');
         return false;
     }
 
     error.innerHTML = '';
-    materiaPrima.classList.add('input-valid', 'is-valid');
-    materiaPrima.classList.remove('is-invalid');
+    producto.classList.add('input-valid', 'is-valid');
+    producto.classList.remove('is-invalid');
     return true;
 }
 
 // Función para validar cantidad
 function validar_cantidad() {
-    var cantidad = document.getElementById('cantidadMateriaPrima');
+    var cantidad = document.getElementById('cantidadProducto');
     var error = document.getElementById('errorCantidad');
 
     error.innerHTML = '';
@@ -141,7 +154,7 @@ function validar_cantidad() {
 
 // Función para validar precio
 function validar_precio() {
-    var precio = document.getElementById('precioMateriaPrima');
+    var precio = document.getElementById('precioProducto');
     var error = document.getElementById('errorPrecio');
 
     error.innerHTML = '';
@@ -171,11 +184,114 @@ function validar_precio() {
     return true;
 }
 
+// Función para validar teléfono
+function validar_telefono() {
+    var telefono = document.getElementById('telefonoPedido');
+    var error = document.getElementById('errorTelefono');
+
+    error.innerHTML = '';
+    telefono.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+    var valor = telefono.value.trim();
+
+    if (valor === '') {
+        // Teléfono es opcional
+        telefono.classList.remove('is-invalid');
+        return true;
+    }
+
+    // Validar formato 04XX-XXXXXXX
+    var telefonoRegex = /^0[4][0-9]{2}-[0-9]{7}$/;
+    if (!telefonoRegex.test(valor)) {
+        error.innerHTML = 'Formato inválido. Use 04XX-XXXXXXX';
+        telefono.classList.add('input-error', 'is-invalid');
+        telefono.classList.remove('is-valid');
+        return false;
+    }
+
+    error.innerHTML = '';
+    telefono.classList.add('input-valid', 'is-valid');
+    telefono.classList.remove('is-invalid');
+    return true;
+}
+
+// Función para formatear teléfono automáticamente
+function formatear_telefono() {
+    var telefono = document.getElementById('telefonoPedido');
+    var valor = telefono.value.replace(/\D/g, ''); // Solo números
+    
+    if (valor.length >= 4) {
+        var parte1 = valor.substring(0, 4);
+        var parte2 = valor.substring(4, 11);
+        if (parte2) {
+            telefono.value = parte1 + '-' + parte2;
+        } else {
+            telefono.value = parte1;
+        }
+    }
+}
+
+// Función para validar dirección
+function validar_direccion() {
+    var direccion = document.getElementById('direccionPedido');
+    var error = document.getElementById('errorDireccion');
+
+    error.innerHTML = '';
+    direccion.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+    var valor = direccion.value.trim();
+
+    if (valor === '') {
+        // Dirección es opcional
+        direccion.classList.remove('is-invalid');
+        return true;
+    }
+
+    if (valor.length > 300) {
+        error.innerHTML = 'La dirección no puede exceder 300 caracteres.';
+        direccion.classList.add('input-error', 'is-invalid');
+        direccion.classList.remove('is-valid');
+        return false;
+    }
+
+    error.innerHTML = '';
+    direccion.classList.add('input-valid', 'is-valid');
+    direccion.classList.remove('is-invalid');
+    return true;
+}
+
+// Función para validar observaciones
+function validar_observaciones() {
+    var observaciones = document.getElementById('observacionesPedido');
+    var error = document.getElementById('errorObservaciones');
+
+    error.innerHTML = '';
+    observaciones.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
+
+    var valor = observaciones.value.trim();
+
+    if (valor.length > 500) {
+        error.innerHTML = 'Las observaciones no pueden exceder 500 caracteres.';
+        observaciones.classList.add('input-error', 'is-invalid');
+        observaciones.classList.remove('is-valid');
+        return false;
+    }
+
+    error.innerHTML = '';
+    if (valor !== '') {
+        observaciones.classList.add('input-valid', 'is-valid');
+    }
+    observaciones.classList.remove('is-invalid');
+    return true;
+}
+
 // Función para validar subtotal
 function validar_subtotal() {
     var subtotal = document.getElementById('subtotal');
     var error = document.getElementById('errorSubtotal');
 
+    if (!subtotal) return true;
+    
     error.innerHTML = '';
     subtotal.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
 
@@ -199,6 +315,8 @@ function validar_total() {
     var total = document.getElementById('total');
     var error = document.getElementById('errorTotal');
 
+    if (!total) return true;
+    
     error.innerHTML = '';
     total.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
 
@@ -226,35 +344,10 @@ function validar_total() {
     return true;
 }
 
-// Función para validar observaciones
-function validar_observaciones() {
-    var observaciones = document.getElementById('observacionesCompra');
-    var error = document.getElementById('errorObservaciones');
-
-    error.innerHTML = '';
-    observaciones.classList.remove('input-error', 'input-valid', 'is-invalid', 'is-valid');
-
-    var valor = observaciones.value.trim();
-
-    if (valor.length > 500) {
-        error.innerHTML = 'Las observaciones no pueden exceder 500 caracteres.';
-        observaciones.classList.add('input-error', 'is-invalid');
-        observaciones.classList.remove('is-valid');
-        return false;
-    }
-
-    error.innerHTML = '';
-    if (valor !== '') {
-        observaciones.classList.add('input-valid', 'is-valid');
-    }
-    observaciones.classList.remove('is-invalid');
-    return true;
-}
-
-// Función para validar que haya al menos una materia prima agregada
-function validar_materias_agregadas() {
-    if (materiasPrimasAgregadas.length === 0) {
-        mostrarAlerta('Debe agregar al menos una materia prima', 'warning');
+// Función para validar que haya al menos un producto agregado
+function validar_productos_agregados() {
+    if (typeof productosAgregados !== 'undefined' && productosAgregados.length === 0) {
+        mostrarAlerta('Debe agregar al menos un producto', 'warning');
         return false;
     }
     return true;
@@ -262,38 +355,47 @@ function validar_materias_agregadas() {
 
 // Función principal de validación del formulario
 function validar_formulario() {
-    const proveedor_valido = validar_proveedor();
+    // Validar campos obligatorios
+    const cliente_valido = validar_cliente();
     const dias_credito_valido = validar_dias_credito();
     const fecha_valida = validar_fecha();
+    const telefono_valido = validar_telefono();
+    const direccion_valida = validar_direccion();
     const observaciones_validas = validar_observaciones();
-    const materias_validas = validar_materias_agregadas();
+    const productos_validos = validar_productos_agregados();
     const subtotal_valido = validar_subtotal();
     const total_valido = validar_total();
 
     // Establecer fecha por defecto si está vacía
-    var fechaInput = document.getElementById('fechaCompra');
+    var fechaInput = document.getElementById('fechaPedido');
     if (fechaInput.value === '') {
         var today = new Date().toISOString().split('T')[0];
         fechaInput.value = today;
         validar_fecha();
     }
 
-    // Establecer días crédito por defecto si está vacío
-    var diasCreditoInput = document.getElementById('diasCredito');
-    if (diasCreditoInput.value === '') {
-        diasCreditoInput.value = 0;
-        validar_dias_credito();
+    // Validar que haya productos
+    if (typeof productosAgregados === 'undefined' || productosAgregados.length === 0) {
+        mostrarAlerta('Debe agregar al menos un producto al pedido', 'warning');
+        return false;
     }
 
-    if (proveedor_valido && dias_credito_valido && fecha_valida && observaciones_validas && materias_validas && subtotal_valido && total_valido) {
-        // Crear inputs ocultos para enviar las materias primas
-        crearInputsMateriasPrimas();
+    if (cliente_valido && dias_credito_valido && fecha_valida && telefono_valido && 
+        direccion_valida && observaciones_validas && productos_validos && subtotal_valido && total_valido) {
+        
         return true;
     } else {
+        // Encontrar el primer campo con error y hacer scroll
+        var primerError = document.querySelector('.is-invalid');
+        if (primerError) {
+            primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            primerError.focus();
+        }
+        
         Swal.fire({
             icon: 'error',
             title: 'Error de validación',
-            text: 'Por favor corrija los campos marcados en rojo y asegúrese de agregar al menos una materia prima.',
+            text: 'Por favor corrija los campos marcados en rojo y asegúrese de agregar al menos un producto.',
             confirmButtonText: 'Aceptar',
             timer: 5000,
             timerProgressBar: true,
@@ -301,6 +403,40 @@ function validar_formulario() {
         return false;
     }
 }
+
+// Inicializar fecha actual al cargar el modal
+document.addEventListener('DOMContentLoaded', function() {
+    // Establecer fecha actual por defecto
+    var fechaInput = document.getElementById('fechaPedido');
+    if (fechaInput && fechaInput.value === '') {
+        var today = new Date().toISOString().split('T')[0];
+        fechaInput.value = today;
+    }
+    
+    // Event listener para el checkbox de IVA
+    const checkboxIva = document.getElementById('aplicarIva');
+    if (checkboxIva) {
+        checkboxIva.addEventListener('change', actualizarTotalConIva);
+    }
+    
+    // Limpiar al cerrar el modal
+    const modal = document.getElementById('pedidoModal');
+    if (modal) {
+        modal.addEventListener('hidden.bs.modal', function() {
+            // Resetear variables globales
+            if (typeof productosAgregados !== 'undefined') {
+                productosAgregados = [];
+            }
+            // Limpiar tabla si existe
+            const tabla = document.getElementById('tablaProductos');
+            if (tabla) tabla.remove();
+            // Limpiar campos
+            document.getElementById('subtotal').value = '';
+            document.getElementById('total').value = '';
+            document.getElementById('aplicarIva').checked = false;
+        });
+    }
+});
 
 // Función para limpiar validaciones al cerrar el modal
 function limpiar_validaciones() {

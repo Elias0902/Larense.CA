@@ -731,7 +731,7 @@ class Compra extends Conexion {
             $vencimiento = $fechaInicio->format('Y-m-d');  // "2026-05-22"
 
             // se define estado
-            $estado = 1;
+            $estado = 'Por Pagar';
 
             //consulta para registrar cuenta pagar
             $queryInsertCuenta = "INSERT INTO cuenta_x_pagar (id_compra, id_proveedor, monto_total, saldo_pendiente, fecha_emision, fecha_vencimiento, estado_pago)

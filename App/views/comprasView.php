@@ -427,7 +427,7 @@ require_once 'components/scripts.php';
                   <?php
                     if (isset($estadoCompra) && is_array($estadoCompra) && !empty($estadoCompra)) {
                         foreach ($estadoCompra as $estado) {
-                            echo '<option value="' . $estado['id_estado_pedido'] . '">'
+                            echo '<option value="' . $estado['id_estado_pago'] . '">'
                                 . $estado['nombre_estado'] . '</option>';
                         }
                     }

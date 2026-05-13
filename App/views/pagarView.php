@@ -39,15 +39,7 @@
                 </nav>
               </div>
             </div>
-            <button
-              class="btn btn-primary btn-round shadow-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#pagarModal"
-              style="background: #dc3545; border: none; padding: 10px 20px;"
-            >
-              <i class="fa fa-plus me-2"></i>
-              Nueva Cuenta
-            </button>
+            
           </div>
         </div>
         <div class="row">
@@ -82,61 +74,47 @@
                     </thead>
                     <tbody>
                           <?php
-                if(isset($cuentas) && is_array($cuentas) && !empty($cuentas)){
-                foreach ($cuentas as $cuenta):
+                if(isset($cuentasPagar) && is_array($cuentasPagar) && !empty($cuentasPagar)){
+                foreach ($cuentasPagar as $cuenta):
                     $estado_class = '';
                     $estado_texto = '';
                     
-                    switch($cuenta['estado']) {
-                        case 'pendiente':
+                    switch($cuenta['estado_pago']) {
+                        case 'Por Pagar':
                             $estado_class = 'badge-warning';
-                            $estado_texto = 'Pendiente';
+                            $estado_texto = 'Por Pagar';
                             break;
-                        case 'parcial':
-                            $estado_class = 'badge-info';
-                            $estado_texto = 'Pago Parcial';
-                            break;
-                        case 'pagada':
+                        case 'Pagado':
                             $estado_class = 'badge-success';
                             $estado_texto = 'Pagada';
                             break;
-                        case 'vencida':
-                            $estado_class = 'badge-danger';
-                            $estado_texto = 'Vencida';
-                            break;
-                        case 'anulada':
-                            $estado_class = 'badge-secondary';
-                            $estado_texto = 'Anulada';
-                            break;
                         default:
                             $estado_class = 'badge-secondary';
-                            $estado_texto = ucfirst($cuenta['estado']);
+                            $estado_texto = ucfirst($cuenta['estado_pago']);
                     }
                     
                     // Verificar si está vencida
                     $hoy = date('Y-m-d');
-                    $vencida = ($cuenta['fecha_vencimiento'] < $hoy && $cuenta['estado'] != 'pagada' && $cuenta['estado'] != 'anulada');
+                    $vencida = ($cuenta['fecha_vencimiento'] < $hoy && $cuenta['estado_cuenta'] != 'pagada' && $cuenta['estado'] != 'anulada');
                     if ($vencida) {
                         $estado_class = 'badge-danger';
                         $estado_texto = 'Vencida';
                     }
-                    
-                    $saldo_class = $cuenta['saldo'] > 0 ? 'text-danger' : 'text-success';
             ?>
                           <tr style="transition: all 0.2s;">
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
                               <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
-                                CP-00<?php echo $cuenta['id_cuenta_pagar']; ?>
+                                CC-00<?php echo $cuenta['id_cuenta_x_pagar']; ?>
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
-                              <i class="fa fa-truck me-1" style="color: #28a745;"></i><?php echo $cuenta['nombre_proveedor']; ?>
+                              <i class="fa fa-user me-1" style="color: #dc3545;"></i><?php echo $cuenta['tipo_id'] . $cuenta['id_proveedor'] . ' ' . $cuenta['nombre_proveedor'];?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 600; color: #dc3545;">
-                              $<?php echo number_format($cuenta['monto'], 2); ?>
+                              $<?php echo number_format($cuenta['monto_total'], 2); ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 600;" class="<?php echo $saldo_class; ?>">
-                              $<?php echo number_format($cuenta['saldo'], 2); ?>
+                              $<?php echo number_format($cuenta['saldo_pendiente'], 2); ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; color: #666;">
                               <i class="fa fa-calendar me-1" style="color: #dc3545;"></i><?php echo date('d/m/Y', strtotime($cuenta['fecha_emision'])); ?>
@@ -145,18 +123,15 @@
                               <?php if($vencida): ?>
                                 <span class="text-danger"><i class="fa fa-exclamation-circle me-1"></i><?php echo date('d/m/Y', strtotime($cuenta['fecha_vencimiento'])); ?></span>
                               <?php else: ?>
-                                <i class="fa fa-calendar-check me-1" style="color: #28a745;"></i><?php echo date('d/m/Y', strtotime($cuenta['fecha_vencimiento'])); ?>
+                                <i class="fa fa-calendar-check me-1" style="color: #dc3545;"></i><?php echo date('d/m/Y', strtotime($cuenta['fecha_vencimiento'])); ?>
                               <?php endif; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
-                              <span class="badge" style="
+                              <span class="badge <?php echo $estado_class; ?>" style="
                                 <?php 
-                                switch($cuenta['estado']) {
-                                  case 'pendiente': echo 'background: #fff3cd; color: #856404;'; break;
-                                  case 'parcial': echo 'background: #f8d7da; color: #721c24;'; break;
-                                  case 'pagada': echo 'background: #d4edda; color: #155724;'; break;
-                                  case 'vencida': echo 'background: #f8d7da; color: #721c24;'; break;
-                                  case 'anulada': echo 'background: #e2e3e5; color: #383d41;'; break;
+                                switch($cuenta['estado_pago']) {
+                                  case 'Por Pagar': echo 'color: black;'; break;
+                                  case 'Pagado': echo 'background:  #28a745; color: white;'; break;
                                   default: echo 'background: #e9ecef; color: #495057;';
                                 }
                                 ?> padding: 6px 12px; border-radius: 20px; font-weight: 500;">
@@ -165,46 +140,27 @@
                             </td>
                             <td style="padding: 15px; vertical-align: middle; text-align: center;">
                               <div class="btn-group" role="group">
-                                <?php if($cuenta['saldo'] > 0 && $cuenta['estado'] != 'anulada'): ?>
+                                <?php if($cuenta['saldo_pendiente'] > 0 && $cuenta['estado_pago'] != 'anulada'): ?>
                                 <button
-                                  onclick="RegistrarPagoCuentaPagar(<?php echo $cuenta['id_cuenta_pagar']; ?>, <?php echo $cuenta['saldo']; ?>)"
+                                  onclick="ObtenerCuentaPagar(<?php echo $cuenta['id_cuenta_x_pagar']; ?>)"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#PagoModal"
                                   type="button"
                                   class="btn btn-sm"
                                   title='Registrar Pago'
                                   data-bs-toggle="tooltip"
-                                  style="background: #28a745; color: white; border-radius: 6px 0 0 6px; border: none;"
+                                  style="background: #dc3545; color: white; border-radius: 6px 0 0 6px; border: none;"
                                 >
                                   <i class="fa fa-dollar-sign"></i>
                                 </button>
                                 <?php endif; ?>
-                                <a
-                                onclick="ObtenerCuentaPagar(<?php echo $cuenta['id_cuenta_pagar']; ?>)"
-                                data-bs-toggle="modal"
-                                data-bs-target="#pagarModalModificar"
-                                type="button"
-                                class="btn btn-sm"
-                                title='Modificar'
-                                style="background: #dc3545; color: white; border: none;<?php echo ($cuenta['saldo'] > 0 && $cuenta['estado'] != 'anulada') ? '' : 'border-radius: 6px 0 0 6px;'; ?>"
-                                >
-                                  <i class="fa fa-edit"></i>
-                                </a>
-                                <a href="#"
-                                 onclick="return EliminarCuentaPagar(event,<?php echo $cuenta['id_cuenta_pagar']; ?>)"
-                                  type="button"
-                                  data-bs-toggle="tooltip"
-                                  class="btn btn-sm"
-                                  title='Eliminar'
-                                  style="background: #dc3545; color: white; border-radius: 0 6px 6px 0; border: none;"
-                                >
-                                  <i class="fa fa-trash"></i>
-                                </a>
                               </div>
                             </td>
                           </tr>
                                       <?php
             endforeach;
         } else {
-            echo "<tr><td colspan='8' class='text-center py-4'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No hay cuentas por pagar registradas.</div></td></tr>";
+            echo "<tr><td colspan='8' class='text-center py-4'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No hay cuentas por cobrar registradas.</div></td></tr>";
         } ?>
                         </tbody>
                       </table>
@@ -227,202 +183,85 @@ require_once 'components/footer.php';
 require_once 'components/scripts.php';
 ?>
 
-<!-- Modal Agregar -->
-<div class="modal fade" id="pagarModal" tabindex="-1" aria-labelledby="pagarModalLabel" aria-hidden="true">
+
+<!-- Modal Registrar Pago -->
+<div class="modal fade" id="PagoModal" tabindex="-1" aria-labelledby="pagoModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
-      <form id="formPagar" onsubmit="return validar_formulario()" method="post" action="index.php?url=pagar&action=agregar">
+      <form id="formCobrarModificar" onsubmit="return validar_formulario()" method="post" action="index.php?url=pagar&action=registrar_pago">
         <div class="modal-header" style="background: #dc3545; border: none; padding: 20px 25px;">
-          <h5 class="modal-title" id="pagarModalLabel" style="color: white; font-weight: 600;">
-            <i class="fa fa-receipt me-2"></i><font color="red">Nueva Cuenta por Pagar</font>
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="proveedorId" class="form-label"><b>Proveedor <span class="text-danger">*</span></b></label>
-                <select class="form-select" id="proveedorId" name="proveedorId" onchange="validar_proveedor()" required>
-                  <option value="">Seleccione un proveedor...</option>
-                  <?php
-                  if(isset($proveedores) && is_array($proveedores) && !empty($proveedores)) {
-                      foreach($proveedores as $proveedor) {
-                          echo '<option value="' . $proveedor['id_proveedor'] . '">' . $proveedor['nombre_proveedor'] . '</option>';
-                      }
-                  }
-                  ?>
-                </select>
-                <span id="errorProveedor" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="compraId" class="form-label"><b>Compra Relacionada (Opcional)</b></label>
-                <input type="number" class="form-control" id="compraId" name="compraId" placeholder="Número de compra">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="montoCuenta" class="form-label"><b>Monto Total <span class="text-danger">*</span></b></label>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" id="montoCuenta" name="montoCuenta" placeholder="0.00" step="0.01" min="0.01" oninput="actualizarSaldo(); validar_monto()" required>
-                </div>
-                <span id="errorMonto" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="saldoCuenta" class="form-label"><b>Saldo Pendiente</b></label>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" id="saldoCuenta" name="saldoCuenta" placeholder="0.00" step="0.01" min="0" readonly>
-                </div>
-                <small class="form-text text-muted">Se actualiza automáticamente con el monto</small>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="fechaEmision" class="form-label"><b>Fecha de Emisión <span class="text-danger">*</span></b></label>
-                <input type="date" class="form-control" id="fechaEmision" name="fechaEmision" oninput="validar_fecha_emision()" required>
-                <span id="errorFechaEmision" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="fechaVencimiento" class="form-label"><b>Fecha de Vencimiento <span class="text-danger">*</span></b></label>
-                <input type="date" class="form-control" id="fechaVencimiento" name="fechaVencimiento" oninput="validar_fechas()" required>
-                <span id="errorFechaVencimiento" class="error-messege"></span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="descripcionCuenta" class="form-label"><b>Descripción <span class="text-danger">*</span></b></label>
-            <textarea class="form-control" id="descripcionCuenta" name="descripcionCuenta" rows="2" placeholder="Concepto de la deuda..." maxlength="300" oninput="validar_descripcion()" required></textarea>
-            <span id="errorDescripcion" class="error-messege"></span>
-          </div>
-          <div class="form-group mb-3">
-            <label for="estadoCuenta" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tag me-2" style="color: #dc3545;"></i>Estado</label>
-            <select class="form-select" id="estadoCuenta" name="estadoCuenta" style="border-radius: 8px;">
-              <option value="pendiente">🟡 Pendiente</option>
-              <option value="parcial">🔵 Pago Parcial</option>
-              <option value="pagada">🟢 Pagada</option>
-              <option value="vencida">🔴 Vencida</option>
-            </select>
-          </div>
-
-          <!-- Nota informativa -->
-          <div class="alert alert-info d-flex align-items-center" role="alert" style="border-radius: 8px; background: #f8d7da; border: none;">
-            <i class="fa fa-info-circle me-2" style="color: #721c24;"></i>
-            <small style="color: #721c24;"><strong>Nota:</strong> Los campos marcados con * son obligatorios.</small>
-          </div>
-        </div>
-        <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 20px 25px;">
-          <button type="button" class="btn" data-bs-dismiss="modal" style="background: #6c757d; color: white; border-radius: 8px; padding: 10px 25px;">
-            <i class="fa fa-times me-2"></i>Cancelar
-          </button>
-          <button type="submit" class="btn" style="background: #dc3545; color: white; border-radius: 8px; padding: 10px 25px;">
-            <i class="fa fa-save me-2"></i>Guardar Cuenta
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Modificar -->
-<div class="modal fade" id="pagarModalModificar" tabindex="-1" aria-labelledby="pagarModalModificarLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content" style="border-radius: 12px; overflow: hidden; border: none;">
-      <form id="formPagarModificar" onsubmit="return validar_formulario_modificado()" method="post" action="index.php?url=pagar&action=modificar">
-        <div class="modal-header" style="background: #dc3545; border: none; padding: 20px 25px;">
-          <h5 class="modal-title" id="pagarModalModificarLabel" style="color: white; font-weight: 600;">
-            <i class="fa fa-edit me-2"></i>Modificar Cuenta por Pagar
+          <h5 class="modal-title" id="pagoModalLabel" style="color: white; font-weight: 600;">
+            <i class="fa fa-edit me-2"></i>Registrar Pago
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" class="form-control" id="id" name="id" required>
+          <input type="hidden" class="form-control" id="id_proveedor" name="id_proveedor" required>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group mb-3">
+                <label for="clienteIdEdit" class="form-label"><b>Proveedor <span class="text-danger">*</span></b></label>
+                <input type="text" class="form-control" id="proveedorPago" name="proveedorPago" placeholder="Deuda"readonly>
+                <span id="errorClientePago" class="error-messege"></span>
+              </div>
+            </div>
+          </div>
           <div class="row">
             <div class="col-md-6">
               <div class="form-group mb-3">
-                <label for="proveedorIdEdit" class="form-label"><b>Proveedor <span class="text-danger">*</span></b></label>
-                <select class="form-select" id="proveedorIdEdit" name="proveedorId" onchange="validar_proveedor_modificado()" required>
-                  <option value="">Seleccione un proveedor...</option>
-                  <?php
-                  if(isset($proveedores) && is_array($proveedores) && !empty($proveedores)) {
-                      foreach($proveedores as $proveedor) {
-                          echo '<option value="' . $proveedor['id_proveedor'] . '">' . $proveedor['nombre_proveedor'] . '</option>';
+                <label for="montoCuentaEdit" class="form-label"><b>Monto a Pagar <span class="text-danger">*</span></b></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="montoPago" name="montoPago" placeholder="0.00" step="0.01" min="0.01" oninput="validar_monto()" required>
+                </div>
+                <span id="errorMontoPago" class="error-messege"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="saldoCuentaEdit" class="form-label"><b>Monto Total</b></label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" id="montoTotal" name="montoTotal" placeholder="0.00" step="0.01" min="0" readonly require>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="fechaEmisionEdit" class="form-label"><b>Fecha<span class="text-danger">*</span></b></label>
+                <input type="date" class="form-control" id="fechaPago" name="fechaPago" oninput="validar_fecha()" required>
+                <span id="errorFechaPago" class="error-messege"></span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group mb-3">
+                <label for="fechaVencimientoEdit" class="form-label"><b>Nro de Referencia <span class="text-danger">*</span></b></label>
+                <input type="number" class="form-control" id="nroReferencia" name="nroReferencia" oninput="validar_nroReferencia()" required>
+                <span id="errorNroReferencia" class="error-messege"></span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group mb-3">
+            <label for="descripcionCuentaEdit" class="form-label"><b>Concepto <span class="text-danger">*</span></b></label>
+            <textarea class="form-control" id="concepto" name="concepto" rows="2" placeholder="Concepto de la deuda..." maxlength="300" oninput="validar_concepto()" required></textarea>
+            <span id="errorConcepto" class="error-messege"></span>
+          </div>
+          <div class="form-group mb-3">
+            <label for="estadoCuentaEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tag me-2" style="color: #dc3545;"></i>Metodo de Pago</label>
+            <select class="form-select" id="metodoPago" name="metodoPago" onchange="validar_metodo()" style="border-radius: 8px;" required>
+              <option value="">Seleccione metodo de pago</option>
+                <?php
+                  if(isset($metodos) && is_array($metodos) && !empty($metodos)) {
+                      foreach($metodos as $metodo) {
+                          echo '<option value="' . $metodo['id_metodo_pago'] . '">' . $metodo['nombre_metodo'] . '</option>';
                       }
                   }
                   ?>
-                </select>
-                <span id="errorProveedorEdit" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="compraIdEdit" class="form-label"><b>Compra Relacionada</b></label>
-                <input type="number" class="form-control" id="compraIdEdit" name="compraId" placeholder="Número de compra">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="montoCuentaEdit" class="form-label"><b>Monto Total <span class="text-danger">*</span></b></label>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" id="montoCuentaEdit" name="montoCuenta" placeholder="0.00" step="0.01" min="0.01" oninput="actualizarSaldoModificado(); validar_monto_modificado()" required>
-                </div>
-                <span id="errorMontoEdit" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="saldoCuentaEdit" class="form-label"><b>Saldo Pendiente</b></label>
-                <div class="input-group">
-                  <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" id="saldoCuentaEdit" name="saldoCuenta" placeholder="0.00" step="0.01" min="0">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="fechaEmisionEdit" class="form-label"><b>Fecha de Emisión <span class="text-danger">*</span></b></label>
-                <input type="date" class="form-control" id="fechaEmisionEdit" name="fechaEmision" oninput="validar_fecha_emision_modificado()" required>
-                <span id="errorFechaEmisionEdit" class="error-messege"></span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label for="fechaVencimientoEdit" class="form-label"><b>Fecha de Vencimiento <span class="text-danger">*</span></b></label>
-                <input type="date" class="form-control" id="fechaVencimientoEdit" name="fechaVencimiento" oninput="validar_fechas_modificado()" required>
-                <span id="errorFechaVencimientoEdit" class="error-messege"></span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group mb-3">
-            <label for="descripcionCuentaEdit" class="form-label"><b>Descripción <span class="text-danger">*</span></b></label>
-            <textarea class="form-control" id="descripcionCuentaEdit" name="descripcionCuenta" rows="2" placeholder="Concepto de la deuda..." maxlength="300" oninput="validar_descripcion_modificado()" required></textarea>
-            <span id="errorDescripcionEdit" class="error-messege"></span>
-          </div>
-          <div class="form-group mb-3">
-            <label for="estadoCuentaEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tag me-2" style="color: #dc3545;"></i>Estado</label>
-            <select class="form-select" id="estadoCuentaEdit" name="estadoCuenta" style="border-radius: 8px;">
-              <option value="pendiente">🟡 Pendiente</option>
-              <option value="parcial">🔵 Pago Parcial</option>
-              <option value="pagada">🟢 Pagada</option>
-              <option value="vencida">🔴 Vencida</option>
-              <option value="anulada">⚪ Anulada</option>
             </select>
+            <span id="errorMetodoPago" class="error-messege"></span>
           </div>
         </div>
         <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 20px 25px;">
@@ -430,7 +269,7 @@ require_once 'components/scripts.php';
             <i class="fa fa-times me-2"></i>Cancelar
           </button>
           <button type="submit" class="btn" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #212529; border-radius: 8px; padding: 10px 25px;">
-            <i class="fa fa-edit me-2"></i>Modificar Cuenta
+            <i class="fa fa-edit me-2"></i>Registrar Pago
           </button>
         </div>
       </form>
