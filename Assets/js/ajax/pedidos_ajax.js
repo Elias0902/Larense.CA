@@ -2,7 +2,7 @@ function ObtenerPedido(id) {
     fetch('index.php?url=pedidos&action=obtener&ID=' + id)
         .then(response => response.json())
         .then(data => {
-            console.log('Datos recibidos:', data);
+            //console.log('Datos recibidos:', data);
             
             inicializarModalModificar();
             

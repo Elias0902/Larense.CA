@@ -2,7 +2,9 @@
     // llama el archivo del modelo
     require_once 'app/models/PagoModel.php';
     require_once 'app/models/ClienteModel.php';
+    require_once 'app/models/ProveedorModel.php';
     require_once 'app/models/PermisoModel.php';
+    require_once 'app/models/BitacoraModel.php';
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -52,29 +54,102 @@
 
     // funcion para consultar datos
     function Consultar() {
+
+        // instacia el modelo
         $modelo = new Pago();
-        $cliente_modelo = new Cliente();
+        $permiso = new Permiso();
+        $bitacora = new Bitacora();
+        
+        // se almacena la fecha en la var
+        $fecha = (new DateTime())->format('Y-m-d H:i:s');
+        
 
-        try {
-            // Obtener pagos
-            $resultado = $modelo->manejarAccion('consultar', null);
-            $pagos = (isset($resultado['status']) && $resultado['status'] === true) ? $resultado['data'] : [];
+        // se arma el json
+        $permiso_json = json_encode([
+            'modulo' => 'Pagos',
+            'permiso' => 'Consultar',
+           'rol' => $_SESSION['s_usuario']['id_rol_usuario']
+        ]);
 
-            // Obtener clientes para el select
-            $clientes_resultado = $cliente_modelo->manejarAccion('consultar', null);
-            $clientes = (isset($clientes_resultado['status']) && $clientes_resultado['status'] === true) ? $clientes_resultado['data'] : [];
 
-            require_once 'app/views/pagosView.php';
-            exit();
-        } catch (Exception $e) {
-            error_log('Error al consultar pagos...' . $e->getMessage());
-            setError('Error en operacion.');
-            $pagos = [];
-            $clientes = [];
-            require_once 'app/views/pagosView.php';
-            exit();
+        // captura el resultado de la consulta
+        $status = $permiso->manejarAccion("verificar", $permiso_json);
+
+        //verifica si el usuario logueado tiene permiso de realizar la ccion requerida mendiante 
+        //la funcion que esta en el modulo admin donde envia el nombre del modulo luego la 
+        //action y el rol de usuario
+        if (isset($status['status']) && $status['status'] === true) {
+            
+            // Ejecutar acción permitida
+
+            // para manejo de errores
+            try {
+            
+                // llama la funcion consultar del modelo
+                $resultado = $modelo->manejarAccion('consultar', null);
+
+                // valida si esxixte el status y si es true
+                if (isset($resultado['status']) && $resultado['status'] === true) {
+
+                    // usa mensaje dinamico del modelo
+                    //setSuccess($resultado['msj']);
+
+                    $pagos = $resultado['data'];
+
+                    // se arma el json de bitacora
+                    $bitacora_json = json_encode([
+                        'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
+                        'modulo' => 'Pagos',
+                        'accion' => 'Consultar',
+                        'descripcion' => 'El usuario:' . ' ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ' . 
+                            'ha Consultado los datos en dashboard de los Paogs' . ' ' . 'en el sistema.',
+                        'fecha' => $fecha
+                    ]);
+
+                    //realiza la insercion de la bitacora
+                    $bitacora->manejarAccion('agregar', $bitacora_json);
+
+                    //carga la vista
+                    require_once 'app/views/pagosView.php';
+
+                    //termina el script
+                    exit();
+                }
+                else{
+
+                    // usa mensaje dinamico del modelo
+                    setError($resultado['msj']);
+
+                    //carga la vista
+                    require_once 'app/views/pagosView.php';
+
+                    //termina el script
+                    exit();
+                }
+
+            }
+            catch (Exception $e) {
+
+                //mensaje del exception de pdo
+                error_log('Error al registrar...' . $e->getMessage());
+                
+                // carga la alerta
+                setError('Error en operacion.');
+
+                //termina el script
+                exit();
+            }
         }
-    }
+    //muestra un modal de info que dice acceso no permitido
+    setError("Error acceso no permitido");
+
+    //redirect
+    header('Location: index.php?url=403');
+                
+    // termina el script
+    exit();
+    
+}
 
     // funcion para guardar datos
     function Agregar() {

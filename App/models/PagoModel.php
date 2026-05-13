@@ -243,10 +243,18 @@ class Pago extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente 
+            $query = "SELECT p.*, 
+                            c.tipo_id,
+                            c.id_cliente,
+                            pd.id_estado_pago,
+                            ep.nombre_estado,
+                            c.nombre_cliente,
+                            mp.nombre_metodo 
                       FROM pagos p
-                      LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
-                      WHERE p.status = 1 
+                      LEFT JOIN metodos_pago mp ON mp.id_metodo_pago = p.id_metodo_pago
+                      LEFT JOIN pedidos pd ON pd.id_pedido = p.id_pedido
+                      LEFT JOIN estado_pago ep ON ep.id_estado_pago = pd.id_estado_pago
+                      LEFT JOIN clientes c ON c.id_cliente = pd.id_cliente
                       ORDER BY p.id_pago DESC";
             $stmt = $conn->prepare($query);
             $stmt->execute();

@@ -84,57 +84,65 @@
                     <thead>
                       <tr style="background: #f8f9fa;">
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">#</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Cliente</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Pedido</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Destinatario</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Monto</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Método</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Referencia</th>
+                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Concepto</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Fecha</th>
                         <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Estado</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545; text-align: center;">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                           <?php
                 if(isset($pagos) && is_array($pagos) && !empty($pagos)){
                 foreach ($pagos as $pago):
-                    $estado_class = $pago['status'] == 1 ? 'badge-success' : 'badge-warning';
-                    $estado_texto = $pago['status'] == 1 ? 'Completado' : 'Pendiente';
-                    $cliente_nombre = $pago['nombre_cliente'];
+                    $estado_class = $pago['nombre_estado'] == 'Pagado' ? 'badge-success' : 'badge-warning';
+                    $estado_texto = $pago['nombre_estado'];
 
                     // Icono según método de pago
                     $icono_metodo = '';
-                    switch($pago['metodo_pago']) {
-                        case 'efectivo': $icono_metodo = '<i class="fa fa-money-bill-wave text-success"></i>'; break;
-                        case 'transferencia': $icono_metodo = '<i class="fa fa-university text-primary"></i>'; break;
-                        case 'debito': $icono_metodo = '<i class="fa fa-credit-card text-info"></i>'; break;
-                        case 'credito': $icono_metodo = '<i class="fa fa-credit-card text-danger"></i>'; break;
-                        case 'biopago': $icono_metodo = '<i class="fa fa-fingerprint text-warning"></i>'; break;
-                        case 'pago_movil': $icono_metodo = '<i class="fa fa-mobile-alt text-success"></i>'; break;
-                        case 'zelle': $icono_metodo = '<i class="fa fa-envelope text-primary"></i>'; break;
+                    switch($pago['nombre_metodo']) {
+                        case 'Efectivo': $icono_metodo = '<i class="fa fa-money-bill-wave text-success"></i>'; break;
+                        case 'Transferencia': $icono_metodo = '<i class="fa fa-university text-primary"></i>'; break;
+                        case 'Debito': $icono_metodo = '<i class="fa fa-credit-card text-info"></i>'; break;
+                        case 'Credito': $icono_metodo = '<i class="fa fa-credit-card text-danger"></i>'; break;
+                        case 'Biopago': $icono_metodo = '<i class="fa fa-fingerprint text-warning"></i>'; break;
+                        case 'Pago Movil': $icono_metodo = '<i class="fa fa-mobile-alt text-success"></i>'; break;
+                        case 'Zelle': $icono_metodo = '<i class="fa fa-envelope text-primary"></i>'; break;
                         default: $icono_metodo = '<i class="fa fa-dollar-sign"></i>';
                     }
             ?>
-                          <tr style="transition: all 0.2s;" data-id="<?php echo $pago['id_pago']; ?>" data-estado="<?php echo $pago['status'] == 1 ? 'completado' : 'pendiente'; ?>">
+                          <tr style="transition: all 0.2s;" data-id="<?php echo $pago['id_pago']; ?>">
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
                               <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
                                 PAG-00<?php echo $pago['id_pago']; ?>
                               </span>
                             </td>
+                            <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
+                              <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
+                                PD-00<?php echo $pago['id_pedido']; ?>
+                              </span>
+                            </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
-                              <i class="fa fa-user me-1" style="color: #dc3545;"></i><?php echo $cliente_nombre; ?>
+                              <i class="fa fa-user me-1" style="color: #dc3545;"></i><?php echo $pago['tipo_id'] . ' ' . $pago['id_cliente'] . ' ' . $pago['nombre_cliente']; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
                               <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
-                                $<?php echo number_format($pago['monto'], 2); ?>
+                                $<?php echo number_format($pago['monto_pago'], 2); ?>
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
                               <span class="badge" style="background: #e9ecef; color: #495057; padding: 6px 12px; border-radius: 20px;">
-                                <?php echo $icono_metodo . ' ' . ucfirst(str_replace('_', ' ', $pago['metodo_pago'])); ?>
+                                <?php echo $icono_metodo . ' ' . ucfirst(str_replace('_', ' ', $pago['nombre_metodo'])); ?>
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
-                              <?php echo $pago['referencia'] ? $pago['referencia'] : '<span class="text-muted">-</span>'; ?>
+                              <?php echo $pago['nro_referencia'] ? $pago['nro_referencia'] : '<span class="text-muted">-</span>'; ?>
+                            </td>
+                            <td style="padding: 15px; vertical-align: middle;">
+                              <?php echo $pago['concepto'] ? $pago['concepto'] : '<span class="text-muted">-</span>'; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
                               <i class="fa fa-calendar me-1" style="color: #dc3545;"></i><?php echo date('d/m/Y', strtotime($pago['fecha_pago'])); ?>
@@ -143,43 +151,6 @@
                               <span class="badge <?php echo $estado_class; ?>" style="padding: 6px 12px; border-radius: 20px;">
                                 <?php echo $estado_texto; ?>
                               </span>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle; text-align: center;">
-                              <div class="btn-group" role="group">
-                                <!-- Ver Detalle -->
-                                <a
-                                  onclick="VerDetallePago(<?php echo $pago['id_pago']; ?>)"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#pagoDetalleModal"      
-                                  type="button"
-                                  class="btn btn-sm"
-                                  title='Ver Detalle'
-                                  style="background: #6c757d; color: white; border-radius: 6px 0 0 6px; border: none;"
-                                >
-                                  <i class="fa fa-eye"></i>
-                                </a>
-                                <a
-                                  onclick="ObtenerPago(<?php echo $pago['id_pago']; ?>)"
-                                  data-bs-toggle="modal"
-                                  data-bs-target="#pagoModalModificar"
-                                  type="button"
-                                  class="btn btn-sm"
-                                  title='Modificar'
-                                  style="background: #ffc107; color: #212529; border: none;"
-                                >
-                                  <i class="fa fa-edit"></i>
-                                </a>
-                                <a href="#"
-                                  onclick="return EliminarPago(event,<?php echo $pago['id_pago']; ?>)"
-                                  type="button"
-                                  data-bs-toggle="tooltip"
-                                  class="btn btn-sm"
-                                  title='Eliminar'
-                                  style="background: #dc3545; color: white; border-radius: 0 6px 6px 0; border: none;"
-                                >
-                                  <i class="fa fa-trash"></i>
-                                </a>
-                              </div>
                             </td>
                           </tr>
                                       <?php
