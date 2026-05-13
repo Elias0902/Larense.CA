@@ -233,7 +233,7 @@
             $precios = $_POST['precios'] ?? [];
 
             // valida si los campos requeridos no estan vacios
-            if (empty($cliente_id) || empty($dias_Credito) || empty($fecha_pedido) || empty($estado) || empty($telefono) ||empty($direccion) || empty($observaciones) || empty($total) || empty($productos) || empty($cantidades) || empty($precios)) {
+            if (empty($cliente_id) || empty($fecha_pedido) || empty($estado) || empty($telefono) ||empty($direccion) || empty($observaciones) || empty($total) || empty($productos) || empty($cantidades) || empty($precios)) {
                 
                 // msj de error
                 setError('Todos los campos son requeridos.');

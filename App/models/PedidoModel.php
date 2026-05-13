@@ -127,9 +127,6 @@ class Pedido extends Conexion {
 
         // Validar dias credito
         $dias = trim($pedido['dias_credito'] ?? '');
-        if ($dias === '') {
-            return ['status' => false, 'msj' => 'El dia es invalido'];
-        }
         $this->pedido_dias_credito = $dias;
 
         // Validar fecha
@@ -861,7 +858,7 @@ class Pedido extends Conexion {
 
             // Obtener datos
             $fecha = $this->getPedidoFecha();  // "2026-05-07"
-            $dias = (int)$this->getPedidoCredito();  // 15
+            $dias = (int)$this->getPedidoCredito() ?: 15;  // 15
 
             //CÁLCULO
             $fechaInicio = new DateTime($fecha);
