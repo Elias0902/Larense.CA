@@ -1,7 +1,6 @@
 <?php
 // llama al modelo conexion
 require_once "ConexionModel.php";
-require_once "AuditoriaModel.php";
 
 // se define la clase
 class Pago extends Conexion {
@@ -240,15 +239,53 @@ class Pago extends Conexion {
 
     // Función para consultar pagos
     private function Mostrar_Pago() {
+
+        // conexion cerrada
         $this->closeConnection();
+
+        // para manejo de errores
         try {
+
+            // establece conexion
             $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, 
+
+            // Iniciar transacción 
+            $conn->beginTransaction();
+
+            // consulta para pagos proveedores
+            $queryProveedor = "SELECT pp.*,
+                            pp.id_pago_proveedor as pago,
+                            pp.monto as monto_pago,
+                            c.id_compra as ID, 
+                            p.tipo_id,
+                            p.id_proveedor as id,
+                            c.id_estado_pago,
+                            ep.nombre_estado,
+                            p.nombre_proveedor as nombre,
+                            mp.nombre_metodo 
+                      FROM pagos_proveedores pp
+                      LEFT JOIN metodos_pago mp ON mp.id_metodo_pago = pp.id_metodo_pago
+                      LEFT JOIN cuenta_x_pagar cp ON cp.id_cuenta_x_pagar = pp.id_cuenta_x_pagar
+                      LEFT JOIN compras c ON c.id_compra = cp.id_compra
+                      LEFT JOIN estado_pago ep ON ep.id_estado_pago = c.id_estado_pago
+                      LEFT JOIN proveedores p ON p.id_proveedor = cp.id_proveedor
+                      ORDER BY pp.id_pago_proveedor DESC";
+
+            // prepara la consulta
+            $stmtProveedor = $conn->prepare($queryProveedor);
+            
+            // ejecuta la consulta
+            $stmtProveedor->execute();
+
+            // consulta para pagos clientes
+            $queryCliente = "SELECT p.*, 
+                            p.id_pago as pago,
+                            p.id_pedido as ID,
                             c.tipo_id,
-                            c.id_cliente,
+                            c.id_cliente as id,
                             pd.id_estado_pago,
                             ep.nombre_estado,
-                            c.nombre_cliente,
+                            c.nombre_cliente as nombre,
                             mp.nombre_metodo 
                       FROM pagos p
                       LEFT JOIN metodos_pago mp ON mp.id_metodo_pago = p.id_metodo_pago
@@ -256,190 +293,33 @@ class Pago extends Conexion {
                       LEFT JOIN estado_pago ep ON ep.id_estado_pago = pd.id_estado_pago
                       LEFT JOIN clientes c ON c.id_cliente = pd.id_cliente
                       ORDER BY p.id_pago DESC";
-            $stmt = $conn->prepare($query);
-            $stmt->execute();
 
-            if ($stmt->rowCount() > 0) {
-                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                return ['status' => true, 'msj' => 'Pagos encontrados con exito.', 'data' => $data];
-            } else {
-                return ['status' => false, 'msj' => 'No hay pagos registrados.'];
-            }
+            // prepara la consulta
+            $stmtCliente = $conn->prepare($queryCliente);
+
+            // ejecuta la consulta
+            $stmtCliente->execute();
+
+            // Confirmar transacción
+            $conn->commit();
+
+            // almacena los datos
+            $dataCliente = $stmtCliente->fetchAll(PDO::FETCH_ASSOC);
+            $dataProveedor = $stmtProveedor->fetchAll(PDO::FETCH_ASSOC);
+
+            //retorna msj de exito
+            return ['status' => true, 'msj' => 'Pagos encontrados con exito.', 'data_cliente' => $dataCliente, 'data_proveedor' => $dataProveedor];
+
         } catch (PDOException $e) {
+
+            // revierte
+            $conn->rollBack();
+
+            // retorna msj de exito
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
-            $this->closeConnection();
-        }
-    }
 
-    // Función para consultar pagos por cliente
-    private function Mostrar_PagoPorCliente() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente 
-                      FROM pagos p
-                      LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
-                      WHERE p.cliente_id = :cliente_id AND p.status = 1 
-                      ORDER BY p.id_pago DESC";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':cliente_id', $this->getPagoClienteID());
-            $stmt->execute();
-
-            if ($stmt->rowCount() > 0) {
-                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                return ['status' => true, 'msj' => 'Pagos del cliente encontrados.', 'data' => $data];
-            } else {
-                return ['status' => false, 'msj' => 'No hay pagos para este cliente.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
-
-    // Función para guardar pago
-    private function Guardar_Pago() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "INSERT INTO pagos (pedido_id, cliente_id, monto, metodo_pago, referencia, fecha_pago, status, observaciones)
-                      VALUES (:pedido_id, :cliente_id, :monto, :metodo, :referencia, :fecha, :estado, :observaciones)";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':pedido_id', $this->getPagoPedidoID() ?: null);
-            $stmt->bindValue(':cliente_id', $this->getPagoClienteID());
-            $stmt->bindValue(':monto', $this->getPagoMonto());
-            $stmt->bindValue(':metodo', $this->getPagoMetodo());
-            $stmt->bindValue(':referencia', $this->getPagoReferencia());
-            $stmt->bindValue(':fecha', $this->getPagoFecha());
-            $stmt->bindValue(':estado', $this->getPagoEstado());
-            $stmt->bindValue(':observaciones', $this->getPagoObservaciones());
-
-            if ($stmt->execute()) {
-                $insertedId = $conn->lastInsertId();
-                if ($insertedId) {
-                    $this->registrarAuditoria('Pagos', Auditoria::OP_INSERT, 'pagos', $insertedId, 'Pago registrado');
-                }
-                return ['status' => true, 'msj' => 'Pago registrado con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al registrar el pago.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
-
-    // Función para obtener un pago
-    private function Obtener_Pago() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "SELECT p.*, c.nombre_cliente 
-                      FROM pagos p
-                      LEFT JOIN clientes c ON p.cliente_id = c.id_cliente
-                      WHERE p.id_pago = :id AND p.status = 1";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getPagoID());
-            $stmt->execute();
-
-            if ($stmt->rowCount() > 0) {
-                $data = $stmt->fetch(PDO::FETCH_ASSOC);
-                return ['status' => true, 'msj' => 'Pago encontrado con éxito.', 'data' => $data];
-            } else {
-                return ['status' => false, 'msj' => 'Pago no encontrado.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
-
-    // Función para actualizar pago
-    private function Actualizar_Pago() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "UPDATE pagos 
-                      SET pedido_id = :pedido_id,
-                          cliente_id = :cliente_id,
-                          monto = :monto,
-                          metodo_pago = :metodo,
-                          referencia = :referencia,
-                          fecha_pago = :fecha,
-                          status = :estado,
-                          observaciones = :observaciones
-                      WHERE id_pago = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getPagoID());
-            $stmt->bindValue(':pedido_id', $this->getPagoPedidoID() ?: null);
-            $stmt->bindValue(':cliente_id', $this->getPagoClienteID());
-            $stmt->bindValue(':monto', $this->getPagoMonto());
-            $stmt->bindValue(':metodo', $this->getPagoMetodo());
-            $stmt->bindValue(':referencia', $this->getPagoReferencia());
-            $stmt->bindValue(':fecha', $this->getPagoFecha());
-            $stmt->bindValue(':estado', $this->getPagoEstado());
-            $stmt->bindValue(':observaciones', $this->getPagoObservaciones());
-
-            if ($stmt->execute()) {
-                $this->registrarAuditoria('Pagos', Auditoria::OP_UPDATE, 'pagos', $this->getPagoID(), 'Pago actualizado');
-                return ['status' => true, 'msj' => 'Pago actualizado con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al actualizar el pago.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
-
-    // Función para eliminar (desactivar) pago
-    private function Eliminar_Pago() {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $query = "UPDATE pagos SET status = 0 WHERE id_pago = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getPagoID());
-
-            if ($stmt->execute()) {
-                $this->registrarAuditoria('Pagos', Auditoria::OP_DELETE, 'pagos', $this->getPagoID(), 'Pago eliminado');
-                return ['status' => true, 'msj' => 'Pago eliminado con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al eliminar el pago.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
-            $this->closeConnection();
-        }
-    }
-
-    // Función para cambiar estado del pago
-    private function CambiarEstado_Pago($nuevo_estado) {
-        $this->closeConnection();
-        try {
-            $conn = $this->getConnectionNegocio();
-            $estado = ($nuevo_estado === 'completado' || $nuevo_estado === '1' || $nuevo_estado === 1) ? 1 : 0;
-            $query = "UPDATE pagos SET status = :estado WHERE id_pago = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindValue(':id', $this->getPagoID());
-            $stmt->bindValue(':estado', $estado);
-
-            if ($stmt->execute()) {
-                $this->registrarAuditoria('Pagos', Auditoria::OP_UPDATE, 'pagos', $this->getPagoID(), 'Estado de pago cambiado');
-                $msg = $estado ? 'completado' : 'marcado como pendiente';
-                return ['status' => true, 'msj' => 'Pago ' . $msg . ' con éxito.'];
-            } else {
-                return ['status' => false, 'msj' => 'Error al cambiar el estado del pago.'];
-            }
-        } catch (PDOException $e) {
-            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
-        } finally {
+            // cierra conexion
             $this->closeConnection();
         }
     }

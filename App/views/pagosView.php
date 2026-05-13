@@ -39,140 +39,222 @@
                 </nav>
               </div>
             </div>
-            <button
-              class="btn btn-danger btn-round shadow-sm"
-              data-bs-toggle="modal"
-              data-bs-target="#pagoModal"
-              style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; padding: 10px 20px;"
-            >
-              <i class="fa fa-plus me-2"></i>
-              Registrar Pago
-            </button>
+            
           </div>
         </div>
 
         <div class="row">
-          <div class="col-md-12">
-            <div class="card shadow border-0" style="border-radius: 12px; overflow: hidden;">
-              <!-- Header de tabla con color -->
-              <div class="card-header py-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none;">
+    <div class="col-md-12">
+        <div class="card shadow border-0" style="border-radius: 12px; overflow: hidden;">
+            <!-- Header de tabla con color -->
+            <div class="card-header py-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none;">
                 <div class="d-flex align-items-center justify-content-between">
-                  <h4 class="card-title mb-0" style="color: white; font-weight: 600;">
-                    <i class="fa fa-list me-2"></i>Registro de Pagos
-                  </h4>
-                  <!-- Filtros de estado -->
-                  <div class="btn-group" id="filtrosPagos">
-                    <button class="btn btn-sm filtro-btn active" data-filtro="todos" style="background: white; border: none; color: #dc3545; font-weight: 600;">
-                      <i class="fa fa-filter me-1"></i> Todos
-                    </button>
-                    <button class="btn btn-sm filtro-btn" data-filtro="completado" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.5); color: white; font-weight: 500;">
-                      <i class="fa fa-check-circle me-1"></i> Completados
-                    </button>
-                    <button class="btn btn-sm filtro-btn" data-filtro="pendiente" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.5); color: white; font-weight: 500;">
-                      <i class="fa fa-clock me-1"></i> Pendientes
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table
-                    id="add-row"
-                    class="display table table-hover mb-0"
-                    style="width: 100%;"
-                  >
-                    <thead>
-                      <tr style="background: #f8f9fa;">
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">#</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Pedido</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Destinatario</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Monto</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Método</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Referencia</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Concepto</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Fecha</th>
-                        <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                          <?php
-                if(isset($pagos) && is_array($pagos) && !empty($pagos)){
-                foreach ($pagos as $pago):
-                    $estado_class = $pago['nombre_estado'] == 'Pagado' ? 'badge-success' : 'badge-warning';
-                    $estado_texto = $pago['nombre_estado'];
-
-                    // Icono según método de pago
-                    $icono_metodo = '';
-                    switch($pago['nombre_metodo']) {
-                        case 'Efectivo': $icono_metodo = '<i class="fa fa-money-bill-wave text-success"></i>'; break;
-                        case 'Transferencia': $icono_metodo = '<i class="fa fa-university text-primary"></i>'; break;
-                        case 'Debito': $icono_metodo = '<i class="fa fa-credit-card text-info"></i>'; break;
-                        case 'Credito': $icono_metodo = '<i class="fa fa-credit-card text-danger"></i>'; break;
-                        case 'Biopago': $icono_metodo = '<i class="fa fa-fingerprint text-warning"></i>'; break;
-                        case 'Pago Movil': $icono_metodo = '<i class="fa fa-mobile-alt text-success"></i>'; break;
-                        case 'Zelle': $icono_metodo = '<i class="fa fa-envelope text-primary"></i>'; break;
-                        default: $icono_metodo = '<i class="fa fa-dollar-sign"></i>';
-                    }
-            ?>
-                          <tr style="transition: all 0.2s;" data-id="<?php echo $pago['id_pago']; ?>">
-                            <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
-                              <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
-                                PAG-00<?php echo $pago['id_pago']; ?>
-                              </span>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
-                              <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
-                                PD-00<?php echo $pago['id_pedido']; ?>
-                              </span>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
-                              <i class="fa fa-user me-1" style="color: #dc3545;"></i><?php echo $pago['tipo_id'] . ' ' . $pago['id_cliente'] . ' ' . $pago['nombre_cliente']; ?>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle;">
-                              <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
-                                $<?php echo number_format($pago['monto_pago'], 2); ?>
-                              </span>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle;">
-                              <span class="badge" style="background: #e9ecef; color: #495057; padding: 6px 12px; border-radius: 20px;">
-                                <?php echo $icono_metodo . ' ' . ucfirst(str_replace('_', ' ', $pago['nombre_metodo'])); ?>
-                              </span>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle;">
-                              <?php echo $pago['nro_referencia'] ? $pago['nro_referencia'] : '<span class="text-muted">-</span>'; ?>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle;">
-                              <?php echo $pago['concepto'] ? $pago['concepto'] : '<span class="text-muted">-</span>'; ?>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle;">
-                              <i class="fa fa-calendar me-1" style="color: #dc3545;"></i><?php echo date('d/m/Y', strtotime($pago['fecha_pago'])); ?>
-                            </td>
-                            <td style="padding: 15px; vertical-align: middle;">
-                              <span class="badge <?php echo $estado_class; ?>" style="padding: 6px 12px; border-radius: 20px;">
-                                <?php echo $estado_texto; ?>
-                              </span>
-                            </td>
-                          </tr>
-                                      <?php
-            endforeach;
-        } else {
-            echo "<tr><td colspan='8'>No hay pagos registrados.</td></tr>";
-        } ?>
-                        </tbody>
-                      </table>
+                    <h4 class="card-title mb-0" style="color: white; font-weight: 600;">
+                        <i class="fa fa-list me-2"></i>Registro de Pagos
+                    </h4>
+                    <!-- Filtros de estado -->
+                    <div class="btn-group" id="filtrosPagos">
+                        <button class="btn btn-sm filtro-btn active" data-filtro="clientes" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.5); color: white; font-weight: 500;">
+                            <i class="fa fa-users me-1"></i> Clientes
+                        </button>
+                        <button class="btn btn-sm filtro-btn" data-filtro="proveedores" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.5); color: white; font-weight: 500;">
+                            <i class="fa fa-truck me-1"></i> Proveedores
+                        </button>
                     </div>
-                  </div>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <!-- Tabla de Clientes -->
+                    <table id="tablaClientes" class="display table table-hover mb-0 pagos-table" style="width: 100%;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">#</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Pedido</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Cliente</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Monto</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Método</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Referencia</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Concepto</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Fecha</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(isset($pagos_clientes) && is_array($pagos_clientes) && !empty($pagos_clientes)): ?>
+                                <?php foreach ($pagos_clientes as $pago): ?>
+                                    <?php
+                                    $estado_class = 'badge-success';
+                                    $estado_texto = 'Pagado';
 
-        <div class="text-center mt-4 mb-4">
-          <a href="index.php?url=dashboard" class="btn btn-secondary" style="border-radius: 8px; padding: 10px 20px;">
-            <i class="fa fa-home me-2"></i>Menú Principal
-          </a>
+                                    // Icono según método de pago
+                                    $icono_metodo = '';
+                                    switch($pago['nombre_metodo']) {
+                                        case 'Efectivo': $icono_metodo = '<i class="fa fa-money-bill-wave text-success"></i>'; break;
+                                        case 'Transferencia': $icono_metodo = '<i class="fa fa-university text-primary"></i>'; break;
+                                        case 'Debito': $icono_metodo = '<i class="fa fa-credit-card text-info"></i>'; break;
+                                        case 'Credito': $icono_metodo = '<i class="fa fa-credit-card text-danger"></i>'; break;
+                                        case 'Biopago': $icono_metodo = '<i class="fa fa-fingerprint text-warning"></i>'; break;
+                                        case 'Pago Movil': $icono_metodo = '<i class="fa fa-mobile-alt text-success"></i>'; break;
+                                        case 'Zelle': $icono_metodo = '<i class="fa fa-envelope text-primary"></i>'; break;
+                                        default: $icono_metodo = '<i class="fa fa-dollar-sign"></i>';
+                                    }
+                                    ?>
+                                    <tr style="transition: all 0.2s;">
+                                        <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
+                                            <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
+                                                PAG-<?php echo str_pad($pago['id_pago'], 4, '0', STR_PAD_LEFT); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
+                                            <span class="badge" style="background: #17a2b8; color: white; padding: 6px 10px; border-radius: 6px;">
+                                                PD-<?php echo str_pad($pago['ID'], 4, '0', STR_PAD_LEFT); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                                            <i class="fa fa-user me-1" style="color: #dc3545;"></i>
+                                            <?php echo $pago['tipo_id'] . '-' . $pago['id'] . ' ' . $pago['nombre']; ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
+                                                $<?php echo number_format($pago['monto_pago'], 2); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <span class="badge" style="background: #e9ecef; color: #495057; padding: 6px 12px; border-radius: 20px;">
+                                                <?php echo $icono_metodo . ' ' . ucfirst(str_replace('_', ' ', $pago['nombre_metodo'])); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <?php echo $pago['nro_referencia'] ? $pago['nro_referencia'] : '<span class="text-muted">-</span>'; ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <?php echo $pago['concepto'] ? $pago['concepto'] : '<span class="text-muted">-</span>'; ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <i class="fa fa-calendar me-1" style="color: #dc3545;"></i>
+                                            <?php echo date('d/m/Y', strtotime($pago['fecha_pago'])); ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
+                                                <i class="fa fa-check-circle me-1"></i> Pagado
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fa fa-inbox fa-2x mb-2"></i>
+                                            <p>No hay pagos de clientes registrados</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+
+                    <!-- Tabla de Proveedores -->
+                    <table id="tablaProveedores" class="display table table-hover mb-0 pagos-table" style="width: 100%; display: none;">
+                        <thead>
+                            <tr style="background: #f8f9fa;">
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">#</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Compra</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Proveedor</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Monto</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Método</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Referencia</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Concepto</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Fecha</th>
+                                <th style="padding: 15px; color: #dc3545; font-weight: 600; border-bottom: 2px solid #dc3545;">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(isset($pagos_proveedores) && is_array($pagos_proveedores) && !empty($pagos_proveedores)): ?>
+                                <?php foreach ($pagos_proveedores as $pago): ?>
+                                    <?php
+                                    $estado_class = 'badge-success';
+                                    $estado_texto = 'Pagado';
+
+                                    // Icono según método de pago
+                                    $icono_metodo = '';
+                                    switch($pago['nombre_metodo']) {
+                                        case 'Efectivo': $icono_metodo = '<i class="fa fa-money-bill-wave text-success"></i>'; break;
+                                        case 'Transferencia': $icono_metodo = '<i class="fa fa-university text-primary"></i>'; break;
+                                        case 'Debito': $icono_metodo = '<i class="fa fa-credit-card text-info"></i>'; break;
+                                        case 'Credito': $icono_metodo = '<i class="fa fa-credit-card text-danger"></i>'; break;
+                                        case 'Biopago': $icono_metodo = '<i class="fa fa-fingerprint text-warning"></i>'; break;
+                                        case 'Pago Movil': $icono_metodo = '<i class="fa fa-mobile-alt text-success"></i>'; break;
+                                        case 'Zelle': $icono_metodo = '<i class="fa fa-envelope text-primary"></i>'; break;
+                                        default: $icono_metodo = '<i class="fa fa-dollar-sign"></i>';
+                                    }
+                                    ?>
+                                    <tr style="transition: all 0.2s;">
+                                        <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
+                                            <span class="badge" style="background: #dc3545; color: white; padding: 6px 10px; border-radius: 6px;">
+                                                PAG-<?php echo str_pad($pago['id_pago_proveedor'], 4, '0', STR_PAD_LEFT); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
+                                            <span class="badge" style="background: #17a2b8; color: white; padding: 6px 10px; border-radius: 6px;">
+                                                COMP-<?php echo str_pad($pago['ID'], 4, '0', STR_PAD_LEFT); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
+                                            <i class="fa fa-building me-1" style="color: #dc3545;"></i>
+                                            <?php echo $pago['tipo_id'] . '-' . $pago['id'] . ' ' . $pago['nombre']; ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
+                                                $<?php echo number_format($pago['monto_pago'], 2); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <span class="badge" style="background: #e9ecef; color: #495057; padding: 6px 12px; border-radius: 20px;">
+                                                <?php echo $icono_metodo . ' ' . ucfirst(str_replace('_', ' ', $pago['nombre_metodo'])); ?>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <?php echo $pago['nro_referencia'] ? $pago['nro_referencia'] : '<span class="text-muted">-</span>'; ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <?php echo $pago['concepto'] ? $pago['concepto'] : '<span class="text-muted">-</span>'; ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <i class="fa fa-calendar me-1" style="color: #dc3545;"></i>
+                                            <?php echo date('d/m/Y', strtotime($pago['fecha_pago'])); ?>
+                                        </td>
+                                        <td style="padding: 15px; vertical-align: middle;">
+                                            <span class="badge" style="background: #28a745; color: white; padding: 6px 12px; border-radius: 20px;">
+                                                <i class="fa fa-check-circle me-1"></i> Pagado
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fa fa-inbox fa-2x mb-2"></i>
+                                            <p>No hay pagos de proveedores registrados</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
+
+<div class="text-center mt-4 mb-4">
+    <a href="index.php?url=dashboard" class="btn btn-secondary" style="border-radius: 8px; padding: 10px 20px;">
+        <i class="fa fa-home me-2"></i>Menú Principal
+    </a>
+</div>
 
 <?php
 require_once 'components/footer.php';
@@ -517,62 +599,118 @@ require_once 'components/scripts.php';
 
 <!-- JavaScript para filtros -->
 <script>
-// Funcionalidad de filtros de pagos
+// Sistema de filtros para pagos
+let dataTableClientes = null;
+let dataTableProveedores = null;
+
 document.addEventListener('DOMContentLoaded', function() {
-    const filtroBtns = document.querySelectorAll('#filtrosPagos .filtro-btn');
-    const filasPagos = document.querySelectorAll('#add-row tbody tr');
+    // Mostrar clientes por defecto
+    mostrarFiltro('clientes');
     
-    // Función para aplicar filtro
-    function aplicarFiltro(filtro) {
-        filasPagos.forEach(fila => {
-            const estado = fila.getAttribute('data-estado');
-            if (filtro === 'todos' || estado === filtro) {
-                fila.style.display = '';
-            } else {
-                fila.style.display = 'none';
-            }
-        });
-        actualizarContador();
-    }
-    
-    filtroBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+    // Agregar event listeners a los botones de filtro
+    const botonesFiltro = document.querySelectorAll('.filtro-btn');
+    botonesFiltro.forEach(boton => {
+        boton.addEventListener('click', function() {
             const filtro = this.getAttribute('data-filtro');
             
-            // Actualizar estilo de botones
-            filtroBtns.forEach(b => {
-                b.style.background = 'rgba(255,255,255,0.3)';
-                b.style.border = '1px solid rgba(255,255,255,0.5)';
-                b.style.color = 'white';
-                b.classList.remove('active');
-            });
-            
-            // Resaltar botón activo
-            this.style.background = 'white';
-            this.style.border = 'none';
-            this.style.color = '#dc3545';
+            // Actualizar clase active en botones
+            botonesFiltro.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             
-            // Filtrar filas
-            aplicarFiltro(filtro);
+            // Mostrar tabla correspondiente
+            mostrarFiltro(filtro);
+            
+            // Guardar filtro en localStorage
+            localStorage.setItem('filtroPagos', filtro);
         });
     });
     
-    // Función para actualizar el contador
-    function actualizarContador() {
-        const visibles = document.querySelectorAll('#add-row tbody tr:not([style*="display: none"])');
-        const total = document.querySelectorAll('#add-row tbody tr');
-        const contador = document.querySelector('.d-flex.justify-content-between.align-items-center span');
-        if (contador) {
-            contador.textContent = `Mostrando ${visibles.length} de ${total.length} registros`;
+    // Cargar último filtro seleccionado
+    const ultimoFiltro = localStorage.getItem('filtroPagos');
+    if (ultimoFiltro) {
+        mostrarFiltro(ultimoFiltro);
+        // Activar el botón correspondiente
+        const botonActivo = document.querySelector(`.filtro-btn[data-filtro="${ultimoFiltro}"]`);
+        if (botonActivo) {
+            document.querySelectorAll('.filtro-btn').forEach(btn => btn.classList.remove('active'));
+            botonActivo.classList.add('active');
         }
     }
 });
 
-// Función placeholder para VerDetallePago
-function VerDetallePago(id) {
-    // Aquí implementar la lógica para mostrar detalles del pago
-    console.log('Ver detalle del pago:', id);
+function destruirDataTable(tablaId) {
+    if ($.fn.DataTable && $.fn.dataTable.isDataTable(tablaId)) {
+        $(tablaId).DataTable().destroy();
+
+    }
+}
+
+function inicializarDataTable(tablaId) {
+    if ($.fn.DataTable) {
+        return $(tablaId).DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            },
+            pageLength: 10,
+            responsive: true,
+            destroy: true,
+            autoWidth: false
+        });
+    }
+    return null;
+}
+
+function mostrarFiltro(tipo) {
+    const tablaClientes = document.getElementById('tablaClientes');
+    const tablaProveedores = document.getElementById('tablaProveedores');
+    
+    if (tipo === 'clientes') {
+        // Destruir DataTable de proveedores si existe (pero no vaciar)
+        if (dataTableProveedores) {
+            destruirDataTable('#tablaProveedores');
+            dataTableProveedores = null;
+        }
+        
+        // Mostrar tabla de clientes
+        tablaClientes.style.display = 'table';
+        tablaProveedores.style.display = 'none';
+        
+        // Inicializar DataTable de clientes si no existe
+        if (!dataTableClientes) {
+            dataTableClientes = inicializarDataTable('#tablaClientes');
+        } else {
+            // Si ya existe, solo ajustar
+            setTimeout(function() {
+                if (dataTableClientes) {
+                    dataTableClientes.columns.adjust();
+                    dataTableClientes.responsive.recalc();
+                }
+            }, 100);
+        }
+    } else {
+        // Destruir DataTable de clientes si existe (pero no vaciar)
+        if (dataTableClientes) {
+            destruirDataTable('#tablaClientes');
+            dataTableClientes = null;
+        }
+        
+        // Mostrar tabla de proveedores
+        tablaClientes.style.display = 'none';
+        tablaProveedores.style.display = 'table';
+        
+        // Inicializar DataTable de proveedores si no existe
+        if (!dataTableProveedores) {
+            dataTableProveedores = inicializarDataTable('#tablaProveedores');
+        } else {
+            // Si ya existe, solo ajustar
+            setTimeout(function() {
+                if (dataTableProveedores) {
+                    dataTableProveedores.columns.adjust();
+                    dataTableProveedores.responsive.recalc();
+                }
+            }, 100);
+        }
+    }
 }
 </script>
 

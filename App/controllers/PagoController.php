@@ -94,7 +94,9 @@
                     // usa mensaje dinamico del modelo
                     //setSuccess($resultado['msj']);
 
-                    $pagos = $resultado['data'];
+                    // Obtener ambos arrays de pagos
+                    $pagos_clientes = $resultado['data_cliente'] ?? [];
+                    $pagos_proveedores = $resultado['data_proveedor'] ?? [];
 
                     // se arma el json de bitacora
                     $bitacora_json = json_encode([
