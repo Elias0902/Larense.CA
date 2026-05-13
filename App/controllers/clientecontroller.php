@@ -468,9 +468,11 @@
             // Solo incluir imagen si se subió una nueva
             if ($imagen_cliente !== null) {
                 $cliente_data['imagen'] = $imagen_cliente;
-            }
-            
-            $cliente_json = json_encode($cliente_data);
+                }
+                
+                $cliente_json = json_encode($cliente_data);
+                
+                //print_r($cliente_json);
 
                 // para manejo de errores
                 try {

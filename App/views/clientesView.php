@@ -333,7 +333,7 @@ require_once 'components/scripts.php';
               </div>
 
               <div class="row">
-                <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
+                <?php if(($_SESSION['s_usuario']['rol_usuario'] ?? '') === 'Superusuario'): ?>
                 <div class="col-md-6 mb-3">
                   <label for="tipoCliente" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-tags me-2" style="color: #dc3545;"></i>Tipo de Cliente *</label>
                   <select class="form-select" id="tipoCliente" name="tipoCliente" style="border-radius: 8px;" oninput='validar_tipo_cliente()' required>
@@ -367,7 +367,7 @@ require_once 'components/scripts.php';
                 </div>
               </div>
 
-              <?php if(($_SESSION['s_usuario']['rol_nombre_usuario'] ?? '') === 'Superusuario'): ?>
+              <?php if(($_SESSION['s_usuario']['rol_usuario'] ?? '') === 'Superusuario'): ?>
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="estadoCliente" class='form-label' style="color: #333; font-weight: 500;"><i class="fa fa-check-circle me-2" style="color: #dc3545;"></i>Estado del Cliente *</label>
@@ -426,8 +426,7 @@ require_once 'components/scripts.php';
                 <div class="col-md-6 mb-3">
                   <label for="rifClienteEdit" class="form-label" style="color: #333; font-weight: 500;"><i class="fa fa-id-card me-2" style="color: #dc3545;"></i>RIF del Cliente</label>
                   <div class='d-flex align-items-center gap-2'>
-                    <input type="text" class="form-control" id="tipo_idEdit" style="max-width: 50px; border-radius: 8px; background: #e9ecef;" readonly>
-                    <input type="hidden" name="tipo_idEdit" id="tipo_idEdit">
+                    <input type="text" class="form-control" name="tipo_idEdit" id="tipo_idEdit" style="max-width: 50px; border-radius: 8px; background: #e9ecef;" readonly>
                     <input type="text" class="form-control" id="rifClienteEdit" name="rifClienteEdit" placeholder="Número de RIF" style="border-radius: 8px; background: #e9ecef;" readonly>
                   </div>
                   <small class="text-muted">El RIF no puede modificarse</small>

@@ -445,6 +445,38 @@ class Cliente extends Conexion {
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionNegocio();
 
+            // Iniciar transacción
+            $conn->beginTransaction();
+
+            // colsuta para selecionar cliente
+            $querySelect = "SELECT id_cliente FROM clientes WHERE id_cliente = :id";
+
+            // prepara la consulta
+            $stmtSelect = $conn->prepare($querySelect);
+
+            //vincula datos
+            $stmtSelect->bindValue(':id', $this->getClienteID());
+
+            // ejecuta consulta
+            $stmtSelect->execute();
+
+            // alamcena datos
+            $dataCliente = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+
+            // valida si hay registro
+            if($dataCliente){
+
+                // Revertir transacción
+                $conn->rollBack();
+            
+                // Verificar si existe por ID
+                if($dataCliente['id_cliente'] == $this->getClienteID()) {
+
+                    // retorna msj de error
+                    return ['status' => false, 'msj' => 'Ya existe un cliente con esta cédula/RIF.'];
+                }
+            }
+
             // inserta una categoria
             $query = "INSERT INTO clientes (id_cliente, tipo_id, id_tipo_cliente, nombre_cliente, direccion_cliente, tlf_cliente, email_cliente, img_cliente, estado_cliente)
                                             VALUES (:id, :tipo_id, :tipo, :nombre, :direccion, :telefono, :email, :img, :estado)";
@@ -465,28 +497,30 @@ class Cliente extends Conexion {
 
              // se valida si se ejecuto la sentencia y si es true
             if ($stmt->execute()) {
-                $nuevoRegistro = [
-                    'id_cliente' => $this->getClienteID(),
-                    'tipo_id' => $this->getTipoIDCliente(),
-                    'id_tipo_cliente' => $this->getTipoCliente(),
-                    'nombre_cliente' => $this->getNombreCliente(),
-                    'direccion_cliente' => $this->getDireccionCliente(),
-                    'tlf_cliente' => $this->getTlfCliente(),
-                    'email_cliente' => $this->getEmailCliente(),
-                    'img_cliente' => $this->getImgCliente(),
-                    'estado_cliente' => $this->getEstadoCliente()
-                ];
+                
+                // Confirmar transacción
+                $conn->commit();
 
                 //retorna el status con el mensaje y los datos de usuario
                 return['status' => true, 'msj' => 'Cliente Registrado con exito.'];
             }
             else {
 
+                // Revertir transacción
+                $conn->rollBack();
+
                 // retorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Error al registrar Cliente.'];
             }
 
         } catch (PDOException $e) {
+
+            // Revertir transacción si está activa
+            if (isset($conn) && $conn->inTransaction()) {
+                
+                // revierte
+                $conn->rollBack();
+            }
             
             // retorna mensaje de error del exception del pdo
             return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
