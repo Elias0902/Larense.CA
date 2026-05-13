@@ -409,6 +409,38 @@ class Usuario extends Conexion {
             // llamo la funcion y creo la conexion
             $conn = $this->getConnectionSeguridad();
 
+            // Iniciar transacción
+            $conn->beginTransaction();
+
+            // colsuta para selecionar usuario
+            $querySelect = "SELECT nombre_usuario FROM usuarios WHERE nombre_usuario = :nombre";
+
+            // prepara la consulta
+            $stmtSelect = $conn->prepare($querySelect);
+
+            //vincula datos
+            $stmtSelect->bindValue(':nombre', $this->getNombre());
+
+            // ejecuta consulta
+            $stmtSelect->execute();
+
+            // alamcena datos
+            $dataUser = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+
+            // valida si hay registro
+            if($dataUser){
+
+                // Revertir transacción
+                $conn->rollBack();
+            
+                // Verificar si existe por ID
+                if($dataUser['nombre_usuario'] == $this->getNombre()) {
+
+                    // retorna msj de error
+                    return ['status' => false, 'msj' => 'Ya existe un usuario con ese nombre.'];
+                }
+            }
+
             // ruta img default
             $img = 'assets/img/perfiles/profile.jpg';
 
@@ -428,6 +460,9 @@ class Usuario extends Conexion {
 
              // se valida si se ejecuto la sentencia y si es true
             if ($stmt->execute()) {
+
+                // Confirmar transacción
+                $conn->commit();
                 
                 // Obtener el ID del registro creado
                 $id_creado = $conn->lastInsertId();
@@ -437,11 +472,21 @@ class Usuario extends Conexion {
             }
             else {
 
+                // Revertir transacción
+                $conn->rollBack();
+
                 // retorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Error al registar usuario.'];
             }
 
         } catch (PDOException $e) {
+
+            // Revertir transacción si está activa
+            if (isset($conn) && $conn->inTransaction()) {
+                
+                // revierte
+                $conn->rollBack();
+            }
             
             // retorna mensaje de error del exception del pdo
             return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
