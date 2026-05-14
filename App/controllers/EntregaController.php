@@ -4,6 +4,7 @@
     require_once 'app/models/ClienteModel.php';
     require_once 'app/models/PermisoModel.php';
     require_once 'app/models/BitacoraModel.php';
+    require_once 'app/models/PedidoModel.php';
 
     // llama el archivo que contiene la carga de alerta
     require_once 'components/utils.php';
@@ -86,7 +87,10 @@
                 // Obtener clientes para el select
                 $clientes_resultado = $cliente_modelo->manejarAccion('consultar', null);
                 $clientes = (isset($clientes_resultado['status']) && $clientes_resultado['status'] === true) ? $clientes_resultado['data'] : [];
-
+                // Después de obtener los clientes, agregar:
+$pedido_modelo = new Pedido(); // Asegúrate de que exista este modelo
+$pedidos_resultado = $pedido_modelo->manejarAccion('consultar', null);
+$pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] === true) ? $pedidos_resultado['data'] : [];
                 // se arma el json de bitacora
                 $bitacora_json = json_encode([
                     'id_usuario' => $_SESSION['s_usuario']['id_usuario'],

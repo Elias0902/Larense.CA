@@ -29,7 +29,7 @@
                 <i class="fa fa-shipping-fast" style="color: white; font-size: 20px;"></i>
               </div>
               <div>
-                <h3 class="fw-bold mb-0" style="color: #333;">Gestión de Entregas</h3>
+                <h3 class="fw-bold mb-0" style="color: #333;">Gesti&oacute;n de Entregas</h3>
                 <nav aria-label="breadcrumb" class="mt-1">
                   <ol class="breadcrumb mb-0" style="background: none; padding: 0;">
                     <li class="breadcrumb-item"><a href="index.php?url=dashboard" style="color: #721c24;"><i class="icon-home"></i></a></li>
@@ -57,7 +57,7 @@
               <div class="card-header py-3" style="background: #dc3545; border: none;">
                 <div class="d-flex align-items-center justify-content-between">
                   <h4 class="card-title mb-0" style="color: white; font-weight: 600;">
-                    <i class="fa fa-list me-2"></i>Despacho Físico de Pedidos
+                    <i class="fa fa-list me-2"></i>Despacho F&iacute;sico de Pedidos
                   </h4>
                 </div>
               </div>
@@ -73,22 +73,28 @@
                         <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">#</th>
                         <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Pedido</th>
                         <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Cliente</th>
-                        <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Teléfono</th>
-                        <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Dirección</th>
+                        <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Tel&eacute;fono</th>
+                        <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Direcci&oacute;n</th>
                         <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Fecha Programada</th>
                         <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24;">Estado</th>
                         <th style="padding: 15px; color: #721c24; font-weight: 600; border-bottom: 2px solid #721c24; text-align: center;">Acciones</th>
-                      </tr>
+                      </table>
                     </thead>
                     <tbody>
                           <?php
                 if(isset($entregas) && is_array($entregas) && !empty($entregas)){
                 foreach ($entregas as $entrega):
+                    // Obtener el ID correctamente (puede venir como id_entregas o id_entrega)
+                    $id_entrega = isset($entrega['id_entregas']) ? $entrega['id_entregas'] : (isset($entrega['id_entrega']) ? $entrega['id_entrega'] : 0);
+                    
                     $estado_class = '';
                     $estado_texto = '';
                     $estado_icono = '';
                     
-                    switch($entrega['estado']) {
+                    // Obtener estado (puede venir como estado o estado_id)
+                    $estado_actual = isset($entrega['estado']) ? $entrega['estado'] : 'pendiente';
+                    
+                    switch($estado_actual) {
                         case 'pendiente':
                             $estado_class = 'badge-warning';
                             $estado_texto = 'Pendiente';
@@ -111,40 +117,63 @@
                             break;
                         default:
                             $estado_class = 'badge-secondary';
-                            $estado_texto = ucfirst($entrega['estado']);
+                            $estado_texto = ucfirst($estado_actual);
                             $estado_icono = '<i class="fa fa-question"></i>';
                     }
                     
-                    $cliente_nombre = isset($entrega['nombre_cliente']) 
+                    // Obtener nombre del cliente
+                    $cliente_nombre = isset($entrega['nombre_cliente']) && !empty($entrega['nombre_cliente']) 
                         ? $entrega['nombre_cliente'] 
-                        : 'Cliente ID: ' . $entrega['cliente_id'];
-                    $pedido_numero = $entrega['pedido_id'] ? '#' . $entrega['pedido_id'] : '<span class="text-muted">Sin pedido</span>';
+                        : (isset($entrega['cliente_nombre']) ? $entrega['cliente_nombre'] : 'Cliente ID: ' . ($entrega['cliente_id'] ?? 'N/A'));
+                    
+                    // Obtener n�mero de pedido (corregido: usar id_pedido en lugar de pedido_id)
+                    $pedido_numero = isset($entrega['id_pedido']) && !empty($entrega['id_pedido']) && $entrega['id_pedido'] > 0 
+                        ? '#' . $entrega['id_pedido'] 
+                        : '<span class="text-muted">Sin pedido</span>';
+                    
+                    // Obtener tel�fono (puede venir como telefono_contacto o tlf_cliente)
+                    $telefono = isset($entrega['telefono_contacto']) && !empty($entrega['telefono_contacto'])
+                        ? $entrega['telefono_contacto']
+                        : (isset($entrega['tlf_cliente']) ? $entrega['tlf_cliente'] : '-');
+                    
+                    // Obtener direcci�n
+                    $direccion = isset($entrega['direccion']) && !empty($entrega['direccion']) && $entrega['direccion'] != '0'
+                        ? $entrega['direccion']
+                        : (isset($entrega['direccion_entrega']) && $entrega['direccion_entrega'] != '0' ? $entrega['direccion_entrega'] : 'Direcci�n no registrada');
+                    
+                    // Obtener fecha programada
+                    $fecha_programada = isset($entrega['fecha_programada']) && !empty($entrega['fecha_programada'])
+                        ? $entrega['fecha_programada']
+                        : (isset($entrega['fecha_entrega_programada']) ? $entrega['fecha_entrega_programada'] : date('Y-m-d H:i:s'));
+                    
+                    // Formatear fecha
+                    $fecha_formateada = date('d/m/Y h:i A', strtotime($fecha_programada));
             ?>
                           <tr style="transition: all 0.2s;">
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500;">
                               <span class="badge" style="background: #721c24; color: white; padding: 6px 10px; border-radius: 6px;">
-                                ENT-00<?php echo isset($entrega['id_entrega']) ? $entrega['id_entrega'] : (isset($entrega['id_entregas']) ? $entrega['id_entregas'] : 'N/A'); ?>
+                                ENT-<?php echo str_pad($id_entrega, 3, '0', STR_PAD_LEFT); ?>
                               </span>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
                               <?php echo $pedido_numero; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; font-weight: 500; color: #333;">
-                              <i class="fa fa-user me-1" style="color: #721c24;"></i><?php echo $cliente_nombre; ?>
+                              <i class="fa fa-user me-1" style="color: #721c24;"></i><?php echo htmlspecialchars($cliente_nombre); ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; color: #666;">
-                              <i class="fa fa-phone me-1" style="color: #721c24;"></i><?php echo $entrega['telefono_contacto'] ?: '<span class="text-muted">-</span>'; ?>
+                              <i class="fa fa-phone me-1" style="color: #721c24;"></i><?php echo htmlspecialchars($telefono); ?>
                             </td>
-                            <td style="padding: 15px; vertical-align: middle; color: #666; max-width: 200px;" class="text-truncate">
-                              <i class="fa fa-map-marker me-1" style="color: #721c24;"></i><?php echo $entrega['direccion']; ?>
+                            <td style="padding: 15px; vertical-align: middle; color: #666; max-width: 250px;" class="text-truncate">
+                              <i class="fa fa-map-marker me-1" style="color: #721c24;"></i><?php echo htmlspecialchars($direccion); ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle; color: #666;">
-                              <i class="fa fa-calendar me-1" style="color: #721c24;"></i><?php echo date('d/m/Y h:i A', strtotime($entrega['fecha_programada'])); ?>
+                              <i class="fa fa-calendar me-1" style="color: #721c24;"></i><?php echo $fecha_formateada; ?>
                             </td>
                             <td style="padding: 15px; vertical-align: middle;">
                               <span class="badge" style="
                                 <?php 
-                                switch($entrega['estado']) {
+                                switch($estado_actual) {
                                   case 'pendiente': echo 'background: #fff3cd; color: #856404;'; break;
                                   case 'en_ruta': echo 'background: #d1ecf1; color: #0c5460;'; break;
                                   case 'entregado': echo 'background: #d4edda; color: #155724;'; break;
@@ -154,50 +183,52 @@
                                 ?> padding: 6px 12px; border-radius: 20px; font-weight: 500;">
                                 <?php echo $estado_icono . ' ' . $estado_texto; ?>
                               </span>
-                            </td>
+                             </td>
                             <td style="padding: 15px; vertical-align: middle; text-align: center;">
                               <div class="btn-group" role="group">
-                                <?php if($entrega['estado'] !== 'entregado' && $entrega['estado'] !== 'cancelado'): ?>
+                                <?php if($estado_actual !== 'entregado' && $estado_actual !== 'cancelado'): ?>
                                 <button
-                                  onclick="ConfirmarEntrega(<?php echo $entrega['id_entrega']; ?>)"
+                                  onclick="ConfirmarEntrega(<?php echo $id_entrega; ?>)"
                                   type="button"
                                   class="btn btn-sm"
-                                  title='Confirmar Entrega'
+                                  title="Confirmar Entrega"
                                   data-bs-toggle="tooltip"
-                                  style="background: #721c24; color: white; border-radius: 6px 0 0 6px; border: none;"
+                                  style="background: #28a745; color: white; border-radius: 6px 0 0 6px; border: none;"
                                 >
                                   <i class="fa fa-check"></i>
                                 </button>
                                 <?php endif; ?>
                                 <a
-                                onclick="ObtenerEntrega(<?php echo $entrega['id_entrega']; ?>)"
+                                href="javascript:void(0);"
+                                onclick="ObtenerEntrega(<?php echo $id_entrega; ?>)"
                                 data-bs-toggle="modal"
                                 data-bs-target="#entregaModalModificar"
                                 type="button"
                                 class="btn btn-sm"
-                                title='Modificar'
-                                style="background: #17a2b8; color: white; border: none;<?php echo ($entrega['estado'] !== 'entregado' && $entrega['estado'] !== 'cancelado') ? '' : 'border-radius: 6px 0 0 6px;'; ?>"
+                                title="Modificar"
+                                style="background: #17a2b8; color: white; border: none;<?php echo ($estado_actual !== 'entregado' && $estado_actual !== 'cancelado') ? '' : 'border-radius: 6px 0 0 6px;'; ?>"
                                 >
                                   <i class="fa fa-edit"></i>
                                 </a>
-                                <a href="#"
-                                 onclick="return EliminarEntrega(event,<?php echo $entrega['id_entrega']; ?>)"
+                                <a href="javascript:void(0);"
+                                 onclick="return EliminarEntrega(event,<?php echo $id_entrega; ?>)"
                                   type="button"
                                   data-bs-toggle="tooltip"
                                   class="btn btn-sm"
-                                  title='Eliminar'
-                                  style="background: #721c24; color: white; border-radius: 0 6px 6px 0; border: none;"
+                                  title="Eliminar"
+                                  style="background: #dc3545; color: white; border-radius: 0 6px 6px 0; border: none;"
                                 >
                                   <i class="fa fa-trash"></i>
                                 </a>
                               </div>
-                            </td>
-                          </tr>
-                                      <?php
+                             </td>
+                           </tr>
+                          <?php
             endforeach;
         } else {
-            echo "<tr><td colspan='8' class='text-center py-4'><div class='alert alert-info'><i class='fa fa-info-circle me-2'></i>No hay entregas registradas.</div></td></tr>";
-        } ?>
+            echo '<tr><td colspan="8" class="text-center py-4"><div class="alert alert-info"><i class="fa fa-info-circle me-2"></i>No hay entregas registradas.</div></td></tr>';
+        }
+        ?>
                         </tbody>
                       </table>
                     </div>
@@ -209,7 +240,7 @@
 
           <div class="text-center mt-4 mb-4">
             <a href="index.php?url=dashboard" class="btn btn-secondary" style="border-radius: 8px; padding: 10px 20px;">
-              <i class="fa fa-home me-2"></i>Menú Principal
+              <i class="fa fa-home me-2"></i>Men&uacute; Principal
             </a>
           </div>
 
@@ -240,7 +271,8 @@ require_once 'components/scripts.php';
                   <?php
                   if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
                       foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
+                          $nombre_completo = ($cliente['nombre_cliente'] ?? '') . ' ' . ($cliente['apellido_cliente'] ?? '');
+                          echo '<option value="' . ($cliente['id_cliente'] ?? '') . '">' . htmlspecialchars(trim($nombre_completo)) . '</option>';
                       }
                   }
                   ?>
@@ -251,21 +283,31 @@ require_once 'components/scripts.php';
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="pedidoId" class="form-label"><b>Pedido (Opcional)</b></label>
-                <input type="number" class="form-control" id="pedidoId" name="pedidoId" placeholder="Número de pedido">
-                <small class="form-text text-muted">Dejar vacío si es entrega general</small>
+                <select class="form-select" id="pedidoId" name="pedidoId">
+                  <option value="">Seleccione un pedido...</option>
+                  <?php
+                  // Cargar pedidos pendientes para asociar
+                  if(isset($pedidos) && is_array($pedidos) && !empty($pedidos)) {
+                      foreach($pedidos as $pedido) {
+                          echo '<option value="' . ($pedido['id_pedido'] ?? '') . '">Pedido #' . ($pedido['id_pedido'] ?? '') . ' - Cliente ID: ' . ($pedido['id_cliente'] ?? '') . '</option>';
+                      }
+                  }
+                  ?>
+                </select>
+                <small class="form-text text-muted">Opcional - Asociar a un pedido existente</small>
               </div>
             </div>
           </div>
           <div class="form-group mb-3">
-            <label for="direccionEntrega" class="form-label"><b>Dirección de Entrega <span class="text-danger">*</span></b></label>
+            <label for="direccionEntrega" class="form-label"><b>Direcci&oacute;n de Entrega <span class="text-danger">*</span></b></label>
             <textarea class="form-control" id="direccionEntrega" name="direccionEntrega" rows="2" placeholder="Calle, Casa/Edificio, Ciudad, Estado..." oninput="validar_direccion()" required></textarea>
             <span id="errorDireccion" class="error-messege"></span>
-            <small class="form-text text-muted">Dirección completa donde se realizará la entrega</small>
+            <small class="form-text text-muted">Direcci&oacute;n completa donde se realizar&aacute; la entrega</small>
           </div>
           <div class="row">
             <div class="col-md-6">
               <div class="form-group mb-3">
-                <label for="telefonoEntrega" class="form-label"><b>Teléfono de Contacto</b></label>
+                <label for="telefonoEntrega" class="form-label"><b>Tel&eacute;fono de Contacto</b></label>
                 <input type="text" class="form-control" id="telefonoEntrega" name="telefonoEntrega" placeholder="0412-1234567" maxlength="12" oninput="formatear_telefono(); validar_telefono()">
                 <span id="errorTelefono" class="error-messege"></span>
                 <small class="form-text text-muted">Formato: 04XX-XXXXXXX</small>
@@ -293,7 +335,6 @@ require_once 'components/scripts.php';
                 <select class="form-select" id="estadoEntrega" name="estadoEntrega">
                   <option value="pendiente">🟡 Pendiente</option>
                   <option value="en_ruta">🔵 En Ruta</option>
-                  <option value="entregado">🟢 Entregado</option>
                 </select>
               </div>
             </div>
@@ -345,7 +386,8 @@ require_once 'components/scripts.php';
                   <?php
                   if(isset($clientes) && is_array($clientes) && !empty($clientes)) {
                       foreach($clientes as $cliente) {
-                          echo '<option value="' . $cliente['id_cliente'] . '">' . $cliente['nombre_cliente'] . ' ' . $cliente['apellido_cliente'] . '</option>';
+                          $nombre_completo = ($cliente['nombre_cliente'] ?? '') . ' ' . ($cliente['apellido_cliente'] ?? '');
+                          echo '<option value="' . ($cliente['id_cliente'] ?? '') . '">' . htmlspecialchars(trim($nombre_completo)) . '</option>';
                       }
                   }
                   ?>
@@ -356,19 +398,28 @@ require_once 'components/scripts.php';
             <div class="col-md-6">
               <div class="form-group mb-3">
                 <label for="pedidoIdEdit" class="form-label"><b>Pedido (Opcional)</b></label>
-                <input type="number" class="form-control" id="pedidoIdEdit" name="pedidoId" placeholder="Número de pedido">
+                <select class="form-select" id="pedidoIdEdit" name="pedidoId">
+                  <option value="">Seleccione un pedido...</option>
+                  <?php
+                  if(isset($pedidos) && is_array($pedidos) && !empty($pedidos)) {
+                      foreach($pedidos as $pedido) {
+                          echo '<option value="' . ($pedido['id_pedido'] ?? '') . '">Pedido #' . ($pedido['id_pedido'] ?? '') . '</option>';
+                      }
+                  }
+                  ?>
+                </select>
               </div>
             </div>
           </div>
           <div class="form-group mb-3">
-            <label for="direccionEntregaEdit" class="form-label"><b>Dirección de Entrega <span class="text-danger">*</span></b></label>
+            <label for="direccionEntregaEdit" class="form-label"><b>Direcci&oacute;n de Entrega <span class="text-danger">*</span></b></label>
             <textarea class="form-control" id="direccionEntregaEdit" name="direccionEntrega" rows="2" placeholder="Calle, Casa/Edificio, Ciudad, Estado..." oninput="validar_direccion_modificado()" required></textarea>
             <span id="errorDireccionEdit" class="error-messege"></span>
           </div>
           <div class="row">
             <div class="col-md-6">
               <div class="form-group mb-3">
-                <label for="telefonoEntregaEdit" class="form-label"><b>Teléfono de Contacto</b></label>
+                <label for="telefonoEntregaEdit" class="form-label"><b>Tel&eacute;fono de Contacto</b></label>
                 <input type="text" class="form-control" id="telefonoEntregaEdit" name="telefonoEntrega" placeholder="0412-1234567" maxlength="12" oninput="formatear_telefono_modificado(); validar_telefono_modificado()">
                 <span id="errorTelefonoEdit" class="error-messege"></span>
               </div>
