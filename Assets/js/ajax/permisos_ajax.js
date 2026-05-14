@@ -79,7 +79,7 @@ function togglePermisoAjax(permisoElement) {
         status: nuevoStatus
     };
 
-    // Loading
+    // Mostrar estado de carga
     permisoElement.classList.add('updating');
 
     fetch('index.php?url=permisos&action=actualizar', {
@@ -90,7 +90,9 @@ function togglePermisoAjax(permisoElement) {
     //console.log(datosJson)
     .then(response => response.json())
     .then(res => {
-        if (!res.success) {
+        // Remover estado de carga
+        permisoElement.classList.remove('updating');
+        if (res.status === true) {
            //SweetAlert2 ÉXITO
             Swal.fire({
                 icon: 'success',
@@ -112,8 +114,15 @@ function togglePermisoAjax(permisoElement) {
                 icon: 'error',
                 title: '¡Error!',
                 text: res.msj || 'Error desconocido',
-                confirmButtonText: 'OK'
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
             });
+
+            //REFRESCAR TABLA EN TIEMPO REAL
+            ObtenerPermisosRol(idRol);
         }
         permisoElement.classList.remove('updating');
     })

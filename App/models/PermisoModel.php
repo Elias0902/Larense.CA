@@ -316,6 +316,28 @@ class Permiso extends Conexion {
             // crea la conexion
             $conn = $this->getConnectionSeguridad();
 
+            // Iniciar transacción
+            $conn->beginTransaction();
+
+            // define estado
+            $estado = $this->getStatus();
+            
+            // define rol
+            $rol = $_SESSION['s_usuario']['id_rol_usuario'];
+
+            //define usuario
+            $user = $this->getRol();
+
+            // valida que el superusuario no se quite permisos
+            if($rol === $user && $estado == 0){
+
+                // Revertir transacción
+                $conn->rollBack();
+
+                // retorna msj de error
+                return ['status' => false, 'msj' => 'El Superusuario solo puede agregar permisos, no puede desactivarlos.'];
+            }
+
             // consulta sql
             $query = "UPDATE accesos 
                         SET status = :estado 
@@ -335,11 +357,14 @@ class Permiso extends Conexion {
             // se ejecuta la sentencia  
             $stmt->execute();
 
-            // almacena el resultado de la sentencia
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Verificar cuántas filas fueron afectadas
+            $filasAfectadas = $stmt->rowCount();
 
-            // valida si existe y si es true
-            if ($resultado) {
+            // valida si se actualizó algún registro
+            if ($filasAfectadas > 0) {
+
+                // Confirmar transacción
+                $conn->commit();
 
                 // retorna un status 
                 return['status' => true, 'msj' => 'Permiso actualizado.'];
@@ -348,6 +373,9 @@ class Permiso extends Conexion {
             // en caso de no tener permiso
             else {
 
+                // Revertir transacción
+                $conn->rollBack();
+
                 // retorna el status de error
                 return['status' => false, 'msj' => 'Error al actualizar permiso.'];
             }
@@ -355,6 +383,13 @@ class Permiso extends Conexion {
 
         // en caso de error en la consulta
         catch(PDOException $e) {
+
+            // Revertir transacción si está activa
+            if (isset($conn) && $conn->inTransaction()) {
+                
+                // revierte
+                $conn->rollBack();
+            }
 
             // imprime el error en la consola
             error_log("Error de permisos: " . $e->getMessage());
