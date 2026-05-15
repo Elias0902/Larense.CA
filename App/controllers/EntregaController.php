@@ -53,6 +53,12 @@
             }
         break;
 
+        case 'obtener_pedidos_por_cliente':
+            if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+                ObtenerPedidosPorCliente();
+            }
+        break;
+
         default:
             Consultar();
         break;
@@ -87,16 +93,26 @@
                 // Obtener clientes para el select
                 $clientes_resultado = $cliente_modelo->manejarAccion('consultar', null);
                 $clientes = (isset($clientes_resultado['status']) && $clientes_resultado['status'] === true) ? $clientes_resultado['data'] : [];
-                // Después de obtener los clientes, agregar:
-$pedido_modelo = new Pedido(); // Asegúrate de que exista este modelo
-$pedidos_resultado = $pedido_modelo->manejarAccion('consultar', null);
-$pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] === true) ? $pedidos_resultado['data'] : [];
+                
+                // Obtener pedidos para el select
+                $pedido_modelo = new Pedido();
+                $pedidos_resultado = $pedido_modelo->manejarAccion('consultar', null);
+                $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] === true) ? $pedidos_resultado['data'] : [];
+                
+                // Obtener estados de entrega
+                $estados_entrega = [
+                    ['id_estado_entrega' => 1, 'nombre_estado' => 'pendiente'],
+                    ['id_estado_entrega' => 2, 'nombre_estado' => 'en_ruta'],
+                    ['id_estado_entrega' => 3, 'nombre_estado' => 'entregado'],
+                    ['id_estado_entrega' => 4, 'nombre_estado' => 'cancelado']
+                ];
+
                 // se arma el json de bitacora
                 $bitacora_json = json_encode([
                     'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
                     'modulo' => 'Entregas',
                     'accion' => 'Consultar',
-                    'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha Consultado los datos en el dashboard de entregas en el sistema',
+                    'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha consultado los datos en el dashboard de entregas en el sistema',
                     'fecha' => $fecha
                 ]);
 
@@ -110,6 +126,8 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
                 setError('Error en operacion.');
                 $entregas = [];
                 $clientes = [];
+                $pedidos = [];
+                $estados_entrega = [];
                 require_once 'app/views/entregasView.php';
                 exit();
             }
@@ -159,7 +177,7 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
 
             // se arma el json
             $entrega_json = json_encode([
-                'pedido_id' => $pedido_id,
+                'pedido_id' => $pedido_id ?: null,
                 'cliente_id' => $cliente_id,
                 'direccion' => $direccion,
                 'telefono' => $telefono,
@@ -179,7 +197,7 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
                         'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
                         'modulo' => 'Entregas',
                         'accion' => 'Agregar',
-                        'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha registrado una nueva entrega para el cliente ID: ' . $cliente_id . ' con dirección: ' . $direccion . ' en el sistema.',
+                        'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha registrado una nueva entrega para el cliente ID: ' . $cliente_id . ' con dirección: ' . $direccion . ' y estado: ' . $estado . ' en el sistema.',
                         'fecha' => $fecha
                     ]);
 
@@ -243,7 +261,7 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
             // se arma el json
             $entrega_json = json_encode([
                 'id' => $id,
-                'pedido_id' => $pedido_id,
+                'pedido_id' => $pedido_id ?: null,
                 'cliente_id' => $cliente_id,
                 'direccion' => $direccion,
                 'telefono' => $telefono,
@@ -264,7 +282,10 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
                     // se arma el json de bitacora
                     $descripcion = 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha modificado la entrega ID: ' . $id;
                     if ($data_bitacora) {
-                        $descripcion .= ' Por los siguientes datos nuevos: Cliente ID: ' . $cliente_id . ', Dirección: ' . $direccion . ', Estado: ' . $estado;
+                        $descripcion .= '. Datos anteriores: Cliente ID: ' . ($data_bitacora['id_clientes'] ?? 'N/A') . 
+                                      ', Dirección: ' . ($data_bitacora['direccion_entrega'] ?? 'N/A') . 
+                                      ', Estado ID: ' . ($data_bitacora['id_estado_entrega'] ?? 'N/A') .
+                                      '. Nuevos datos: Cliente ID: ' . $cliente_id . ', Dirección: ' . $direccion . ', Estado: ' . $estado;
                     }
 
                     $bitacora_json = json_encode([
@@ -303,18 +324,14 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
         $id = $_GET['ID'] ?? '';
 
         if (empty($id)) {
-            setError('ID vacío.');
-            header('Location: index.php?url=entregas');
+            echo json_encode(['error' => 'ID vacío']);
             exit();
         }
 
         $entrega_json = json_encode(['id' => $id]);
         $resultado = $modelo->manejarAccion('obtener', $entrega_json);
 
-        if (isset($resultado['data'])) {
-            // se almacena para la bitacora
-            $data_bitacora = $resultado['data_bitacora'] ?? $resultado['data'];
-
+        if (isset($resultado['status']) && $resultado['status'] === true && isset($resultado['data'])) {
             // se arma el json de bitacora
             $bitacora_json = json_encode([
                 'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
@@ -329,7 +346,27 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
 
             echo json_encode($resultado['data']);
         } else {
-            echo json_encode(['error' => 'No se encontró la entrega']);
+            echo json_encode(['error' => $resultado['msj'] ?? 'No se encontró la entrega']);
+        }
+        exit();
+    }
+
+    // funcion para obtener pedidos por cliente (AJAX)
+    function ObtenerPedidosPorCliente() {
+        $modelo = new Entrega();
+        $cliente_id = $_GET['cliente_id'] ?? 0;
+        
+        if (empty($cliente_id)) {
+            echo json_encode(['error' => 'ID de cliente requerido']);
+            exit();
+        }
+        
+        $resultado = $modelo->manejarAccion('obtener_pedidos_por_cliente', ['cliente_id' => $cliente_id]);
+        
+        if (isset($resultado['status']) && $resultado['status'] === true) {
+            echo json_encode(['status' => true, 'data' => $resultado['data']]);
+        } else {
+            echo json_encode(['status' => false, 'data' => []]);
         }
         exit();
     }
@@ -375,7 +412,7 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
                     // se arma el json de bitacora
                     $descripcion = 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha eliminado la entrega ID: ' . $id;
                     if ($data_bitacora) {
-                        $descripcion .= ' con dirección: ' . ($data_bitacora['direccion'] ?? 'N/A') . ' del sistema.';
+                        $descripcion .= ' con dirección: ' . ($data_bitacora['direccion_entrega'] ?? 'N/A') . ' del sistema.';
                     }
 
                     $bitacora_json = json_encode([
@@ -445,7 +482,7 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
                         'id_usuario' => $_SESSION['s_usuario']['id_usuario'],
                         'modulo' => 'Entregas',
                         'accion' => 'Confirmar Entrega',
-                        'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha confirmado la entrega ID: ' . $id . ' en el sistema.',
+                        'descripcion' => 'El usuario: ' . $_SESSION['s_usuario']['nombre_usuario'] . ' ha confirmado la entrega ID: ' . $id . ' en el sistema. Fecha de entrega: ' . ($resultado['fecha_entrega'] ?? 'N/A'),
                         'fecha' => $fecha
                     ]);
 

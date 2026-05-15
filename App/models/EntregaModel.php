@@ -52,7 +52,7 @@ class Entrega extends Conexion {
         if ($pedido_id !== '' && (!preg_match($expre_id, $pedido_id) || strlen($pedido_id) > 10 || $pedido_id < 0)) {
             return ['status' => false, 'msj' => 'El ID del pedido es invalido'];
         }
-        $this->entrega_pedido_id = $pedido_id;
+        $this->entrega_pedido_id = $pedido_id ?: null;
 
         // Validar cliente_id
         $cliente_id = trim($entrega['cliente_id'] ?? '');
@@ -173,6 +173,28 @@ class Entrega extends Conexion {
         return $this->entrega_repartidor;
     }
 
+    // Obtener ID de estado entrega desde el nombre de estado
+    private function getEstadoIdByName($estado_nombre) {
+        $estados = [
+            'pendiente' => 1,
+            'en_ruta' => 2,
+            'entregado' => 3,
+            'cancelado' => 4
+        ];
+        return $estados[$estado_nombre] ?? 1;
+    }
+
+    // Obtener nombre de estado desde ID
+    private function getEstadoNameById($estado_id) {
+        $estados = [
+            1 => 'pendiente',
+            2 => 'en_ruta',
+            3 => 'entregado',
+            4 => 'cancelado'
+        ];
+        return $estados[$estado_id] ?? 'pendiente';
+    }
+
     // Manejador de acciones
     public function manejarAccion($action, $entrega_json) {
         switch($action) {
@@ -221,17 +243,63 @@ class Entrega extends Conexion {
             break;
 
             case 'cambiar_estado':
-                $validacion = $this->setEntregaID($entrega_json);
+                if (is_string($entrega_json)) {
+                    $data = json_decode($entrega_json, true);
+                } else {
+                    $data = $entrega_json;
+                }
+                $validacion = $this->setEntregaID(['id' => $data['id'] ?? '']);
                 if (!$validacion['status']) {
                     return $validacion;
                 }
-                $nuevo_estado = isset($entrega_json['nuevo_estado']) ? $entrega_json['nuevo_estado'] : null;
+                $nuevo_estado = isset($data['nuevo_estado']) ? $data['nuevo_estado'] : null;
                 return $this->CambiarEstado_Entrega($nuevo_estado);
+            break;
+
+            case 'obtener_pedidos_por_cliente':
+                return $this->ObtenerPedidosPorCliente($entrega_json);
             break;
 
             default:
                 return ['status' => false, 'msj' => 'Accion Invalida.'];
             break;
+        }
+    }
+
+    // Función para obtener pedidos por cliente
+    private function ObtenerPedidosPorCliente($cliente_json) {
+        $this->closeConnection();
+        try {
+            if (is_string($cliente_json)) {
+                $data = json_decode($cliente_json, true);
+            } else {
+                $data = $cliente_json;
+            }
+            
+            $cliente_id = $data['cliente_id'] ?? 0;
+            
+            if (empty($cliente_id)) {
+                return ['status' => false, 'msj' => 'ID de cliente requerido', 'data' => []];
+            }
+            
+            $conn = $this->getConnectionNegocio();
+            $query = "SELECT p.id_pedido, p.monto_total_pedido, p.fecha_pedido, 
+                             ep.nombre_estado as nombre_estado_pedido
+                      FROM pedidos p
+                      LEFT JOIN estado_pedido ep ON p.id_estado_pedido = ep.id_estado_pedido
+                      WHERE p.id_cliente = :cliente_id AND p.status = 1
+                      ORDER BY p.fecha_pedido DESC";
+            $stmt = $conn->prepare($query);
+            $stmt->bindValue(':cliente_id', $cliente_id);
+            $stmt->execute();
+            
+            $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return ['status' => true, 'msj' => 'Pedidos encontrados', 'data' => $pedidos];
+        } catch (PDOException $e) {
+            error_log('Error al obtener pedidos por cliente: ' . $e->getMessage());
+            return ['status' => false, 'msj' => 'Error en la consulta', 'data' => []];
+        } finally {
+            $this->closeConnection();
         }
     }
 
@@ -241,32 +309,30 @@ class Entrega extends Conexion {
         try {
             $conn = $this->getConnectionNegocio();
             
-            // Consulta corregida con los nombres de columnas correctos
-            $query = "SELECT e.id_entregas, e.id_pedido, e.id_clientes as cliente_id, 
-                             e.direccion_entrega as direccion, e.fecha_entrega_programada as fecha_programada,
-                             e.fecha_entrega_real as fecha_entrega, e.id_estado_entrega as estado_id,
-                             c.nombre_cliente, c.tlf_cliente as telefono_contacto,
-                             '' as repartidor, '' as observaciones, 'pendiente' as estado
-                      FROM entregas e
-                      LEFT JOIN clientes c ON e.id_clientes = c.id_cliente
-                      WHERE e.status = 1 
-                      ORDER BY e.fecha_entrega_programada ASC";
+            // Consulta mejorada con los datos completos
+            $query = "SELECT e.id_entregas, 
+                 e.id_pedido, 
+                 e.id_clientes as cliente_id, 
+                 e.direccion_entrega as direccion,
+                 e.telefono_contacto as telefono_contacto,
+                 e.fecha_entrega_programada as fecha_programada,
+                 e.fecha_entrega_real as fecha_entrega,
+                 e.repartidor,
+                 e.observaciones,
+                 e.id_estado_entrega as estado_id,
+                 ee.nombre_estado as estado,
+                 c.nombre_cliente as cliente_nombre,
+                 c.tlf_cliente as tlf_cliente
+          FROM entregas e
+          LEFT JOIN clientes c ON e.id_clientes = c.id_cliente
+          LEFT JOIN estado_entrega ee ON e.id_estado_entrega = ee.id_estado_entrega
+          WHERE e.status = 1 
+          ORDER BY e.fecha_entrega_programada ASC";
             $stmt = $conn->prepare($query);
             $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
                 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                // Mapear estados para compatibilidad
-                foreach ($data as &$row) {
-                    // Mapear id_estado_entrega a estado legible
-                    switch($row['estado_id']) {
-                        case 1: $row['estado'] = 'pendiente'; break;
-                        case 2: $row['estado'] = 'en_ruta'; break;
-                        case 3: $row['estado'] = 'entregado'; break;
-                        case 4: $row['estado'] = 'cancelado'; break;
-                        default: $row['estado'] = 'pendiente';
-                    }
-                }
                 return ['status' => true, 'msj' => 'Entregas encontradas con exito.', 'data' => $data];
             } else {
                 return ['status' => false, 'msj' => 'No hay entregas registradas.', 'data' => []];
@@ -284,34 +350,43 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
+            $conn->beginTransaction();
             
-            // Determinar id_estado_entrega basado en el estado
-            $estado_id = 1; // pendiente por defecto
-            switch($this->getEntregaEstado()) {
-                case 'pendiente': $estado_id = 1; break;
-                case 'en_ruta': $estado_id = 2; break;
-                case 'entregado': $estado_id = 3; break;
-                case 'cancelado': $estado_id = 4; break;
-            }
+            $estado_id = $this->getEstadoIdByName($this->getEntregaEstado());
             
             $query = "INSERT INTO entregas (id_pedido, id_clientes, direccion_entrega, 
-                      fecha_entrega_programada, fecha_entrega_real, id_estado_entrega, status)
-                      VALUES (:pedido_id, :cliente_id, :direccion, :fecha_programada, 
-                      :fecha_entrega, :estado_id, 1)";
+                      telefono_contacto, fecha_entrega_programada, fecha_entrega_real, 
+                      repartidor, observaciones, id_estado_entrega, status)
+                      VALUES (:pedido_id, :cliente_id, :direccion, :telefono, :fecha_programada, 
+                      :fecha_entrega, :repartidor, :observaciones, :estado_id, 1)";
             $stmt = $conn->prepare($query);
-            $stmt->bindValue(':pedido_id', $this->getEntregaPedidoID() ?: null);
+            $stmt->bindValue(':pedido_id', $this->getEntregaPedidoID());
             $stmt->bindValue(':cliente_id', $this->getEntregaClienteID());
             $stmt->bindValue(':direccion', $this->getEntregaDireccion());
+            $stmt->bindValue(':telefono', $this->getEntregaTelefono());
             $stmt->bindValue(':fecha_programada', $this->getEntregaFechaProgramada());
             $stmt->bindValue(':fecha_entrega', $this->getEntregaFechaEntrega());
+            $stmt->bindValue(':repartidor', $this->getEntregaRepartidor());
+            $stmt->bindValue(':observaciones', $this->getEntregaObservaciones());
             $stmt->bindValue(':estado_id', $estado_id);
 
             if ($stmt->execute()) {
+                // Si el estado es "entregado", actualizar estado del pedido
+                if ($this->getEntregaEstado() === 'entregado' && $this->getEntregaPedidoID()) {
+                    $this->actualizarEstadoPedido($this->getEntregaPedidoID(), 5); // 5 = Entregado
+                } elseif ($this->getEntregaEstado() === 'en_ruta' && $this->getEntregaPedidoID()) {
+                    $this->actualizarEstadoPedido($this->getEntregaPedidoID(), 3); // 3 = Por Enviar/En Ruta
+                }
+                
+                $conn->commit();
                 return ['status' => true, 'msj' => 'Entrega registrada con éxito.'];
             } else {
+                $conn->rollBack();
                 return ['status' => false, 'msj' => 'Error al registrar la entrega.'];
             }
         } catch (PDOException $e) {
+            $conn->rollBack();
+            error_log('Error en Guardar_Entrega: ' . $e->getMessage());
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
@@ -324,11 +399,14 @@ class Entrega extends Conexion {
         try {
             $conn = $this->getConnectionNegocio();
             $query = "SELECT e.id_entregas, e.id_pedido, e.id_clientes as cliente_id, 
-                             e.direccion_entrega as direccion, e.fecha_entrega_programada as fecha_programada,
-                             e.fecha_entrega_real as fecha_entrega, e.id_estado_entrega as estado_id,
-                             c.nombre_cliente, c.tlf_cliente as telefono_contacto
+                             e.direccion_entrega as direccion, e.telefono_contacto as telefono_contacto,
+                             e.fecha_entrega_programada as fecha_programada,
+                             e.fecha_entrega_real as fecha_entrega, e.repartidor, e.observaciones,
+                             e.id_estado_entrega as estado_id, ee.nombre_estado as estado,
+                             c.nombre_cliente, c.tlf_cliente as tlf_cliente
                       FROM entregas e
                       LEFT JOIN clientes c ON e.id_clientes = c.id_cliente
+                      LEFT JOIN estado_entrega ee ON e.id_estado_entrega = ee.id_estado_entrega
                       WHERE e.id_entregas = :id AND e.status = 1";
             $stmt = $conn->prepare($query);
             $stmt->bindValue(':id', $this->getEntregaID());
@@ -336,19 +414,12 @@ class Entrega extends Conexion {
 
             if ($stmt->rowCount() > 0) {
                 $data = $stmt->fetch(PDO::FETCH_ASSOC);
-                // Mapear estado
-                switch($data['estado_id']) {
-                    case 1: $data['estado'] = 'pendiente'; break;
-                    case 2: $data['estado'] = 'en_ruta'; break;
-                    case 3: $data['estado'] = 'entregado'; break;
-                    case 4: $data['estado'] = 'cancelado'; break;
-                    default: $data['estado'] = 'pendiente';
-                }
                 return ['status' => true, 'msj' => 'Entrega encontrada con éxito.', 'data' => $data];
             } else {
                 return ['status' => false, 'msj' => 'Entrega no encontrada.'];
             }
         } catch (PDOException $e) {
+            error_log('Error en Obtener_Entrega: ' . $e->getMessage());
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
@@ -360,18 +431,12 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
+            $conn->beginTransaction();
             
-            // Determinar id_estado_entrega
-            $estado_id = 1;
-            switch($this->getEntregaEstado()) {
-                case 'pendiente': $estado_id = 1; break;
-                case 'en_ruta': $estado_id = 2; break;
-                case 'entregado': $estado_id = 3; break;
-                case 'cancelado': $estado_id = 4; break;
-            }
+            $estado_id = $this->getEstadoIdByName($this->getEntregaEstado());
             
-            // Obtener datos actuales antes de actualizar
-            $query_select = "SELECT * FROM entregas WHERE id_entregas = :id";
+            // Obtener datos actuales antes de actualizar para la bitácora
+            $query_select = "SELECT * FROM entregas WHERE id_entregas = :id AND status = 1";
             $stmt_select = $conn->prepare($query_select);
             $stmt_select->bindValue(':id', $this->getEntregaID());
             $stmt_select->execute();
@@ -381,23 +446,40 @@ class Entrega extends Conexion {
                       SET id_pedido = :pedido_id,
                           id_clientes = :cliente_id,
                           direccion_entrega = :direccion,
+                          telefono_contacto = :telefono,
                           fecha_entrega_programada = :fecha_programada,
+                          repartidor = :repartidor,
+                          observaciones = :observaciones,
                           id_estado_entrega = :estado_id
-                      WHERE id_entregas = :id";
+                      WHERE id_entregas = :id AND status = 1";
             $stmt = $conn->prepare($query);
             $stmt->bindValue(':id', $this->getEntregaID());
-            $stmt->bindValue(':pedido_id', $this->getEntregaPedidoID() ?: null);
+            $stmt->bindValue(':pedido_id', $this->getEntregaPedidoID());
             $stmt->bindValue(':cliente_id', $this->getEntregaClienteID());
             $stmt->bindValue(':direccion', $this->getEntregaDireccion());
+            $stmt->bindValue(':telefono', $this->getEntregaTelefono());
             $stmt->bindValue(':fecha_programada', $this->getEntregaFechaProgramada());
+            $stmt->bindValue(':repartidor', $this->getEntregaRepartidor());
+            $stmt->bindValue(':observaciones', $this->getEntregaObservaciones());
             $stmt->bindValue(':estado_id', $estado_id);
 
             if ($stmt->execute()) {
+                // Si el estado es "entregado" y hay pedido asociado, actualizar estado del pedido
+                if ($this->getEntregaEstado() === 'entregado' && $this->getEntregaPedidoID()) {
+                    $this->actualizarEstadoPedido($this->getEntregaPedidoID(), 5);
+                } elseif ($this->getEntregaEstado() === 'en_ruta' && $this->getEntregaPedidoID()) {
+                    $this->actualizarEstadoPedido($this->getEntregaPedidoID(), 3);
+                }
+                
+                $conn->commit();
                 return ['status' => true, 'msj' => 'Entrega actualizada con éxito.', 'data_bitacora' => $datos_anteriores];
             } else {
+                $conn->rollBack();
                 return ['status' => false, 'msj' => 'Error al actualizar la entrega.'];
             }
         } catch (PDOException $e) {
+            $conn->rollBack();
+            error_log('Error en Actualizar_Entrega: ' . $e->getMessage());
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
@@ -409,6 +491,7 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
+            $conn->beginTransaction();
             
             // Obtener datos actuales antes de eliminar
             $query_select = "SELECT * FROM entregas WHERE id_entregas = :id AND status = 1";
@@ -422,11 +505,15 @@ class Entrega extends Conexion {
             $stmt->bindValue(':id', $this->getEntregaID());
 
             if ($stmt->execute()) {
+                $conn->commit();
                 return ['status' => true, 'msj' => 'Entrega eliminada con éxito.', 'data_bitacora' => $datos_anteriores];
             } else {
+                $conn->rollBack();
                 return ['status' => false, 'msj' => 'Error al eliminar la entrega.'];
             }
         } catch (PDOException $e) {
+            $conn->rollBack();
+            error_log('Error en Eliminar_Entrega: ' . $e->getMessage());
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
@@ -438,22 +525,40 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
+            $conn->beginTransaction();
+            
             $fecha_entrega = date('Y-m-d H:i:s');
+            
+            // Obtener el pedido asociado a la entrega
+            $query_pedido = "SELECT id_pedido FROM entregas WHERE id_entregas = :id AND status = 1";
+            $stmt_pedido = $conn->prepare($query_pedido);
+            $stmt_pedido->bindValue(':id', $this->getEntregaID());
+            $stmt_pedido->execute();
+            $pedido_data = $stmt_pedido->fetch(PDO::FETCH_ASSOC);
+            $pedido_id = $pedido_data['id_pedido'] ?? null;
             
             $query = "UPDATE entregas 
                       SET id_estado_entrega = 3,
                           fecha_entrega_real = :fecha_entrega
-                      WHERE id_entregas = :id";
+                      WHERE id_entregas = :id AND status = 1";
             $stmt = $conn->prepare($query);
             $stmt->bindValue(':id', $this->getEntregaID());
             $stmt->bindValue(':fecha_entrega', $fecha_entrega);
 
             if ($stmt->execute()) {
+                // Actualizar estado del pedido a "Entregado" (5)
+                if ($pedido_id) {
+                    $this->actualizarEstadoPedido($pedido_id, 5);
+                }
+                $conn->commit();
                 return ['status' => true, 'msj' => 'Entrega confirmada con éxito.', 'fecha_entrega' => $fecha_entrega];
             } else {
+                $conn->rollBack();
                 return ['status' => false, 'msj' => 'Error al confirmar la entrega.'];
             }
         } catch (PDOException $e) {
+            $conn->rollBack();
+            error_log('Error en Confirmar_Entrega: ' . $e->getMessage());
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
@@ -465,22 +570,23 @@ class Entrega extends Conexion {
         $this->closeConnection();
         try {
             $conn = $this->getConnectionNegocio();
+            $conn->beginTransaction();
             
-            // Mapear nuevo estado a id_estado_entrega
-            $estado_id = 1;
-            switch($nuevo_estado) {
-                case 'pendiente': $estado_id = 1; break;
-                case 'en_ruta': $estado_id = 2; break;
-                case 'entregado': $estado_id = 3; break;
-                case 'cancelado': $estado_id = 4; break;
-                default: $estado_id = 1;
-            }
+            $estado_id = $this->getEstadoIdByName($nuevo_estado);
+            
+            // Obtener el pedido asociado a la entrega
+            $query_pedido = "SELECT id_pedido FROM entregas WHERE id_entregas = :id AND status = 1";
+            $stmt_pedido = $conn->prepare($query_pedido);
+            $stmt_pedido->bindValue(':id', $this->getEntregaID());
+            $stmt_pedido->execute();
+            $pedido_data = $stmt_pedido->fetch(PDO::FETCH_ASSOC);
+            $pedido_id = $pedido_data['id_pedido'] ?? null;
             
             $query = "UPDATE entregas SET id_estado_entrega = :estado_id";
             if ($nuevo_estado === 'entregado') {
                 $query .= ", fecha_entrega_real = :fecha_entrega";
             }
-            $query .= " WHERE id_entregas = :id";
+            $query .= " WHERE id_entregas = :id AND status = 1";
             
             $stmt = $conn->prepare($query);
             $stmt->bindValue(':id', $this->getEntregaID());
@@ -491,14 +597,47 @@ class Entrega extends Conexion {
             }
 
             if ($stmt->execute()) {
+                // Actualizar estado del pedido según corresponda
+                if ($pedido_id) {
+                    switch($nuevo_estado) {
+                        case 'entregado':
+                            $this->actualizarEstadoPedido($pedido_id, 5); // 5 = Entregado
+                            break;
+                        case 'en_ruta':
+                            $this->actualizarEstadoPedido($pedido_id, 3); // 3 = Por Enviar/En Ruta
+                            break;
+                        case 'cancelado':
+                            $this->actualizarEstadoPedido($pedido_id, 1); // 1 = Pendiente
+                            break;
+                    }
+                }
+                $conn->commit();
                 return ['status' => true, 'msj' => 'Estado de entrega actualizado a: ' . $nuevo_estado];
             } else {
+                $conn->rollBack();
                 return ['status' => false, 'msj' => 'Error al cambiar el estado de la entrega.'];
             }
         } catch (PDOException $e) {
+            $conn->rollBack();
+            error_log('Error en CambiarEstado_Entrega: ' . $e->getMessage());
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
             $this->closeConnection();
+        }
+    }
+
+    // Función auxiliar para actualizar estado del pedido
+    private function actualizarEstadoPedido($pedido_id, $estado_pedido_id) {
+        try {
+            $conn = $this->getConnectionNegocio();
+            $query = "UPDATE pedidos SET id_estado_pedido = :estado_pedido WHERE id_pedido = :pedido_id";
+            $stmt = $conn->prepare($query);
+            $stmt->bindValue(':estado_pedido', $estado_pedido_id);
+            $stmt->bindValue(':pedido_id', $pedido_id);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log('Error al actualizar estado del pedido: ' . $e->getMessage());
+            return false;
         }
     }
 }
