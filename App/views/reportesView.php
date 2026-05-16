@@ -247,37 +247,57 @@
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Filtrar por Mes</label>
-                                                        <select name="mes" class="form-select">
-                                                            <option value="">Todos los meses</option>
-                                                            <option value="1">Enero</option>
-                                                            <option value="2">Febrero</option>
-                                                            <option value="3">Marzo</option>
-                                                            <option value="4">Abril</option>
-                                                            <option value="5">Mayo</option>
-                                                            <option value="6">Junio</option>
-                                                            <option value="7">Julio</option>
-                                                            <option value="8">Agosto</option>
-                                                            <option value="9">Septiembre</option>
-                                                            <option value="10">Octubre</option>
-                                                            <option value="11">Noviembre</option>
-                                                            <option value="12">Diciembre</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
                                                         <label class="form-label fw-bold">Tipo de Cliente</label>
                                                         <select name="tipo_cliente" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="natural">Natural</option>
-                                                            <option value="juridico">Juridico</option>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <?php
+                                                                if (isset($tipos) && is_array($tipos) && !empty($tipos)) {
+                                                                    foreach ($tipos as $tipo) {
+                                                                        echo '<option value="' . $tipo['id_tipo_cliente'] . '">'
+                                                                            . $tipo['nombre_tipo_cliente'] . '</option>';
+                                                                    }
+                                                                }
+                                                            ?>
                                                         </select>
                                                     </div>
                                                     <div class="mb-2">
                                                         <label class="form-label fw-bold">Estado</label>
                                                         <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="activo">Activo</option>
-                                                            <option value="inactivo">Inactivo</option>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="Activo">Activo</option>
+                                                            <option value="Pendiente">Pendiente</option>
+                                                            <option value="Anulado">Anulado</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-generate w-100">
+                                                    <i class="fas fa-file-pdf me-2"></i>Generar PDF
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tipos Clientes -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="card report-card h-100">
+                                        <div class="card-header">
+                                            <h5 class="mb-0"><i class="fa fa-users me-2"></i>Tipo Clientes</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportes">
+                                                <input type="hidden" name="action" value="pdf">
+                                                <input type="hidden" name="tipo" value="tipo_clientes">
+                                                
+                                                <div class="filter-section">
+                                                    <div class="mb-2">
+                                                        <label class="form-label fw-bold">Dias Credito</label>
+                                                        <select name="dias" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="7">7</option>
+                                                            <option value="15">15</option>
+                                                            <option value="30">30</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -305,69 +325,23 @@
                                                     <div class="mb-2">
                                                         <label class="form-label fw-bold">Categoria</label>
                                                         <select name="categoria" class="form-select">
-                                                            <option value="todas">Todas</option>
-                                                            <option value="galletas">Galletas</option>
-                                                            <option value="postres">Postres</option>
-                                                            <option value="panaderia">Panaderia</option>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <?php
+                                                                if (isset($categorias) && is_array($categorias) && !empty($categorias)) {
+                                                                    foreach ($categorias as $categoria) {
+                                                                        echo '<option value="' . $categoria['id_categoria'] . '">'
+                                                                            . $categoria['nombre_categoria'] . '</option>';
+                                                                    }
+                                                                }
+                                                            ?>
                                                         </select>
                                                     </div>
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Stock</label>
-                                                        <select name="stock" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="disponible">Con Stock</option>
+                                                        <label class="form-label fw-bold">Filtrar por:</label>
+                                                        <select name="filtro" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="vencido">Vencidos</option>
                                                             <option value="bajo">Stock Bajo</option>
-                                                            <option value="agotado">Agotado</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Rango de Precio</label>
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <input type="number" name="precio_min" class="form-control" placeholder="Min">
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <input type="number" name="precio_max" class="form-control" placeholder="Max">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-generate w-100">
-                                                    <i class="fas fa-file-pdf me-2"></i>Generar PDF
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Usuarios -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="card report-card h-100">
-                                        <div class="card-header">
-                                            <h5 class="mb-0"><i class="fa fa-users-cog me-2"></i>Usuarios</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
-                                                <input type="hidden" name="action" value="pdf">
-                                                <input type="hidden" name="tipo" value="usuarios">
-                                                
-                                                <div class="filter-section">
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Rol</label>
-                                                        <select name="rol" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="admin">Administrador</option>
-                                                            <option value="vendedor">Vendedor</option>
-                                                            <option value="cajero">Cajero</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Estado</label>
-                                                        <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="activo">Activo</option>
-                                                            <option value="inactivo">Inactivo</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -393,72 +367,10 @@
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Estado</label>
-                                                        <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="activo">Activo</option>
-                                                            <option value="inactivo">Inactivo</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
                                                         <label class="form-label fw-bold">Ordenar por</label>
                                                         <select name="orden" class="form-select">
-                                                            <option value="nombre">Nombre</option>
+                                                            <option value="">Seleccione una opcion</option>
                                                             <option value="productos">Cantidad de Productos</option>
-                                                            <option value="fecha">Fecha de Creacion</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-generate w-100">
-                                                    <i class="fas fa-file-pdf me-2"></i>Generar PDF
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. ADMINISTRACION - INVENTARIO Y PROVEEDORES -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInventario">
-                            <i class="fa fa-warehouse"></i> Inventario & Proveedores
-                        </button>
-                    </h2>
-                    <div id="collapseInventario" class="accordion-collapse collapse" data-bs-parent="#accordionReportes">
-                        <div class="accordion-body">
-                            <div class="row">
-                                <!-- Inventario -->
-                                <div class="col-md-4 mb-3">
-                                    <div class="card report-card h-100">
-                                        <div class="card-header "
-                                            <h5 class="mb-0"><i class="fa fa-warehouse me-2"></i>Inventario</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
-                                                <input type="hidden" name="action" value="pdf">
-                                                <input type="hidden" name="tipo" value="inventario">
-                                                
-                                                <div class="filter-section">
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Tipo de Movimiento</label>
-                                                        <select name="movimiento" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="entradas">Entradas</option>
-                                                            <option value="salidas">Salidas</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Periodo</label>
-                                                        <select name="periodo" class="form-select">
-                                                            <option value="hoy">Hoy</option>
-                                                            <option value="semana">Esta Semana</option>
-                                                            <option value="mes">Este Mes</option>
-                                                            <option value="anio">Este Año</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -471,7 +383,7 @@
                                 </div>
 
                                 <!-- Materia Prima -->
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <div class="card report-card h-100">
                                         <div class="card-header "
                                             <h5 class="mb-0"><i class="fa fa-industry me-2"></i>Materia Prima</h5>
@@ -484,22 +396,10 @@
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Tipo de Material</label>
-                                                        <select name="tipo" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="harina">Harina</option>
-                                                            <option value="azucar">Azucar</option>
-                                                            <option value="mantequilla">Mantequilla</option>
-                                                            <option value="huevos">Huevos</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
                                                         <label class="form-label fw-bold">Nivel de Stock</label>
-                                                        <select name="stock" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="suficiente">Suficiente</option>
+                                                        <select name="filtro" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
                                                             <option value="bajo">Bajo</option>
-                                                            <option value="critico">Critico</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -511,8 +411,34 @@
                                     </div>
                                 </div>
 
+                                <!-- Produccion -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="card report-card h-100">
+                                        <div class="card-header "
+                                            <h5 class="mb-0"><i class="fa fa-warehouse me-2"></i>Produccion</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportes">
+                                                <input type="hidden" name="action" value="pdf">
+                                                <input type="hidden" name="tipo" value="produccion">
+                                                
+                                                <div class="filter-section">
+                                                    <div class="mb-2">
+                                                        <label class="form-label fw-bold">Fecha</label>
+                                                          <input class="form-control" type="date" name="fecha">
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-generate w-100">
+                                                    <i class="fas fa-file-pdf me-2"></i>Generar PDF
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Proveedores -->
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-6 mb-3">
                                     <div class="card report-card h-100">
                                         <div class="card-header "
                                             <h5 class="mb-0"><i class="fa fa-truck me-2"></i>Proveedores</h5>
@@ -525,20 +451,10 @@
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Tipo de Proveedor</label>
-                                                        <select name="tipo" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="materia_prima">Materia Prima</option>
-                                                            <option value="insumos">Insumos</option>
-                                                            <option value="servicios">Servicios</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Estado</label>
-                                                        <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="activo">Activo</option>
-                                                            <option value="inactivo">Inactivo</option>
+                                                        <label class="form-label fw-bold">Filtar por:</label>
+                                                        <select name="filtro" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="materia">Materia Prima</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -549,6 +465,43 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Usuarios -->
+                                <div class="col-md-6 mb-3">
+                                    <div class="card report-card h-100">
+                                        <div class="card-header">
+                                            <h5 class="mb-0"><i class="fa fa-users-cog me-2"></i>Usuarios</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportes">
+                                                <input type="hidden" name="action" value="pdf">
+                                                <input type="hidden" name="tipo" value="usuarios">
+                                                
+                                                <div class="filter-section">
+                                                    <div class="mb-2">
+                                                        <label class="form-label fw-bold">Rol</label>
+                                                        <select name="filtro" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <?php
+                                                                if (isset($roles) && is_array($roles) && !empty($roles)) {
+                                                                    foreach ($roles as $rol) {
+                                                                        echo '<option value="' . $rol['id_rol'] . '">'
+                                                                            . $rol['nombre_rol'] . '</option>';
+                                                                    }
+                                                                }
+                                                            ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-generate w-100">
+                                                    <i class="fas fa-file-pdf me-2"></i>Generar PDF
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -578,36 +531,28 @@
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Mes</label>
-                                                        <select name="mes" class="form-select">
-                                                            <option value="">Todos los meses</option>
-                                                            <option value="1">Enero</option>
-                                                            <option value="2">Febrero</option>
-                                                            <option value="3">Marzo</option>
-                                                            <option value="4">Abril</option>
-                                                            <option value="5">Mayo</option>
-                                                            <option value="6">Junio</option>
-                                                            <option value="7">Julio</option>
-                                                            <option value="8">Agosto</option>
-                                                            <option value="9">Septiembre</option>
-                                                            <option value="10">Octubre</option>
-                                                            <option value="11">Noviembre</option>
-                                                            <option value="12">Diciembre</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
                                                         <label class="form-label fw-bold">Estado</label>
                                                         <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="pendiente">Pendiente</option>
-                                                            <option value="procesando">Procesando</option>
-                                                            <option value="completado">Completado</option>
-                                                            <option value="cancelado">Cancelado</option>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <?php
+                                                                if (isset($estadoPedido) && is_array($estadoPedido) && !empty($estadoPedido)) {
+                                                                    foreach ($estadoPedido as $estado) {
+                                                                        echo '<option value="' . $estado['id_estado_pedido'] . '">'
+                                                                            . $estado['nombre_estado'] . '</option>';
+                                                                    }
+                                                                }
+                                                            ?>
                                                         </select>
                                                     </div>
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Cliente</label>
-                                                        <input type="text" name="cliente" class="form-control" placeholder="Nombre del cliente">
+                                                        <label class="form-label fw-bold">Filtar por:</label>
+                                                        <select name="filtro" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="clienteMas">Cliente con mas pedidos</option>
+                                                            <option value="clienteMenos">Cliente con menos pedidos</option>
+                                                            <option value="conPromo">Con promociones</option>
+                                                            <option value="sinPromo">Sin promociones</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <button type="submit" class="btn btn-generate w-100">
@@ -634,18 +579,16 @@
                                                     <div class="mb-2">
                                                         <label class="form-label fw-bold">Estado</label>
                                                         <select name="estado" class="form-select">
-                                                            <option value="todos">Todas</option>
-                                                            <option value="activas">Activas</option>
-                                                            <option value="vencidas">Vencidas</option>
-                                                            <option value="proximas">Proximas</option>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="1">Activa</option>
+                                                            <option value="0">Inactiva</option>
                                                         </select>
                                                     </div>
                                                     <div class="mb-2">
                                                         <label class="form-label fw-bold">Tipo de Descuento</label>
-                                                        <select name="descuento" class="form-select">
-                                                            <option value="todos">Todos</option>
+                                                        <select name="filtro" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
                                                             <option value="porcentaje">Por Porcentaje</option>
-                                                            <option value="monto">Por Monto</option>
                                                             <option value="2x1">2x1</option>
                                                         </select>
                                                     </div>
@@ -672,25 +615,17 @@
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Proveedor</label>
-                                                        <input type="text" name="proveedor" class="form-control" placeholder="Nombre del proveedor">
-                                                    </div>
-                                                    <div class="mb-2">
                                                         <label class="form-label fw-bold">Estado</label>
                                                         <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="pendiente">Pendiente</option>
-                                                            <option value="recibido">Recibido</option>
-                                                            <option value="parcial">Parcial</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Mes</label>
-                                                        <select name="mes" class="form-select">
-                                                            <option value="">Todos</option>
-                                                            <?php for($i=1; $i<=12; $i++): ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo date('F', mktime(0,0,0,$i,1)); ?></option>
-                                                            <?php endfor; ?>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <<?php
+                                                                if (isset($estadoPago) && is_array($estadoPago) && !empty($estadoPago)) {
+                                                                    foreach ($estadoPago as $estado) {
+                                                                        echo '<option value="' . $estado['id_estado_pago'] . '">'
+                                                                            . $estado['nombre_estado'] . '</option>';
+                                                                    }
+                                                                }
+                                                            ?>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -716,52 +651,9 @@
                     <div id="collapseFinanzas" class="accordion-collapse collapse" data-bs-parent="#accordionReportes">
                         <div class="accordion-body">
                             <div class="row">
-                                <!-- Cobros -->
-                                <div class="col-md-3 mb-3">
-                                    <div class="card report-card h-100">
-                                        <div class="card-header">
-                                            <h5 class="mb-0"><i class="fa fa-hand-holding-usd me-2"></i>Cobros</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
-                                                <input type="hidden" name="action" value="pdf">
-                                                <input type="hidden" name="tipo" value="cobros">
-                                                
-                                                <div class="filter-section">
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Mes</label>
-                                                        <select name="mes" class="form-select">
-                                                            <option value="">Todos</option>
-                                                            <?php for($i=1; $i<=12; $i++): ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo date('F', mktime(0,0,0,$i,1)); ?></option>
-                                                            <?php endfor; ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Estado</label>
-                                                        <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="pendiente">Pendiente</option>
-                                                            <option value="pagado">Pagado</option>
-                                                            <option value="vencido">Vencido</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Cliente</label>
-                                                        <input type="text" name="cliente" class="form-control" placeholder="Nombre">
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-generate w-100">
-                                                    <i class="fas fa-file-pdf me-2"></i>PDF
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <!-- Pagos -->
-                                <div class="col-md-3 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <div class="card report-card h-100">
                                         <div class="card-header">
                                             <h5 class="mb-0"><i class="fa fa-money-bill-wave me-2"></i>Pagos</h5>
@@ -773,27 +665,6 @@
                                                 <input type="hidden" name="tipo" value="pagos">
                                                 
                                                 <div class="filter-section">
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Mes</label>
-                                                        <select name="mes" class="form-select">
-                                                            <option value="">Todos</option>
-                                                            <?php for($i=1; $i<=12; $i++): ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo date('F', mktime(0,0,0,$i,1)); ?></option>
-                                                            <?php endfor; ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Estado</label>
-                                                        <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="pendiente">Pendiente</option>
-                                                            <option value="pagado">Pagado</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Proveedor</label>
-                                                        <input type="text" name="proveedor" class="form-control" placeholder="Nombre">
-                                                    </div>
                                                 </div>
                                                 <button type="submit" class="btn btn-generate w-100">
                                                     <i class="fas fa-file-pdf me-2"></i>PDF
@@ -803,47 +674,26 @@
                                     </div>
                                 </div>
 
-                                <!-- Facturas -->
-                                <div class="col-md-3 mb-3">
+                                <!-- Cobros -->
+                                <div class="col-md-4 mb-3">
                                     <div class="card report-card h-100">
                                         <div class="card-header">
-                                            <h5 class="mb-0"><i class="fa fa-file-invoice me-2"></i>Facturas</h5>
+                                            <h5 class="mb-0"><i class="fa fa-hand-holding-usd me-2"></i>Cobrar</h5>
                                         </div>
                                         <div class="card-body">
                                             <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
                                                 <input type="hidden" name="url" value="reportes">
                                                 <input type="hidden" name="action" value="pdf">
-                                                <input type="hidden" name="tipo" value="facturas">
+                                                <input type="hidden" name="tipo" value="cobrar">
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Mes</label>
-                                                        <select name="mes" class="form-select">
-                                                            <option value="">Todos</option>
-                                                            <?php for($i=1; $i<=12; $i++): ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo date('F', mktime(0,0,0,$i,1)); ?></option>
-                                                            <?php endfor; ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
                                                         <label class="form-label fw-bold">Estado</label>
                                                         <select name="estado" class="form-select">
-                                                            <option value="todos">Todas</option>
-                                                            <option value="emitida">Emitida</option>
-                                                            <option value="pagada">Pagada</option>
-                                                            <option value="anulada">Anulada</option>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="Pagado">Pagado</option>
+                                                            <option value="Por Pagar">Por Pagar</option>
                                                         </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Rango Monto</label>
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <input type="number" name="monto_min" class="form-control" placeholder="Min">
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <input type="number" name="monto_max" class="form-control" placeholder="Max">
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                                                 <button type="submit" class="btn btn-generate w-100">
@@ -854,42 +704,28 @@
                                     </div>
                                 </div>
 
-                                <!-- Estado de Cuenta -->
-                                <div class="col-md-3 mb-3">
+                                
+
+                                <!-- Pagar -->
+                                <div class="col-md-4 mb-3">
                                     <div class="card report-card h-100">
-                                        <div class="card-header "
-                                            <h5 class="mb-0"><i class="fa fa-chart-pie me-2"></i>Estado de Cuenta</h5>
+                                        <div class="card-header">
+                                            <h5 class="mb-0"><i class="fa fa-money-bill-wave me-2"></i>Pagar</h5>
                                         </div>
                                         <div class="card-body">
                                             <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
                                                 <input type="hidden" name="url" value="reportes">
                                                 <input type="hidden" name="action" value="pdf">
-                                                <input type="hidden" name="tipo" value="estado_cuenta">
+                                                <input type="hidden" name="tipo" value="pagar">
                                                 
                                                 <div class="filter-section">
                                                     <div class="mb-2">
-                                                        <label class="form-label fw-bold">Periodo</label>
-                                                        <select name="periodo" class="form-select">
-                                                            <option value="mensual">Mensual</option>
-                                                            <option value="trimestral">Trimestral</option>
-                                                            <option value="semestral">Semestral</option>
-                                                            <option value="anual">Anual</option>
+                                                        <label class="form-label fw-bold">Estado</label>
+                                                        <select name="estado" class="form-select">
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <option value="Pagado">Pagadas</option>
+                                                            <option value="Por Pagar">Por Pagar</option>
                                                         </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Mes/Año</label>
-                                                        <input type="month" name="mes_anio" class="form-control">
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Incluir</label>
-                                                        <div class="form-check">
-                                                            <input type="checkbox" name="incluir_cobros" class="form-check-input" checked>
-                                                            <label class="form-check-label">Cobros</label>
-                                                        </div>
-                                                        <div class="form-check">
-                                                            <input type="checkbox" name="incluir_pagos" class="form-check-input" checked>
-                                                            <label class="form-check-label">Pagos</label>
-                                                        </div>
                                                     </div>
                                                 </div>
                                                 <button type="submit" class="btn btn-generate w-100">
@@ -899,6 +735,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                
                             </div>
                         </div>
                     </div>
@@ -929,37 +767,22 @@
                                                 <div class="filter-section">
                                                     <div class="row">
                                                         <div class="col-md-6 mb-2">
-                                                            <label class="form-label fw-bold">Fecha Desde</label>
-                                                            <input type="date" name="fecha_desde" class="form-control">
-                                                        </div>
-                                                        <div class="col-md-6 mb-2">
-                                                            <label class="form-label fw-bold">Fecha Hasta</label>
-                                                            <input type="date" name="fecha_hasta" class="form-control">
+                                                            <label class="form-label fw-bold">Fecha</label>
+                                                            <input type="date" name="fecha" class="form-control">
                                                         </div>
                                                     </div>
                                                     <div class="mb-2">
                                                         <label class="form-label fw-bold">Estado de Entrega</label>
                                                         <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="pendiente">Pendiente</option>
-                                                            <option value="en_camino">En Camino</option>
-                                                            <option value="entregado">Entregado</option>
-                                                            <option value="devuelto">Devuelto</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Transportista</label>
-                                                        <input type="text" name="transportista" class="form-control" placeholder="Nombre">
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Zona</label>
-                                                        <select name="zona" class="form-select">
-                                                            <option value="todas">Todas</option>
-                                                            <option value="norte">Norte</option>
-                                                            <option value="sur">Sur</option>
-                                                            <option value="este">Este</option>
-                                                            <option value="oeste">Oeste</option>
-                                                            <option value="centro">Centro</option>
+                                                            <option value="">Seleccione una opcion</option>
+                                                            <<?php
+                                                                if (isset($estadoEntrega) && is_array($estadoEntrega) && !empty($estadoEntrega)) {
+                                                                    foreach ($estadoEntrega as $estado) {
+                                                                        echo '<option value="' . $estado['id_estado_entrega'] . '">'
+                                                                            . $estado['nombre_estado'] . '</option>';
+                                                                    }
+                                                                }
+                                                            ?>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -971,59 +794,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Produccion -->
-                                <div class="col-md-6 mb-3">
-                                    <div class="card report-card h-100">
-                                        <div class="card-header "
-                                            <h5 class="mb-0"><i class="fa fa-truck-loading me-2"></i>Produccion</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
-                                                <input type="hidden" name="action" value="pdf">
-                                                <input type="hidden" name="tipo" value="produccion">
-                                                
-                                                <div class="filter-section">
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Mes</label>
-                                                        <select name="mes" class="form-select">
-                                                            <option value="">Todos</option>
-                                                            <?php for($i=1; $i<=12; $i++): ?>
-                                                                <option value="<?php echo $i; ?>"><?php echo date('F', mktime(0,0,0,$i,1)); ?></option>
-                                                            <?php endfor; ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Estado</label>
-                                                        <select name="estado" class="form-select">
-                                                            <option value="todos">Todos</option>
-                                                            <option value="planificado">Planificado</option>
-                                                            <option value="en_proceso">En Proceso</option>
-                                                            <option value="completado">Completado</option>
-                                                            <option value="cancelado">Cancelado</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Producto</label>
-                                                        <input type="text" name="producto" class="form-control" placeholder="Nombre del producto">
-                                                    </div>
-                                                    <div class="mb-2">
-                                                        <label class="form-label fw-bold">Linea de Produccion</label>
-                                                        <select name="linea" class="form-select">
-                                                            <option value="todas">Todas</option>
-                                                            <option value="galletas">Galletas</option>
-                                                            <option value="postres">Postres</option>
-                                                            <option value="panaderia">Panaderia</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-generate w-100">
-                                                    <i class="fas fa-file-pdf me-2"></i>Generar PDF
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -1037,6 +808,7 @@
                     <div class="card shadow border-0" style="border-radius: 12px; overflow: hidden;">
                         <div class="card-header py-3" style="border: none;">
                             <h4 class="card-title mb-0" style="color: white; font-weight: 600;">
+                                <h4>Otros Documentos</h4>
                                 <i class="fa fa-bolt me-2"></i>Exportacion Rapida
                             </h4>
                         </div>

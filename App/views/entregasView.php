@@ -333,8 +333,8 @@ require_once 'components/scripts.php';
               <div class="form-group mb-3">
                 <label for="estadoEntrega" class="form-label"><b>Estado Inicial</b></label>
                 <select class="form-select" id="estadoEntrega" name="estadoEntrega">
-                  <option value="pendiente">🟡 Pendiente</option>
-                  <option value="en_ruta">🔵 En Ruta</option>
+                  <option value="1">🟡 Pendiente</option>
+                  <option value="2">🔵 En Ruta</option>
                 </select>
               </div>
             </div>

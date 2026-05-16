@@ -237,6 +237,22 @@ class Categoria extends Conexion {
             // termina el script
             break;
 
+            case 'consultarPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_CategoriaPDF();
+
+            // termina el script
+            break;
+
+            case 'consultarCategoriaOrdenPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_CategoriaOrdenPDF($categoria_json);
+
+            // termina el script
+            break;
+
             default:
 
                 // retorna un mensaje de error en caso de no existir la accion
@@ -524,6 +540,116 @@ class Categoria extends Conexion {
             $this->closeConnection();
         }
     }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_CategoriaPDF() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta las categorias
+            $query = "SELECT c.id_categoria as Nro,
+                             c.nombre_categoria as Nombre
+                        FROM categorias c
+                        WHERE c.status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Categorias encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Categorias no encontradas o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte que me trae total de producto e una categoria
+    private function Mostrar_CategoriaOrdenPDF($orden) {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta las categorias
+            $query = "SELECT c.id_categoria as Nro,
+                            c.nombre_categoria as Nombre,
+                            COUNT(p.id_producto) as TotalProductos
+                        FROM categorias c
+                        LEFT JOIN productos p ON p.id_categoria = c.id_categoria AND p.status = 1
+                        WHERE c.status = 1
+                        GROUP BY c.id_categoria, c.nombre_categoria"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Categorias encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Categorias no encontradas o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+    
 }
 
 ?>

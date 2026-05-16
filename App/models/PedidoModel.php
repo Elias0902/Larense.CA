@@ -426,6 +426,27 @@ class Pedido extends Conexion {
 
             break;
 
+            case 'consultarPDF':
+
+                // retorna valor de la funcion
+                return $this->Mostrar_PedidoPDF();
+
+            break;
+
+            case 'consultarPedidoEstadoPDF':
+
+                // retorna valor de la funcion
+                return $this->Mostrar_PedidoEstadoPDF($pedido_json);
+
+            break;
+
+            case 'consultarPedidoFiltroPDF':
+
+                // retorna valor de la funcion
+                return $this->Mostrar_PedidoFiltroPDF($pedido_json);
+
+            break;
+
             case 'consultar_estado':
 
                 // retorna valor de la funcion
@@ -1180,6 +1201,299 @@ class Pedido extends Conexion {
         } finally {
 
             //cierra conexion
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_PedidoPDF() {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostrar pedido
+            $query = "SELECT
+                            p.id_pedido as Nro,
+                            c.nombre_cliente as Cliente,
+                            p.fecha_pedido as Fecha,
+                            ep.nombre_estado as Estado,
+                            pg.nombre_estado as Pago,
+                            p.monto_total_pedido as Monto,
+                            p.tlf_contacto as Telefono
+                             FROM pedidos p
+                             LEFT JOIN detalle_pedidos dp ON dp.id_pedido = p.id_pedido
+                             LEFT JOIN productos pr ON dp.id_producto = pr.id_producto
+                             LEFT JOIN estado_pedido ep ON ep.id_estado_pedido = p.id_estado_pedido
+                             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente 
+                             LEFT JOIN promociones pm ON pm.id_promocion = p.id_promocion
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = p.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = p.id_tasa
+                      WHERE p.status = 1
+                      GROUP BY p.id_pedido
+                      ORDER BY p.id_pedido DESC";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            //ejecuta la sentencia
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos en una var
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // msj de exito
+                return ['status' => true, 'msj' => 'Pedidos encontrados con éxito.', 'data' => $data];
+            } else {
+
+                // msj de error
+                return ['status' => false, 'msj' => 'No hay pedidos registrados.'];
+            }
+        } catch (PDOException $e) {
+
+            // msj dinamico de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte de estados de pedidos
+    private function Mostrar_PedidoEstadoPDF($estado) {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostrar pedido
+            $query = "SELECT p.id_pedido as Nro,
+                            c.nombre_cliente as Cliente,
+                            p.fecha_pedido as Fecha,
+                            ep.nombre_estado as Estado,
+                            pg.nombre_estado as Pago,
+                            p.monto_total_pedido as Monto,
+                            p.tlf_contacto as Telefono
+                             FROM pedidos p
+                             LEFT JOIN detalle_pedidos dp ON dp.id_pedido = p.id_pedido
+                             LEFT JOIN productos pr ON dp.id_producto = pr.id_producto
+                             LEFT JOIN estado_pedido ep ON ep.id_estado_pedido = p.id_estado_pedido
+                             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente 
+                             LEFT JOIN promociones pm ON pm.id_promocion = p.id_promocion
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = p.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = p.id_tasa
+                      WHERE p.status = 1 AND p.id_estado_pedido = :estado
+                      GROUP BY p.id_pedido
+                      ORDER BY p.id_pedido DESC";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // vincula los datos
+            $stmt->bindValue(':estado', $estado);
+
+            //ejecuta la sentencia
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos en una var
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // msj de exito
+                return ['status' => true, 'msj' => 'Pedidos encontrados con éxito.', 'data' => $data];
+            } else {
+
+                // msj de error
+                return ['status' => false, 'msj' => 'No hay pedidos registrados.'];
+            }
+        } catch (PDOException $e) {
+
+            // msj dinamico de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte con filtro de pedido
+    private function Mostrar_PedidoFiltroPDF($filtro) {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+
+            //valida el contenido de filtro
+            if($filtro == 'clienteMas'){
+
+                // consulta para mostrar pedido
+                $query = "SELECT p.id_pedido as Nro,
+                            c.nombre_cliente as Cliente,
+                            p.fecha_pedido as Fecha,
+                            ep.nombre_estado as Estado,
+                            pg.nombre_estado as Pago,
+                            p.monto_total_pedido as Monto,
+                            p.tlf_contacto as Telefono,
+                             COUNT(p.id_pedido) AS totalPedido
+                             FROM pedidos p
+                             LEFT JOIN detalle_pedidos dp ON dp.id_pedido = p.id_pedido
+                             LEFT JOIN productos pr ON dp.id_producto = pr.id_producto
+                             LEFT JOIN estado_pedido ep ON ep.id_estado_pedido = p.id_estado_pedido
+                             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente 
+                             LEFT JOIN promociones pm ON pm.id_promocion = p.id_promocion
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = p.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = p.id_tasa
+                      WHERE p.status = 1
+                      GROUP BY c.id_cliente, c.nombre_cliente
+                      ORDER BY totalPedido DESC";
+
+            }
+            elseif($filtro == 'clienteMenos'){
+
+                // consulta para mostrar pedido
+                $query = "SELECT p.id_pedido as Nro,
+                            c.nombre_cliente as Cliente,
+                            p.fecha_pedido as Fecha,
+                            ep.nombre_estado as Estado,
+                            pg.nombre_estado as Pago,
+                            p.monto_total_pedido as Monto,
+                            p.tlf_contacto as Telefono,
+                             COUNT(p.id_pedido) AS totalPedido
+                             FROM pedidos p
+                             LEFT JOIN detalle_pedidos dp ON dp.id_pedido = p.id_pedido
+                             LEFT JOIN productos pr ON dp.id_producto = pr.id_producto
+                             LEFT JOIN estado_pedido ep ON ep.id_estado_pedido = p.id_estado_pedido
+                             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente 
+                             LEFT JOIN promociones pm ON pm.id_promocion = p.id_promocion
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = p.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = p.id_tasa
+                      WHERE p.status = 1
+                      GROUP BY c.id_cliente, c.nombre_cliente
+                      ORDER BY totalPedido ASC";
+
+            }
+            elseif($filtro == 'conPromo'){
+
+                // consulta para mostrar pedido
+                $query = "SELECT p.id_pedido as Nro,
+                            c.nombre_cliente as Cliente,
+                            p.fecha_pedido as Fecha,
+                            ep.nombre_estado as Estado,
+                            pg.nombre_estado as Pago,
+                            p.monto_total_pedido as Monto,
+                            p.tlf_contacto as Telefono,
+                            pm.nombre_promocion as Promocion
+                             FROM pedidos p
+                             LEFT JOIN detalle_pedidos dp ON dp.id_pedido = p.id_pedido
+                             LEFT JOIN productos pr ON dp.id_producto = pr.id_producto
+                             LEFT JOIN estado_pedido ep ON ep.id_estado_pedido = p.id_estado_pedido
+                             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente 
+                             INNER JOIN promociones pm ON pm.id_promocion = p.id_promocion
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = p.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = p.id_tasa
+                      WHERE p.status = 1
+                      GROUP BY p.id_pedido
+                      ORDER BY p.id_pedido DESC";
+
+            }
+            elseif($filtro == 'sinPromo'){
+
+                // consulta para mostrar pedido
+                $query = "SELECT p.id_pedido as Nro,
+                            c.nombre_cliente as Cliente,
+                            p.fecha_pedido as Fecha,
+                            ep.nombre_estado as Estado,
+                            pg.nombre_estado as Pago,
+                            p.monto_total_pedido as Monto,
+                            p.tlf_contacto as Telefono,
+                             COALESCE(pm.nombre_promocion, 'Sin Promoción') as Promocion
+                             FROM pedidos p
+                             LEFT JOIN detalle_pedidos dp ON dp.id_pedido = p.id_pedido
+                             LEFT JOIN productos pr ON dp.id_producto = pr.id_producto
+                             LEFT JOIN estado_pedido ep ON ep.id_estado_pedido = p.id_estado_pedido
+                             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente 
+                             LEFT JOIN promociones pm ON pm.id_promocion = p.id_promocion
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = p.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = p.id_tasa
+                      WHERE p.status = 1 AND p.id_promocion IS NULL
+                      GROUP BY p.id_pedido
+                      ORDER BY p.id_pedido DESC";
+
+            }
+            else{
+
+                // consulta para mostrar pedido
+                $query = "SELECT p.id_pedido as Nro,
+                            c.nombre_cliente as Cliente,
+                            p.fecha_pedido as Fecha,
+                            ep.nombre_estado as Estado,
+                            pg.nombre_estado as Pago,
+                            p.monto_total_pedido as Monto,
+                            p.tlf_contacto as Telefono,
+                             COALESCE(pm.nombre_promocion, 'Sin Promoción') as Promocion
+                             FROM pedidos p
+                             LEFT JOIN detalle_pedidos dp ON dp.id_pedido = p.id_pedido
+                             LEFT JOIN productos pr ON dp.id_producto = pr.id_producto
+                             LEFT JOIN estado_pedido ep ON ep.id_estado_pedido = p.id_estado_pedido
+                             LEFT JOIN clientes c ON c.id_cliente = p.id_cliente 
+                             LEFT JOIN promociones pm ON pm.id_promocion = p.id_promocion
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = p.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = p.id_tasa
+                      WHERE p.status = 1
+                      GROUP BY p.id_pedido
+                      ORDER BY p.id_pedido DESC";
+
+            }
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            //ejecuta la sentencia
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos en una var
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // msj de exito
+                return ['status' => true, 'msj' => 'Pedidos encontrados con éxito.', 'data' => $data];
+            } else {
+
+                // msj de error
+                return ['status' => false, 'msj' => 'No hay pedidos registrados.'];
+            }
+        } catch (PDOException $e) {
+
+            // msj dinamico de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
             $this->closeConnection();
         }
     }

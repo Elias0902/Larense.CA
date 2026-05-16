@@ -196,6 +196,22 @@ class CuentaCobrar extends Conexion {
             // termina el script
             break;
 
+            case 'consultarPDF':
+
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Mostrar_CuentaPDF();
+
+            // termina el script
+            break;
+
+            case 'consultarCuentaEstadoPDF':
+
+                // llama la funcion si todo sale bien y retorna el resultado
+                return $this->Mostrar_CuentaEstadoPDF($cuenta_json);
+
+            // termina el script
+            break;
+
             case 'consultar_metodo':
 
                 // llama la funcion si todo sale bien y retorna el resultado
@@ -477,6 +493,123 @@ class CuentaCobrar extends Conexion {
         } finally {
 
             //cierra conexion
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_CuentaPDF() {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conecion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostrar
+            $query = "SELECT cc.id_cuenta_x_cobrar as Nro, 
+                            CONCAT(c.tipo_id, ' ', c.id_cliente, ' ', c.nombre_cliente) as Nombre,
+                            cc.monto_total as Monto,
+                            cc.saldo_pendiente as Pendiente,
+                            cc.fecha_emision as Inicio,
+                            cc.fecha_vencimiento as Vencimiento,
+                            cc.estado_cuenta as Estado
+                            FROM cuenta_x_cobrar cc
+                            LEFT JOIN clientes c ON cc.id_cliente = c.id_cliente
+                            WHERE cc.status = 1
+                            ORDER BY cc.fecha_vencimiento ASC";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // ejecuta consulta
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna mensaje de exito
+                return ['status' => true, 'msj' => 'Cuentas encontradas con exito.', 'data' => $data];
+            } else {
+
+                //retorna mensaje de error
+                return ['status' => false, 'msj' => 'No hay cuentas por cobrar registradas.'];
+            }
+        } catch (PDOException $e) {
+
+            // retorna mensaje de error con exception
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } 
+        finally {
+
+            // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    // funcion reporte de estado de cuenta pdf
+    private function Mostrar_CuentaEstadoPDF($estado) {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conecion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostrar
+            $query = "SELECT cc.id_cuenta_x_cobrar as Nro, 
+                            CONCAT(c.tipo_id, ' ', c.id_cliente, ' ', c.nombre_cliente) as Nombre,
+                            cc.monto_total as Monto,
+                            cc.saldo_pendiente as Pendiente,
+                            cc.fecha_emision as Inicio,
+                            cc.fecha_vencimiento as Vencimiento,
+                            cc.estado_cuenta as Estado
+                            FROM cuenta_x_cobrar cc
+                            LEFT JOIN clientes c ON cc.id_cliente = c.id_cliente
+                            WHERE cc.status = 1 AND cc.estado_cuenta = :estado
+                            ORDER BY cc.fecha_vencimiento ASC";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            //vincula los datos
+            $stmt->bindValue(':estado', $estado);
+
+            // ejecuta consulta
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna mensaje de exito
+                return ['status' => true, 'msj' => 'Cuentas encontradas con exito.', 'data' => $data];
+            } else {
+
+                //retorna mensaje de error
+                return ['status' => false, 'msj' => 'No hay cuentas por cobrar registradas.'];
+            }
+        } catch (PDOException $e) {
+
+            // retorna mensaje de error con exception
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } 
+        finally {
+
+            // cierra la conexion
             $this->closeConnection();
         }
     }

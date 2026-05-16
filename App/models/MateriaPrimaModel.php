@@ -464,6 +464,22 @@ class MateriaPrima extends Conexion {
             // termina el script
             break;
 
+            case 'consultarPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_MateriaPrimaPDF();
+
+            // termina el script
+            break;
+
+            case 'consultarMateriaPrimaStockPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_MateriaPrimaStockPDF($materia_prima_json);
+
+            // termina el script
+            break;
+
             case 'obtener_Medidas':
 
                 // llama la funcion y retorna los datos
@@ -760,6 +776,124 @@ class MateriaPrima extends Conexion {
 
                 // retiorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Materia prima no eliminada error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_MateriaPrimaPDF() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los productos activos en la base de datos
+            $query = "SELECT m.id_materia_prima as Nro,
+                            m.nombre_materia_prima Nombre,
+                            m.descripcion_materia_prima as Descripcion, 
+                            CONCAT(p.tipo_id, p.id_proveedor, ' ', p.nombre_proveedor) as Proveedor,
+                            u.nombre_medida as Medida,
+                            m.stock_actual as Stock
+                        FROM materia_prima m
+                        INNER JOIN proveedores p ON m.id_proveedor = p.id_proveedor
+                        INNER JOIN unidad_medidas u ON m.id_unidad_medida = u.id_unidad_medida
+                        WHERE m.status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Materia prima encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Materias primas no encontradas o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte de stock
+    private function Mostrar_MateriaPrimaStockPDF($stock) {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los productos activos en la base de datos
+            $query = "SELECT m.id_materia_prima as Nro,
+                            m.nombre_materia_prima Nombre,
+                            m.descripcion_materia_prima as Descripcion, 
+                            CONCAT(p.tipo_id, ' ', p.id_proveedor, ' ', p.nombre_proveedor) as Proveedor,
+                            u.nombre_medida as Medida,
+                            m.stock_actual as Stock
+                        FROM materia_prima m
+                        INNER JOIN proveedores p ON m.id_proveedor = p.id_proveedor
+                        INNER JOIN unidad_medidas u ON m.id_unidad_medida = u.id_unidad_medida
+                        WHERE m.status = 1 AND m.stock_actual < 50"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Materia prima encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Materias primas no encontradas o inactivas'];
             }
 
         } catch (PDOException $e) {

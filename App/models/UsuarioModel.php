@@ -336,6 +336,22 @@ class Usuario extends Conexion {
             // termina el script
             break;
 
+            case 'consultarPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_UsuarioPDF();
+
+            // termina el script
+            break;
+
+            case 'consultarUsuarioRolPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_UsuarioRolPDF($usuario_json);
+
+            // termina el script
+            break;
+
             default:
 
                 // retorna un mensaje de error en caso de no existir la accion
@@ -669,6 +685,121 @@ class Usuario extends Conexion {
 
                 // retiorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Usuario no eliminado error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_UsuarioPDF() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+
+            // consulta las categorias
+            $query = "SELECT u.id_usuario as Nro, 
+                            u.nombre_usuario as Usuario,
+                            u.email_usuario as Email,
+                            r.nombre_rol as Rol
+                        FROM usuarios u
+                        INNER JOIN roles r ON r.id_rol = u.id_rol_usuario
+                        WHERE u.status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Usuarios encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Usuarios no encontrados o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte que me trae usuario por rol
+    private function Mostrar_UsuarioRolPDF($rol) {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionSeguridad();
+
+            // consulta las categorias
+            $query = "SELECT u.id_usuario as Nro, 
+                            u.nombre_usuario as Usuario,
+                            u.email_usuario as Email,
+                            r.nombre_rol as Rol
+                        FROM usuarios u
+                        INNER JOIN roles r ON r.id_rol = u.id_rol_usuario
+                        WHERE u.status = 1 AND id_rol_usuario = :rol"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // vincula os datos
+            $stmt->bindValue(':rol', $rol);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Usuarios encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Usuarios no encontrados o inactivas'];
             }
 
         } catch (PDOException $e) {

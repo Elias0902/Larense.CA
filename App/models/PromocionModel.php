@@ -355,6 +355,27 @@ class Promocion extends Conexion {
 
             break;
 
+            case 'consultarPDF':
+
+                // llama la función para consultar promociones
+                return $this->Mostrar_PromocionPDF();
+
+            break;
+
+            case 'consultarPromocionEstadoPDF':
+
+                // llama la función para consultar promociones
+                return $this->Mostrar_PromocionEstadoPDF($promocion_json);
+
+            break;
+
+            case 'consultarPromocionFiltroPDF':
+
+                // llama la función para consultar promociones
+                return $this->Mostrar_PromocionFiltroPDF($promocion_json);
+
+            break;
+
             case 'obtener_promociones':
 
                 // llama la función para obtener promociones
@@ -779,6 +800,213 @@ class Promocion extends Conexion {
         } finally {
 
             // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_PromocionPDF() {
+
+        //conexion cerrado 
+        $this->closeConnection();
+
+        try {
+
+            // se establrece la conexión
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostras las promociones
+            $query = "SELECT  
+                            id_promocion as Nro,
+                            nombre_promocion as Nombre,
+                            descripcion_promocion as Descripcion,
+                            fecha_inicio as Inicio,
+                            fecha_fin as fin,
+                            tipo_descuento as Tipo,
+                            valor_descuento as Valor
+                            FROM promociones 
+                            WHERE status = 1 
+                            ORDER BY id_promocion DESC";
+
+            // se prepara la consulta
+            $stmt = $conn->prepare($query);
+ 
+            // se ejecuta la consulta
+            $stmt->execute();
+
+            // se verifica si se encontraron promociones
+            if ($stmt->rowCount() > 0) {
+
+                // se almacen en una var las promociones
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna las promociones encontradas
+                return ['status' => true, 'msj' => 'Promociones encontradas con exito.', 'data' => $data];
+            } 
+            else {
+
+                // no se encontraron promociones, retorna mensaje
+                return ['status' => false, 'msj' => 'No hay promociones registradas.'];
+            }
+        } catch (PDOException $e) {
+
+            // en caso de error, retorna mensaje de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } 
+        finally {
+
+            // se cierra la conexión
+            $this->closeConnection();
+        }
+    }
+
+    // funcion reporte de pdf de estado promocion
+    private function Mostrar_PromocionEstadoPDF($estado) {
+
+        //conexion cerrado 
+        $this->closeConnection();
+
+        try {
+
+            // se establrece la conexión
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostras las promociones
+            $query = "SELECT id_promocion as Nro,
+                            nombre_promocion as Nombre,
+                            descripcion_promocion as Descripcion,
+                            fecha_inicio as Inicio,
+                            fecha_fin as fin,
+                            tipo_descuento as Tipo,
+                            valor_descuento as Valor
+                                FROM promociones 
+                                WHERE status = 1 estado = :estado
+                                ORDER BY id_promocion DESC";
+
+            // se prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // vincula los datos
+            $stmt->bindValue('estado', $estado);
+ 
+            // se ejecuta la consulta
+            $stmt->execute();
+
+            // se verifica si se encontraron promociones
+            if ($stmt->rowCount() > 0) {
+
+                // se almacen en una var las promociones
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna las promociones encontradas
+                return ['status' => true, 'msj' => 'Promociones encontradas con exito.', 'data' => $data];
+            } 
+            else {
+
+                // no se encontraron promociones, retorna mensaje
+                return ['status' => false, 'msj' => 'No hay promociones registradas.'];
+            }
+        } catch (PDOException $e) {
+
+            // en caso de error, retorna mensaje de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } 
+        finally {
+
+            // se cierra la conexión
+            $this->closeConnection();
+        }
+    }
+
+    // funcioon de reporte de pdf de promocion cin filtro
+    private function Mostrar_PromocionFiltroPDF($filtro) {
+
+        //conexion cerrado 
+        $this->closeConnection();
+
+        try {
+
+            // se establrece la conexión
+            $conn = $this->getConnectionNegocio();
+
+            // valida contenido de filtro
+            if($filtro == 'porcentaje'){
+
+                // consulta para mostras las promociones
+            $query = "SELECT id_promocion as Nro,
+                            nombre_promocion as Nombre,
+                            descripcion_promocion as Descripcion,
+                            fecha_inicio as Inicio,
+                            fecha_fin as fin,
+                            tipo_descuento as Tipo,
+                            valor_descuento as Valor 
+                                FROM promociones 
+                                WHERE status = 1 AND tipo_descuento = 'porcentaje'
+                                ORDER BY id_promocion DESC";
+
+            }
+            elseif($filtro == '2x1'){
+
+                // consulta para mostras las promociones
+            $query = "SELECT id_promocion as Nro,
+                            nombre_promocion as Nombre,
+                            descripcion_promocion as Descripcion,
+                            fecha_inicio as Inicio,
+                            fecha_fin as fin,
+                            tipo_descuento as Tipo,
+                            valor_descuento as Valor 
+                                FROM promociones 
+                                WHERE status = 1 AND tipo_descuento = '2x1'
+                                ORDER BY id_promocion DESC";
+
+            }
+            else{
+
+                $query = "SELECT id_promocion as Nro,
+                            nombre_promocion as Nombre,
+                            descripcion_promocion as Descripcion,
+                            fecha_inicio as Inicio,
+                            fecha_fin as fin,
+                            tipo_descuento as Tipo,
+                            valor_descuento as Valor 
+                                FROM promociones 
+                                WHERE status = 1 
+                                ORDER BY id_promocion DESC";
+
+            }
+
+            // se prepara la consulta
+            $stmt = $conn->prepare($query);
+ 
+            // se ejecuta la consulta
+            $stmt->execute();
+
+            // se verifica si se encontraron promociones
+            if ($stmt->rowCount() > 0) {
+
+                // se almacen en una var las promociones
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // retorna las promociones encontradas
+                return ['status' => true, 'msj' => 'Promociones encontradas con exito.', 'data' => $data];
+            } 
+            else {
+
+                // no se encontraron promociones, retorna mensaje
+                return ['status' => false, 'msj' => 'No hay promociones registradas.'];
+            }
+        } catch (PDOException $e) {
+
+            // en caso de error, retorna mensaje de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } 
+        finally {
+
+            // se cierra la conexión
             $this->closeConnection();
         }
     }

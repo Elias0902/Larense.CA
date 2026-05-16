@@ -401,6 +401,20 @@ class Compra extends Conexion {
 
             break;
 
+            case 'consultarPDF':
+
+                // retorna valor de la funcion
+                return $this->Mostrar_CompraPDF();
+
+            break;
+
+            case 'consultarCompraEstadoPDF':
+
+                // retorna valor de la funcion
+                return $this->Mostrar_CompraEstadoPDF($compra_json);
+
+            break;
+
             case 'consultar_estado':
 
                 // retorna valor de la funcion
@@ -1064,6 +1078,129 @@ class Compra extends Conexion {
         $this->closeConnection();
     }
 }
+
+//=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+private function Mostrar_CompraPDF() {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostrar compra
+            $query = "SELECT c.id_compra as Nro,
+                            pr.nombre_proveedor as Proveedor,
+                            c.fecha_compra as Fecha,
+                            pg.nombre_estado as Pago,
+                            c.monto_total_compra as Monto,
+                            c.observaciones as Observacion
+                             FROM compras c
+                             LEFT JOIN detalle_compras dc ON dc.id_compra = c.id_compra
+                             LEFT JOIN materia_prima mp ON mp.id_materia_prima = dc.id_materia_prima
+                             LEFT JOIN proveedores pr ON pr.id_proveedor = c.id_proveedor 
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = c.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = c.id_tasa
+                      WHERE c.status = 1
+                      GROUP BY c.id_compra
+                      ORDER BY c.id_compra DESC";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            //ejecuta la sentencia
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos en una var
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // msj de exito
+                return ['status' => true, 'msj' => 'Compras encontrados con éxito.', 'data' => $data];
+            } else {
+
+                // msj de error
+                return ['status' => false, 'msj' => 'No hay Compras registrados.'];
+            }
+        } catch (PDOException $e) {
+
+            // msj dinamico de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte de estado de compras
+    private function Mostrar_CompraEstadoPDF($estado) {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta para mostrar compra
+            $query = "SELECT c.id_compra as Nro,
+                            pr.nombre_proveedor as Proveedor,
+                            c.fecha_compra as Fecha,
+                            pg.nombre_estado as Pago,
+                            c.monto_total_compra as Monto,
+                            c.observaciones as Observacion
+                             FROM compras c
+                             LEFT JOIN detalle_compras dc ON dc.id_compra = c.id_compra
+                             LEFT JOIN materia_prima mp ON mp.id_materia_prima = dc.id_materia_prima
+                             LEFT JOIN proveedores pr ON pr.id_proveedor = c.id_proveedor 
+                             LEFT JOIN estado_pago pg ON pg.id_estado_pago = c.id_estado_pago
+                             LEFT JOIN tasa_dia t ON t.id_tasa = c.id_tasa
+                      WHERE c.status = 1 AND c.id_estado_pago = :estado
+                      GROUP BY c.id_compra
+                      ORDER BY c.id_compra DESC";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // vincula los datos
+            $stmt->bindValue(':estado', $estado);
+
+            //ejecuta la sentencia
+            $stmt->execute();
+
+            // valida si se ejecuto
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos en una var
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // msj de exito
+                return ['status' => true, 'msj' => 'Compras encontrados con éxito.', 'data' => $data];
+            } else {
+
+                // msj de error
+                return ['status' => false, 'msj' => 'No hay Compras registrados.'];
+            }
+        } catch (PDOException $e) {
+
+            // msj dinamico de error
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
+            $this->closeConnection();
+        }
+    }
 
 }
 ?>

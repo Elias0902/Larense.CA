@@ -178,57 +178,17 @@ class Pago extends Conexion {
     // Manejador de acciones
     public function manejarAccion($action, $pago_json) {
         switch($action) {
-            case 'agregar':
-                $validacion = $this->setPagoData($pago_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Guardar_Pago();
-            break;
-
-            case 'obtener':
-                $validacion = $this->setPagoID($pago_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Obtener_Pago();
-            break;
-
-            case 'modificar':
-                $validacion = $this->setPagoData($pago_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Actualizar_Pago();
-            break;
-
-            case 'eliminar':
-                $validacion = $this->setPagoID($pago_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Eliminar_Pago();
-            break;
 
             case 'consultar':
                 return $this->Mostrar_Pago();
             break;
 
-            case 'consultar_por_cliente':
-                $validacion = $this->setPagoID($pago_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                return $this->Mostrar_PagoPorCliente();
+            case 'consultarPDF':
+                return $this->Mostrar_PagoPDF();
             break;
 
-            case 'cambiar_estado':
-                $validacion = $this->setPagoID($pago_json);
-                if (!$validacion['status']) {
-                    return $validacion;
-                }
-                $nuevo_estado = isset($pago_json['nuevo_estado']) ? $pago_json['nuevo_estado'] : null;
-                return $this->CambiarEstado_Pago($nuevo_estado);
+            case 'consultar_estado':
+                return $this->Mostrar_Estado();
             break;
 
             default:
@@ -287,6 +247,135 @@ class Pago extends Conexion {
                             ep.nombre_estado,
                             c.nombre_cliente as nombre,
                             mp.nombre_metodo 
+                      FROM pagos p
+                      LEFT JOIN metodos_pago mp ON mp.id_metodo_pago = p.id_metodo_pago
+                      LEFT JOIN pedidos pd ON pd.id_pedido = p.id_pedido
+                      LEFT JOIN estado_pago ep ON ep.id_estado_pago = pd.id_estado_pago
+                      LEFT JOIN clientes c ON c.id_cliente = pd.id_cliente
+                      ORDER BY p.id_pago DESC";
+
+            // prepara la consulta
+            $stmtCliente = $conn->prepare($queryCliente);
+
+            // ejecuta la consulta
+            $stmtCliente->execute();
+
+            // Confirmar transacción
+            $conn->commit();
+
+            // almacena los datos
+            $dataCliente = $stmtCliente->fetchAll(PDO::FETCH_ASSOC);
+            $dataProveedor = $stmtProveedor->fetchAll(PDO::FETCH_ASSOC);
+
+            //retorna msj de exito
+            return ['status' => true, 'msj' => 'Pagos encontrados con exito.', 'data_cliente' => $dataCliente, 'data_proveedor' => $dataProveedor];
+
+        } catch (PDOException $e) {
+
+            // revierte
+            $conn->rollBack();
+
+            // retorna msj de exito
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra conexion
+            $this->closeConnection();
+        }
+    }
+
+     private function Mostrar_Estado() {
+
+        // conexion serrada
+        $this->closeConnection();
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+            
+            // consulta para estado
+            $query = "SELECT *
+                      FROM estado_pago";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+            
+            //ejecuta la consulta
+            $stmt->execute();
+
+            // valida si se ejecuto la consu;ta
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                // msj de exito
+                return ['status' => true, 'msj' => 'Estado encontrados con exito.', 'data' => $data];
+            } else {
+
+                // msj de error
+                return ['status' => false, 'msj' => 'No hay estado registrados.'];
+            }
+        } catch (PDOException $e) {
+
+            // msj de error dinamico
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_PagoPDF() {
+
+        // conexion cerrada
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+
+            // Iniciar transacción 
+            $conn->beginTransaction();
+
+            // consulta para pagos proveedores
+            $queryProveedor = "SELECT
+                            pp.id_pago_proveedor as Pago,
+                            pp.monto as Monto,
+                            c.id_compra as Nro, 
+                            CONCAT(p.tipo_id, ' ', p.id_proveedor, ' ', p.nombre_proveedor) as Nombre,
+                            ep.nombre_estado as Estado,
+                            mp.nombre_metodo as Metodo
+                      FROM pagos_proveedores pp
+                      LEFT JOIN metodos_pago mp ON mp.id_metodo_pago = pp.id_metodo_pago
+                      LEFT JOIN cuenta_x_pagar cp ON cp.id_cuenta_x_pagar = pp.id_cuenta_x_pagar
+                      LEFT JOIN compras c ON c.id_compra = cp.id_compra
+                      LEFT JOIN estado_pago ep ON ep.id_estado_pago = c.id_estado_pago
+                      LEFT JOIN proveedores p ON p.id_proveedor = cp.id_proveedor
+                      ORDER BY pp.id_pago_proveedor DESC";
+
+            // prepara la consulta
+            $stmtProveedor = $conn->prepare($queryProveedor);
+            
+            // ejecuta la consulta
+            $stmtProveedor->execute();
+
+            // consulta para pagos clientes
+            $queryCliente = "SELECT 
+                            p.id_pago as Pago,
+                            p.monto_pago as Monto,
+                            p.id_pedido as Nro,
+                            CONCAT(c.tipo_id, ' ', c.id_cliente, ' ', c.nombre_cliente) as Nombre,
+                            ep.nombre_estado as Estado,
+                            mp.nombre_metodo as Metodo
                       FROM pagos p
                       LEFT JOIN metodos_pago mp ON mp.id_metodo_pago = p.id_metodo_pago
                       LEFT JOIN pedidos pd ON pd.id_pedido = p.id_pedido

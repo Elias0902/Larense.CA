@@ -77,7 +77,7 @@ class Entrega extends Conexion {
 
         // Validar fecha programada
         $fecha_programada = trim($entrega['fecha_programada'] ?? '');
-        if ($fecha_programada === '' || !preg_match($expre_fecha, $fecha_programada)) {
+        if ($fecha_programada === '') {
             return ['status' => false, 'msj' => 'La fecha programada es requerida.'];
         }
         $this->entrega_fecha_programada = $fecha_programada;
@@ -87,9 +87,8 @@ class Entrega extends Conexion {
         $this->entrega_fecha_entrega = $fecha_entrega ?: null;
 
         // Validar estado
-        $estado = trim($entrega['estado'] ?? 'pendiente');
-        $estados_permitidos = ['pendiente', 'en_ruta', 'entregado', 'cancelado'];
-        if (!in_array($estado, $estados_permitidos)) {
+        $estado = trim($entrega['estado']);
+        if ($estado==='') {
             return ['status' => false, 'msj' => 'El estado de la entrega es inválido. Debe ser: pendiente, en_ruta, entregado o cancelado.'];
         }
         $this->entrega_estado = $estado;
@@ -210,6 +209,22 @@ class Entrega extends Conexion {
 
             case 'consultar':
                 return $this->Mostrar_Entrega();
+            break;
+
+            case 'consultarPDF':
+                return $this->Mostrar_EntregaPDF();
+            break;
+
+            case 'consultarEntregaEstadoPDF':
+                return $this->Mostrar_EntregaEstadoPDF($entrega_json);
+            break;
+
+            case 'consultarEntregaFechaPDF':
+                return $this->Mostrar_EntregaFechaPDF($entrega_json);
+            break;
+
+            case 'consultar_estado':
+                return $this->Mostrar_Estado();
             break;
 
             case 'confirmar_entrega':
@@ -433,6 +448,116 @@ class Entrega extends Conexion {
         }
     }
 
+    private function Mostrar_EntregaPDF() {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            
+            // Consulta corregida con los nombres de columnas correctos
+            $query = "SELECT e.id_entregas as Nro, 
+                             CONCAT(c.tipo_id, ' ', c.id_cliente, ' ', c.nombre_cliente) as Cliente, 
+                             e.direccion_entrega as Direccion, 
+                             e.fecha_entrega_programada as Programada,
+                             e.fecha_entrega_real as Entrega,
+                             ee.nombre_estado as Estado
+                      FROM entregas e
+                      LEFT JOIN clientes c ON e.id_clientes = c.id_cliente
+                      LEFT JOIN estado_entrega ee ON ee.id_estado_entrega = e.id_estado_entrega
+                      WHERE e.status = 1 
+                      ORDER BY e.fecha_entrega_programada ASC";
+            $stmt = $conn->prepare($query);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return ['status' => true, 'msj' => 'Entregas encontradas con exito.', 'data' => $data];
+            } else {
+                return ['status' => false, 'msj' => 'No hay entregas registradas.', 'data' => []];
+            }
+        } catch (PDOException $e) {
+            error_log('Error en consulta entregas: ' . $e->getMessage());
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage(), 'data' => []];
+        } finally {
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_EntregaEstadoPdf($estado) {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            
+            // Consulta corregida con los nombres de columnas correctos
+            $query = "SELECT  e.id_entregas as Nro, 
+                             CONCAT(c.tipo_id, ' ', c.id_cliente, ' ', c.nombre_cliente) as Cliente, 
+                             e.direccion_entrega as Direccion, 
+                             e.fecha_entrega_programada as Programada,
+                             e.fecha_entrega_real as Entrega,
+                             ee.nombre_estado as Estado
+                      FROM entregas e
+                      LEFT JOIN clientes c ON e.id_clientes = c.id_cliente
+                      LEFT JOIN estado_entrega ee ON ee.id_estado_entrega = e.id_estado_entrega
+                      WHERE e.status = 1 AND e.id_estado_entrega = :estado
+                      ORDER BY e.fecha_entrega_programada ASC";
+            $stmt = $conn->prepare($query);
+            $stmt->bindValue(':estado', $estado);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return ['status' => true, 'msj' => 'Entregas encontradas con exito.', 'data' => $data];
+            } else {
+                return ['status' => false, 'msj' => 'No hay entregas registradas.', 'data' => []];
+            }
+        } catch (PDOException $e) {
+            error_log('Error en consulta entregas: ' . $e->getMessage());
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage(), 'data' => []];
+        } finally {
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte pdf de entregas por fecha
+    private function Mostrar_EntregaFechaPDF($fecha) {
+        $this->closeConnection();
+        try {
+            $conn = $this->getConnectionNegocio();
+            
+            // Consulta corregida con los nombres de columnas correctos
+            $query = "SELECT  e.id_entregas as Nro, 
+                             CONCAT(c.tipo_id, ' ', c.id_cliente, ' ', c.nombre_cliente) as Cliente, 
+                             e.direccion_entrega as Direccion, 
+                             e.fecha_entrega_programada as Programada,
+                             e.fecha_entrega_real as Entrega,
+                             ee.nombre_estado as Estado
+                      FROM entregas e
+                      LEFT JOIN clientes c ON e.id_clientes = c.id_cliente
+                      LEFT JOIN estado_entrega ee ON ee.id_estado_entrega = e.id_estado_entrega
+                      WHERE e.status = 1 AND e.fecha_entrega_real = :fecha
+                      ORDER BY e.fecha_entrega_programada ASC";
+            $stmt = $conn->prepare($query);
+            $stmt->bindValue(':fecha', $fecha);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return ['status' => true, 'msj' => 'Entregas encontradas con exito.', 'data' => $data];
+            } else {
+                return ['status' => false, 'msj' => 'No hay entregas registradas.', 'data' => []];
+            }
+        } catch (PDOException $e) {
+            error_log('Error en consulta entregas: ' . $e->getMessage());
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage(), 'data' => []];
+        } finally {
+            $this->closeConnection();
+        }
+    }
+
     // Función para confirmar entrega
     private function Confirmar_Entrega() {
         $this->closeConnection();
@@ -498,6 +623,49 @@ class Entrega extends Conexion {
         } catch (PDOException $e) {
             return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
         } finally {
+            $this->closeConnection();
+        }
+    }
+
+     private function Mostrar_Estado() {
+
+        // conexion serrada
+        $this->closeConnection();
+        try {
+
+            // establece conexion
+            $conn = $this->getConnectionNegocio();
+            
+            // consulta para estado
+            $query = "SELECT *
+                      FROM estado_entrega";
+
+            //prepara la consulta
+            $stmt = $conn->prepare($query);
+            
+            //ejecuta la consulta
+            $stmt->execute();
+
+            // valida si se ejecuto la consu;ta
+            if ($stmt->rowCount() > 0) {
+
+                // se almacena los datos
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                // msj de exito
+                return ['status' => true, 'msj' => 'Estado encontrados con exito.', 'data' => $data];
+            } else {
+
+                // msj de error
+                return ['status' => false, 'msj' => 'No hay estado registrados.'];
+            }
+        } catch (PDOException $e) {
+
+            // msj de error dinamico
+            return ['status' => false, 'msj' => 'Error en la consulta: ' . $e->getMessage()];
+        } finally {
+
+            // cierra la conexion
             $this->closeConnection();
         }
     }

@@ -168,6 +168,7 @@ $pedidos = (isset($pedidos_resultado['status']) && $pedidos_resultado['status'] 
                 'observaciones' => $observaciones,
                 'estado' => $estado
             ]);
+            //print_r($entrega_json);
 
             try {
                 $resultado = $modelo->manejarAccion('agregar', $entrega_json);

@@ -574,6 +574,30 @@ class Producto extends Conexion {
             // termina el script
             break;
 
+            case 'consultarPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_ProductoPDF();
+
+            // termina el script
+            break;
+
+            case 'consultarProductoCategoriaPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_ProductoCategoriaPDF($producto_json);
+
+            // termina el script
+            break;
+
+            case 'consultarProductoFiltroPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_ProductoFiltroPDF($producto_json);
+
+            // termina el script
+            break;
+
             default:
 
                 // retorna un mensaje de error en caso de no existir la accion
@@ -863,6 +887,186 @@ class Producto extends Conexion {
 
                 // retiorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Producto no eliminado error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_ProductoPDF() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los productos activos en la base de datos
+            $query = "SELECT p.*, c.nombre_categoria
+                        FROM productos p
+                        INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                        WHERE p.status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Productos encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'productos no encontradas o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte de productos por categoria
+    private function Mostrar_ProductoCategoriaPDF($categoria) {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los productos activos en la base de datos
+           $query = "SELECT p.*, c.nombre_categoria
+                        FROM productos p
+                        INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                        WHERE p.status = 1 AND  p.id_categoria = :categoria"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // vincula los datos 
+            $stmt->bindValue('categoria', $categoria);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Productos encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'productos no encontradas o inactivas'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcion reporte que me filtra por vencidos y stock bajo
+    private function Mostrar_ProductoFiltroPDF($filtro) {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            //valida que contiene el el var filtro
+            if($filtro == 'bajo'){
+
+                $query = "SELECT p.*, c.nombre_categoria
+                    FROM productos p
+                    INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                    WHERE p.status = 1 AND p.stock <= 50 "; //valida el estado si esta activo
+
+            }
+            elseif($filtro == 'vencido'){
+
+                $query = "SELECT p.*, c.nombre_categoria
+                        FROM productos p
+                        INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                        WHERE p.status = 1 AND p.fecha_vencimiento < CURDATE() "; //valida el estado si esta activo
+
+            }
+            else {
+            
+                // Si no hay filtro válido, definir una consulta por defecto (o mostrar error)
+                $query = "SELECT p.*, c.nombre_categoria
+                        FROM productos p
+                        INNER JOIN categorias c ON p.id_categoria = c.id_categoria
+                        WHERE p.status = 1";
+            }
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Productos encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'productos no encontradas o inactivas'];
             }
 
         } catch (PDOException $e) {

@@ -308,6 +308,22 @@ class Proveedor extends Conexion {
             // termina el script
             break;
 
+            case 'consultarPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_ProveedorPDF();
+
+            // termina el script
+            break;
+
+            case 'consultarProveedorMateriaPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_ProveedorMateriaPDF($proveedor_json);
+
+            // termina el script
+            break;
+
             default:
 
                 // retorna un mensaje de error en caso de no existir la accion
@@ -638,6 +654,121 @@ class Proveedor extends Conexion {
 
                 // retiorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Proveedor no eliminado error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_ProveedorPDF() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los proveedores activos en la base de datos
+            $query = "SELECT 
+                            CONCAT(tipo_id, ' ', id_proveedor, ' ', nombre_proveedor) as Proveedor,
+                            direccion_proveedor as Direccion,
+                            tlf_proveedor as Telefono,
+                            email_proveedor as Email
+                        FROM proveedores
+                        WHERE status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Proveedores encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Proveedores no encontrados o inactivos'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    // funcionde reporte que me cuenta cuantas materias prima iene el proveedor
+    private function Mostrar_ProveedorMateriaPDF($matria) {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los proveedores activos en la base de datos
+            $query = "SELECT 
+                            CONCAT(p.tipo_id, ' ', p.id_proveedor, ' ', p.nombre_proveedor) AS Proveedor,
+                            p.direccion_proveedor AS Direccion,
+                            p.tlf_proveedor AS Telefono,
+                            p.email_proveedor AS Email,
+                            COUNT(m.id_materia_prima) AS TotalMateriasPrimas
+                        FROM proveedores p
+                        LEFT JOIN materia_prima m ON m.id_proveedor = p.id_proveedor AND m.status = 1
+                        WHERE p.status = 1
+                        GROUP BY p.id_proveedor";
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Proveedores encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // retorna un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Proveedores no encontrados o inactivos'];
             }
 
         } catch (PDOException $e) {

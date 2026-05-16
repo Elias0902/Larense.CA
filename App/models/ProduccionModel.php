@@ -407,6 +407,20 @@ class Produccion extends Conexion {
             
             break;
 
+            case 'consultarPDF':
+                
+                // se obtiene la lista de producciones
+                return $this->Mostrar_ProduccionPDF();
+            
+            break;
+
+            case 'consultarProduccionFechaPDF':
+                
+                // se obtiene la lista de producciones
+                return $this->Mostrar_ProduccionFechaPDF($produccion_json);
+            
+            break;
+
             default:
                 
                 // si la accion no es valida, se retorna un error
@@ -1088,6 +1102,129 @@ class Produccion extends Conexion {
         finally {
 
         // se cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_ProduccionPDF() {
+
+        // cierra la conexion por si acaso esta abierta
+        $this->closeConnection();
+        
+        // se obtiene la conexion
+        try {
+
+            // estabece la conexion
+            $conn = $this->getConnectionNegocio();
+            
+            // consulta para obtener las producciones
+            $query = "SELECT p.id_produccion as Nro, 
+                            pr.nombre_producto as Producto,
+                            p.cantidad_producida as Producido,
+                            p.fecha_produccion as Fecha,
+                            p.motivo_produccion as Motivo,
+                            p.observacion as Observacion      
+                        FROM producciones p
+                        INNER JOIN detalle_producciones dp ON p.id_produccion = dp.id_produccion
+                        INNER JOIN productos pr ON p.id_producto = pr.id_producto
+                        INNER JOIN materia_prima m ON dp.id_materia_prima = m.id_materia_prima
+                        WHERE p.status = 1
+                        GROUP BY p.id_produccion, p.id_producto, pr.nombre_producto";
+
+            // se prepara la consulta
+            $stmt = $conn->prepare($query);
+            
+            // se ejecuta la consulta
+            $stmt->execute();
+
+            //valida si encuentra las producciones
+            if ($stmt->rowCount() > 0) {
+
+                // se obtienen los datos de las producciones
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // se retorna el resultado exitoso con los datos
+                return['status' => true, 'msj' => 'Producciones encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                //se retorna un mensaje de error si no encuentra producciones
+                return['status' => false, 'msj' => 'Producciones no encontradas o inactivas'];
+            }
+        } catch (PDOException $e) {
+            
+            // se retorna un mensaje de error si hay un problema con la consulta
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // se cierra la conexion
+            $this->closeConnection();
+        }
+    }
+
+    // funcion de reporte de produccion por fecha
+    private function Mostrar_ProduccionFechaPDF($fecha) {
+
+        // cierra la conexion por si acaso esta abierta
+        $this->closeConnection();
+        
+        // se obtiene la conexion
+        try {
+
+            // estabece la conexion
+            $conn = $this->getConnectionNegocio();
+            
+            // consulta para obtener las producciones
+            $query = "SELECT p.id_produccion as Nro, 
+                            pr.nombre_producto as Producto,
+                            p.cantidad_producida as Producido,
+                            p.fecha_produccion as Fecha,
+                            p.motivo_produccion as Motivo,
+                            p.observacion as Observacion
+                        FROM producciones p
+                        INNER JOIN detalle_producciones dp ON p.id_produccion = dp.id_produccion
+                        INNER JOIN productos pr ON p.id_producto = pr.id_producto
+                        INNER JOIN materia_prima m ON dp.id_materia_prima = m.id_materia_prima
+                        WHERE p.status = 1 AND fecha_produccion = :fecha
+                        GROUP BY p.id_produccion, p.id_producto, pr.nombre_producto";
+
+            // se prepara la consulta
+            $stmt = $conn->prepare($query);
+
+            // vincula datos
+            $stmt->bindValue(':fecha', $fecha);
+            
+            // se ejecuta la consulta
+            $stmt->execute();
+
+            //valida si encuentra las producciones
+            if ($stmt->rowCount() > 0) {
+
+                // se obtienen los datos de las producciones
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // se retorna el resultado exitoso con los datos
+                return['status' => true, 'msj' => 'Producciones encontradas con exito.', 'data' => $data];
+            }
+            else {
+
+                //se retorna un mensaje de error si no encuentra producciones
+                return['status' => false, 'msj' => 'Producciones no encontradas o inactivas'];
+            }
+        } catch (PDOException $e) {
+            
+            // se retorna un mensaje de error si hay un problema con la consulta
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // se cierra la conexion
             $this->closeConnection();
         }
     }

@@ -275,6 +275,22 @@ class TipoCliente extends Conexion {
             // termina el script
             break;
 
+            case 'consultarPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_TipoClientePDF();
+
+            // termina el script
+            break;
+
+            case 'consultarTipoClienteDiasPDF':
+
+                // llama la funcion y retorna los datos
+                return $this->Mostrar_TipoClienteDiasPDF($tipoCliente_json);
+
+            // termina el script
+            break;
+
             case 'obtener_tipos_clientes':
 
                 // llama la funcion y retorna los datos
@@ -606,6 +622,116 @@ class TipoCliente extends Conexion {
 
                 // retiorna un status de error con un mensaje 
                 return['status' => false, 'msj' => 'Tipos de clientes no eliminados error.'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    //=============================
+    // FUNCIONES PARA LOS REPORTES 
+    //=============================
+
+    // duncion para reporte general
+    private function Mostrar_TipoClientePDF() {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los tipos de cliente
+            $query = "SELECT tc.id_tipo_cliente as Nro,
+                             tc.nombre_tipo_cliente as Nombre,
+                             tc.dias_credito as Credito
+                        FROM tipos_clientes tc
+                        WHERE tc.status = 1"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Tipos de cliente encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Tipos de cliente no encontrados o inactivos'];
+            }
+
+        } catch (PDOException $e) {
+            
+            // retorna mensaje de error del exception del pdo
+            return['status' => false, 'msj' => 'Error en la consulta' . $e->getMessage()];
+        }
+        finally {
+
+            // finaliza la fincion cerrando la conexion a la bd
+            $this->closeConnection();
+        }
+    }
+
+    private function Mostrar_TipoClienteDiasPDF($dias) {
+
+        // la conxecion es null por defecto
+        $this->closeConnection();
+
+        // para manejo de errores
+        try {
+            
+            // llamo la funcion y creo la conexion
+            $conn = $this->getConnectionNegocio();
+
+            // consulta los tipos de cliente
+            $query = "SELECT tc.id_tipo_cliente as Nro,
+                             tc.nombre_tipo_cliente as Nombre,
+                             tc.dias_credito as Credito
+                        FROM tipos_clientes tc
+                        WHERE tc.status = 1 AND tc.dias_credito = :dias"; //valida el estado si esta activo
+
+            // prepar la sentencia 
+            $stmt = $conn->prepare($query);
+
+            // vincula los datos 
+            $stmt->bindValue(':dias', $dias);
+
+            // ejecuta la sentencia
+            $stmt->execute(); 
+
+             // se valida si se ejecuto la sentencia y si es true
+            if ($stmt->rowCount() > 0) {
+
+                // almacena los datos extraidos de la base de datos 
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                //retorna el status con el mensaje y los datos
+                return['status' => true, 'msj' => 'Tipos de cliente encontrados con exito.', 'data' => $data];
+            }
+            else {
+
+                // reti=rona un status de error con un mensaje 
+                return['status' => false, 'msj' => 'Tipos de cliente no encontrados o inactivos'];
             }
 
         } catch (PDOException $e) {
