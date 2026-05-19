@@ -18,7 +18,7 @@ class Settings:
 
     # Gemini
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL: str = os.getenv("MODEL_NAME", "gemini-2.0-flash")
+    GEMINI_MODEL: str = os.getenv("MODEL_NAME", "gemini-2.5-flash")
 
     # (Opcional) OpenAI
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
