@@ -231,10 +231,27 @@
           <h4 class="text-section"><i class="fa fa-file-word"></i> Documentos</h4>
         </li>
         <li class="nav-item">
-          <a href="index.php?url=reportes">
-            <i class="fa fa-file-alt"></i>
+          <a data-bs-toggle="collapse" href="#reporte">
+            <i class="fa fa-file-alt" aria-hidden="true"></i>
             <p>Reportes</p>
+            <span class="caret"></span>
           </a>
+          <div class="collapse" id="reporte">
+            <ul class="nav nav-collapse">
+              <li>
+                <a href="index.php?url=reportesPDF">
+                  <i class="fa fa-file-pdf"></i>
+                  <span class="sub-item">Reportes PDF</span>
+                </a>
+              </li>
+              <li>
+                <a href="index.php?url=reportesETD">
+                  <i class="fa fa-chart-bar"></i>
+                  <span class="sub-item">Reportes Estadisticos</span>
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
         <li class="nav-section">
           <span class="sidebar-mini-icon">

@@ -109,3 +109,31 @@
 .status-activo { background: linear-gradient(45deg, #008719, #28a745); }
 .status-pendiente { background: linear-gradient(45deg, #ae7d00, #ffc107); }
 .status-anulado { background: linear-gradient(45deg, #dc3545, #ff0000); }
+
+/* Para que los canvas sean responsivos y respeten el contenedor */
+.canvas-grafico {
+    max-width: 100%;
+    height: auto !important;
+    width: 100% !important;
+}
+
+/* Grid interno para gráficos múltiples */
+.reportes-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.reporte-item {
+    flex: 1 1 300px; /* Mínimo 300px, se expande */
+    min-width: 250px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Para tablas en dispositivos pequeños */
+.table-responsive {
+    overflow-x: auto;
+}

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Reportes - Sistema Larense</title>
+    <title>Reportes PDF - Sistema Larense</title>
     <?php require_once 'components/links.php'; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/stylesModules/reportes.css" />
@@ -24,7 +24,7 @@
                             <i class="fa fa-file-alt" style="color: white; font-size: 26px;"></i>
                         </div>
                         <div>
-                            <h3 class="fw-bold mb-0" style="color: #333;">Generador de Reportes</h3>
+                            <h3 class="fw-bold mb-0" style="color: #333;">Generador de Reportes PDF</h3>
                             <nav aria-label="breadcrumb" class="mt-1">
                                 <ol class="breadcrumb mb-0" style="background: none; padding: 0;">
                                     <li class="breadcrumb-item"><a href="index.php?url=dashboard"><i class="icon-home"></i></a></li>
@@ -55,8 +55,8 @@
                                             <h5 class="mb-0"><i class="fa fa-chart-line me-2"></i>Resumen General del Sistema</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="dashboard">
                                                 
@@ -94,8 +94,8 @@
                                             <h5 class="mb-0"><i class="fa fa-shopping-bag me-2"></i>Reporte Ecommerce</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="ecommerce">
                                                 
@@ -166,8 +166,8 @@
                                             <h5 class="mb-0"><i class="fa fa-bell me-2"></i>Historial de Notificaciones</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportePDFs&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="notificaciones">
                                                 
@@ -240,8 +240,8 @@
                                             <h5 class="mb-0"><i class="fa fa-users me-2"></i>Clientes</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="clientes">
                                                 
@@ -285,8 +285,8 @@
                                             <h5 class="mb-0"><i class="fa fa-users me-2"></i>Tipo Clientes</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="tipo_clientes">
                                                 
@@ -316,8 +316,8 @@
                                             <h5 class="mb-0"><i class="fa fa-box me-2"></i>Productos</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportePDFs&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="productos">
                                                 
@@ -360,8 +360,8 @@
                                             <h5 class="mb-0"><i class="fa fa-tags me-2"></i>Categorias</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="categorias">
                                                 
@@ -389,8 +389,8 @@
                                             <h5 class="mb-0"><i class="fa fa-industry me-2"></i>Materia Prima</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="materia_prima">
                                                 
@@ -418,8 +418,8 @@
                                             <h5 class="mb-0"><i class="fa fa-warehouse me-2"></i>Produccion</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="produccion">
                                                 
@@ -444,8 +444,8 @@
                                             <h5 class="mb-0"><i class="fa fa-truck me-2"></i>Proveedores</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="proveedores">
                                                 
@@ -473,8 +473,8 @@
                                             <h5 class="mb-0"><i class="fa fa-users-cog me-2"></i>Usuarios</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="usuarios">
                                                 
@@ -524,8 +524,8 @@
                                             <h5 class="mb-0"><i class="fa fa-shopping-cart me-2"></i>Pedidos</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="pedidos">
                                                 
@@ -570,8 +570,8 @@
                                             <h5 class="mb-0"><i class="fa fa-percent me-2"></i>Promociones</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="promociones">
                                                 
@@ -608,8 +608,8 @@
                                             <h5 class="mb-0"><i class="fa fa-cart-plus me-2"></i>Compras</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="compras">
                                                 
@@ -659,8 +659,8 @@
                                             <h5 class="mb-0"><i class="fa fa-money-bill-wave me-2"></i>Pagos</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="pagos">
                                                 
@@ -681,8 +681,8 @@
                                             <h5 class="mb-0"><i class="fa fa-hand-holding-usd me-2"></i>Cobrar</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="cobrar">
                                                 
@@ -713,8 +713,8 @@
                                             <h5 class="mb-0"><i class="fa fa-money-bill-wave me-2"></i>Pagar</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="pagar">
                                                 
@@ -759,8 +759,8 @@
                                             <h5 class="mb-0"><i class="fa fa-shipping-fast me-2"></i>Entregas</h5>
                                         </div>
                                         <div class="card-body">
-                                            <form action="index.php?url=reportes&action=pdf" method="GET" target="_blank">
-                                                <input type="hidden" name="url" value="reportes">
+                                            <form action="index.php?url=reportesPDF&action=pdf" method="GET" target="_blank">
+                                                <input type="hidden" name="url" value="reportesPDF">
                                                 <input type="hidden" name="action" value="pdf">
                                                 <input type="hidden" name="tipo" value="entregas">
                                                 
@@ -844,6 +844,5 @@
     </div>
 
     <?php require_once 'components/scripts.php'; ?>
-    <script src="assets/js/animacionesJs/dashboard_reportes.js"></script>
 </body>
 </html>
